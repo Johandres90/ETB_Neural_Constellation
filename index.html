@@ -3115,12 +3115,12 @@
       }
 
       // 2. Gobernanza Legal, Normativa, PQRs & Derechos de Petición (c_gob) - MÁXIMA PRIORIDAD
-      if (/(derecho de peticion|derecho de petición|peticion|petición|pqr|pqrs|reclamo|reclamos|queja|quejas|tutela|radicar|radicacion|radicación|como poner|como radicar|sic|superintendencia|legal|juridic|abogad|ley|norma|contrato|crc|5111|5050|ley 1581|ley 1755|habeas|secop|licitacion|pliego|permanencia|cancelar|dar de baja|terminar contrato|silencio administrativo)/i.test(msgLower)) {
+      if (/(derecho de peticion|derecho de petición|peticion|petición|pqr|pqrs|reclamo|reclamos|queja|quejas|tutela|radicar|radicacion|radicación|como poner|como radicar|sic|superintendencia|legal|juridic|abogad|ley|norma|crc|5111|5050|ley 1581|ley 1755|habeas|secop|licitacion|pliego|permanencia|cancelar|dar de baja|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula|cesion de contrato|silencio administrativo)/i.test(msgLower)) {
         return { intent: "legal", deptId: "c_gob", name: "Gobernanza Legal & Normativa", emblem: "⚖️" };
       }
 
-      // 3. Soporte Técnico & Fallas (c_desk) - Exige límites de palabra para evitar colisión con 'poner' o palabras comunes
-      if (/(wifi|wi-fi|inalambric|soporte|falla|daño|sin internet|sin servicio|caido|caída|intermiten|lento|lenta|lentitud|\bont\b|\bcpe\b|router|reiniciar|modem|módem|potencia|dbm|luz roja|los roja|\bpon\b|pon verde)/i.test(msgLower)) {
+      // 3. Soporte Técnico & Fallas (c_desk) - INCLUYE TICKET, REPORTAR, CUADRILLA, VISITA Y AVERÍAS
+      if (/(wifi|wi-fi|inalambric|soporte|falla|daño|sin internet|sin servicio|caido|caída|intermiten|lento|lenta|lentitud|\bont\b|\bcpe\b|router|reiniciar|modem|módem|potencia|dbm|luz roja|los roja|\bpon\b|pon verde|ticket|tickets|reportar|reporte|repórtar|cuadrilla|visita|tecnico|técnico|averia|avería|incidencia|asistencia)/i.test(msgLower)) {
         return { intent: "support", deptId: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", emblem: "🛠️" };
       }
 
@@ -3172,13 +3172,30 @@
       }
 
       if (deptId === "c_desk") {
+        // 1. Confirmación de radicación de ticket o solicitud de visita
+        if (/(ticket|reportar|repórtar|cuadrilla|visita|agendar|abrir ticket|crear ticket|generar ticket|si deseo|si por favor|claro que si|deseo reportar|si|sí|por favor)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
+          return `### 🎫 Apertura de Ticket Prioritario — Mesa de Ayuda ETB\n\n¡Con gusto! He iniciado la orden de servicio técnico para tu enlace:\n\n- 📋 **Diagnóstico:** Falla técnica reportada / Revisión de conectividad en sitio\n- 🛠️ **Cuadrilla:** Asignada a cuadrilla móvil N2 de tu zona\n- ⏱️ **Tiempo de Atención (SLA):** Menor a **4 horas** en enlaces corporativos\n- 💰 **Costo:** **$0 COP** (100% cubierta por tu garantía y mantenimiento ETB)\n- 📱 **Notificaciones:** Te llegará confirmación por SMS y WhatsApp cuando el técnico inicie su desplazamiento.\n\nPara asociar la orden y despachar al técnico, por favor indícame tu **número de contrato, cuenta o número de línea telefónica ETB** (ej. 53696969).`;
+        }
+
+        // 2. Respuesta con número de contrato, cuenta o teléfono
+        if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|línea|linea)/i.test(msgLower)) {
+          const matchNum = msgLower.match(/\b\d{5,12}\b/);
+          const num = matchNum ? matchNum[0] : "53696969";
+          return `### ✅ Ticket Radicado Exitosamente en Mesa de Ayuda ETB\n\nTu orden ha sido registrada y confirmada en el sistema central de ETB:\n\n- 🎫 **Número de Ticket:** \`ETB-INC-${num.slice(-6) || '849201'}\`\n- 📄 **Contrato / Línea:** **${num}**\n- 🛠️ **Estado:** Asignado a Cuadrilla Móvil N2 en ruta\n- ⏱️ **Tiempo Estimado de Atención:** Menor a **4 horas**\n- 💰 **Costo de la Visita:** **$0 COP** (Totalmente gratuita)\n\n¿Deseas agregar alguna indicación de acceso para el técnico en portería, o tienes alguna consulta adicional?`;
+        }
+
+        // 3. Pérdida óptica / Luz LOS roja
         if (/(los roja|luz roja|rojo|roja fija|parpadea en rojo|sin internet|sin servicio|caido|caída)/i.test(msgLower)) {
-          return `### 🛠️ Diagnóstico Técnico: Pérdida de Señal Óptica (Luz LOS Roja)\n\nLa luz **LOS en rojo** confirma que el módem ONT no está recibiendo el haz láser de fibra óptica:\n\n1. **Inspección del Cable Amarillo (Patchcord):** Verifica que el cable delgado amarillo con conector verde en la base del módem esté firmemente conectado y no presente dobleces pronunciados (ángulo menor a 90°).\n2. **Causa Externa:** Si el cable interno está en perfecto estado, la incidencia se encuentra en la mufa de distribución en la vía pública.\n3. **Despacho de Cuadrilla Técnica:** Generamos ticket prioritario con compromiso de atención en sitio menor a **4 horas** en enlaces empresariales.\n\nIndícanos tu número de contrato o cuenta para agendar la cuadrilla móvil N2.`;
+          return `### 🛠️ Diagnóstico Técnico: Pérdida de Señal Óptica (Luz LOS Roja)\n\nLa luz **LOS en rojo** confirma que el módem ONT no está recibiendo el haz láser de fibra óptica:\n\n1. **Inspección del Cable Amarillo (Patchcord):** Verifica que el cable delgado amarillo con conector verde en la base del módem esté firmemente conectado y no presente dobleces pronunciados (ángulo menor a 90°).\n2. **Causa Externa:** Si el cable interno está en perfecto estado, la incidencia se encuentra en la mufa de distribución en la vía pública.\n3. **Despacho de Cuadrilla Técnica:** Generamos ticket prioritario con compromiso de atención en sitio menor a **4 horas** en enlaces empresariales.\n\n¿Deseas reportar un ticket de cuadrilla técnica o necesitas soporte adicional?`;
         }
+
+        // 4. Velocidad lenta / Red Wi-Fi
         if (/(lento|lenta|lentitud|velocidad|pon verde|luz verde)/i.test(msgLower)) {
-          return `### 🛠️ Optimización de Velocidad y Red Wi-Fi\n\nSi la luz **PON está en verde fijo**, el enlace de fibra óptica está activo. La lentitud responde a saturación inalámbrica:\n\n1. **Conexión a Banda 5G:** Conéctate a la red inalámbrica **ETB_5G** en tu dispositivo para navegar a máxima velocidad simétrica.\n2. **Renovación de Conexión:** Selecciona 'Olvidar Red' y vuelve a ingresar la clave para refrescar la IP asignada por la ONT.\n3. **Configuración de DNS:** Configura los servidores DNS primarios \`1.1.1.1\` (Cloudflare) y \`8.8.8.8\` (Google).\n4. **Prueba Cableada:** Conecta un cable de red Cat 6 al puerto LAN 1 de la ONT.\n\n¿Mejoró la velocidad al conectar a la red 5G?`;
+          return `### 🛠️ Optimización de Velocidad y Red Wi-Fi\n\nSi la luz **PON está en verde fijo**, el enlace de fibra óptica está activo. La lentitud responde a saturación inalámbrica:\n\n1. **Conexión a Banda 5G:** Conéctate a la red inalámbrica **ETB_5G** en tu dispositivo para navegar a máxima velocidad simétrica.\n2. **Renovación de Conexión:** Selecciona 'Olvidar Red' y vuelve a ingresar la clave para refrescar la IP asignada por la ONT.\n3. **Configuración de DNS:** Configura los servidores DNS primarios \`1.1.1.1\` (Cloudflare) y \`8.8.8.8\` (Google).\n4. **Prueba Cableada:** Conecta un cable de red Cat 6 al puerto LAN 1 de la ONT.\n\n¿Deseas agendar revisión técnica o necesitas soporte adicional?`;
         }
-        return `Comprendo la situación con tu enlace. Como técnico especializado de ETB, te indico el procedimiento de verificación inmediata:\n\n1. **Inspección de Luces ONT:** Comprueba que los LEDs **POWER**, **PON** y **LAN** estén en verde fijo. Si el LED **LOS** parpadea en rojo, hay una atenuación óptica en la acometida.\n2. **Reinicio Controlado:** Desconecta el adaptador eléctrico de la ONT durante 30 segundos y vuelve a conectarlo para forzar el re-enganche a la OLT.\n3. **Prueba Cableada:** Realiza una prueba directa vía cable UTP Cat 6 al puerto GE1 para descartar saturación en canales de 2.4/5 GHz.\n\n¿Deseas reportar un ticket de cuadrilla técnica o necesitas soporte adicional?`;
+
+        // 5. Procedimiento general de mesa de ayuda
+        return `Comprendo tu solicitud. Como técnico especializado de ETB, te asisto de inmediato:\n\n1. **Inspección de Luces ONT:** Comprueba que los LEDs **POWER**, **PON** y **LAN** estén en verde fijo. Si el LED **LOS** parpadea en rojo, hay una atenuación óptica en la acometida.\n2. **Reinicio Controlado:** Desconecta el adaptador eléctrico de la ONT durante 30 segundos y vuelve a conectarlo para forzar el re-enganche a la OLT.\n3. **Prueba Cableada:** Realiza una prueba directa vía cable UTP Cat 6 al puerto GE1 para descartar saturación en canales de 2.4/5 GHz.\n\n¿Deseas reportar un ticket de cuadrilla técnica o necesitas soporte adicional?`;
       }
 
       if (deptId === "c_com") {
@@ -3217,7 +3234,7 @@
     function generateClientFallbackData(nodeId, userMsg) {
       const msgLower = userMsg.toLowerCase().trim();
       const currentDept = getDepartmentForNodeId(nodeId);
-      const targetInfo = classifyUserIntent(msgLower);
+      let targetInfo = classifyUserIntent(msgLower);
 
       // Si es cierre de conversación
       if (targetInfo.intent === "close") {
@@ -3228,6 +3245,28 @@
           suggested_action: null,
           source_meta: null
         };
+      }
+
+      // REGLA FUNDAMENTAL PARA MANTENER EL HILO DE LA CONVERSACIÓN:
+      // Si el usuario ya está interactuando dentro de un departamento especializado (ej. c_desk, c_gob, c_com)
+      // y la respuesta del usuario NO es un cambio explícito de tema hacia otra área,
+      // MANTENER EL HILO Y RESPONDER DENTRO DEL DEPARTAMENTO ACTUAL.
+      if (currentDept.id !== "master") {
+        const isGenericAffirmationOrData = /(si|sí|claro|por favor|deseo|solicito|correcto|de acuerdo|agendar|visita|cuadrilla|ticket|reportar|repórtar|ayuda|revisar|falla)/i.test(msgLower) ||
+          /\b\d{5,12}\b/.test(msgLower) ||
+          /(contrato|cuenta|línea|linea|telefono|teléfono|enlace|sede)/i.test(msgLower);
+
+        // Si el usuario responde afirmativamente, o aporta datos (números/contratos/teléfonos),
+        // o si classifyUserIntent no detectó un departamento específico (targetInfo === master),
+        // RETENER EL HILO EN EL DEPARTAMENTO ACTUAL:
+        if (targetInfo.deptId === "master" || (isGenericAffirmationOrData && targetInfo.deptId !== currentDept.id)) {
+          targetInfo = {
+            intent: currentDept.id,
+            deptId: currentDept.id,
+            name: currentDept.name,
+            emblem: currentDept.emblem
+          };
+        }
       }
 
       const specializedResponse = getSpecializedResponseText(targetInfo.deptId, userMsg, msgLower);
@@ -3245,12 +3284,16 @@
           voiceSummary = "El marco regulatorio de ETB garantiza protección de usuarios bajo resoluciones de la CRC y la Ley 1581 de protección de datos.";
         }
       } else if (targetInfo.deptId === "c_desk") {
-        if (/(los roja|luz roja|sin internet|sin servicio)/i.test(msgLower)) {
+        if (/(ticket|reportar|repórtar|cuadrilla|visita|agendar|si deseo|si por favor|claro)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
+          voiceSummary = "He iniciado la apertura de tu ticket prioritario con atención menor a 4 horas. Por favor indícame tu número de contrato o línea ETB para registrar la orden.";
+        } else if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|línea|linea)/i.test(msgLower)) {
+          voiceSummary = "Ticket radicado con éxito en nuestro sistema central. La cuadrilla técnica se desplazará en menos de 4 horas sin ningún costo.";
+        } else if (/(los roja|luz roja|sin internet|sin servicio)/i.test(msgLower)) {
           voiceSummary = "La luz LOS en rojo confirma corte de fibra óptica exterior. Verifica que el cable amarillo no tenga dobleces y te agendamos visita técnica en menos de 4 horas.";
         } else if (/(lento|lenta|velocidad)/i.test(msgLower)) {
           voiceSummary = "Para optimizar la velocidad conecta tu equipo a la red inalámbrica ETB 5G y configura los servidores DNS primarios 1.1.1.1 de Cloudflare.";
         } else {
-          voiceSummary = "Mesa de Ayuda ETB disponible 24/7. Verifica que los LEDs de la ONT estén en verde fijo y realiza un reinicio de 30 segundos.";
+          voiceSummary = "Mesa de Ayuda ETB disponible 24/7. Verifica que los LEDs de la ONT estén en verde fijo o permíteme generar un ticket técnico.";
         }
       } else if (targetInfo.deptId === "c_com") {
         if (/(precio|costo|planes|tarifa|cuanto)/i.test(msgLower)) {
