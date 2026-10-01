@@ -1,0 +1,3251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#030712">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="NEXO ETB - Arquitectura Neuronal 3D del Portafolio Corporativo e Infraestructura de Telecomunicaciones">
+  <title>NEXO ETB | Red Neuronal 3D del Portafolio Corporativo</title>
+  
+  <!-- Google Fonts & Lucide Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Three.js & OrbitControls r128 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  
+  <!-- Markdown parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #030712;
+      --bg-card: rgba(8, 15, 30, 0.92);
+      --cyan-primary: #22d3ee;
+      --cyan-glow: rgba(34, 211, 238, 0.45);
+      --pink-qw: #f472b6;
+      --coral-diag: #fb7185;
+      --mint-consol: #2dd4bf;
+      --amber-gold: #fbbf24;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-glass: rgba(56, 189, 248, 0.25);
+      --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #030712;
+      font-family: var(--font-ui);
+      color: var(--text-main);
+    }
+
+    #webgl-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* ==========================================================
+       1. TOP LEFT HEADER - NEXO ETB
+       ========================================================== */
+    .header-top-left {
+      position: absolute;
+      top: 24px;
+      left: 28px;
+      z-index: 10;
+      pointer-events: auto;
+      max-width: 600px;
+    }
+
+    .brand-h1 {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      line-height: 1.1;
+      text-transform: uppercase;
+      font-family: var(--font-ui);
+      text-shadow: 0 0 20px rgba(34, 211, 238, 0.45);
+    }
+
+    .brand-sub {
+      font-size: 13.5px;
+      color: #cbd5e1;
+      margin-top: 6px;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+    }
+
+    .stats-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stat-total {
+      color: #f8fafc;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .stat-total strong {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .stat-bullet {
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .stat-badge:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .stat-badge.diag { color: var(--coral-diag); }
+    .stat-badge.diag .badge-dot { background: var(--coral-diag); box-shadow: 0 0 6px var(--coral-diag); }
+
+    .stat-badge.qw { color: var(--pink-qw); }
+    .stat-badge.qw .badge-dot { background: var(--pink-qw); box-shadow: 0 0 6px var(--pink-qw); }
+
+    .stat-badge.consol { color: var(--mint-consol); }
+    .stat-badge.consol .badge-dot { background: var(--mint-consol); box-shadow: 0 0 6px var(--mint-consol); }
+
+    .sync-line {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    .sync-line a {
+      color: #38bdf8;
+      text-decoration: underline;
+      cursor: pointer;
+      margin: 0 3px;
+    }
+    .sync-line a:hover {
+      color: #7dd3fc;
+    }
+
+    /* ==========================================================
+       2. TOP RIGHT CONTROLS - FILTERS & PILL BUTTONS
+       ========================================================== */
+    .controls-top-right {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 14px;
+      pointer-events: auto;
+    }
+
+    .filters-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filter-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .filter-input, .filter-select {
+      background: rgba(11, 20, 38, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: #ffffff;
+      font-family: var(--font-ui);
+      font-size: 12px;
+      outline: none;
+      min-width: 115px;
+      backdrop-filter: blur(12px);
+      transition: all 0.2s ease;
+    }
+
+    .filter-input {
+      width: 140px;
+    }
+
+    .filter-input:focus, .filter-select:focus {
+      border-color: var(--cyan-primary);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .pill-buttons-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      background: rgba(11, 20, 38, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #cbd5e1;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      outline: none;
+    }
+
+    .pill-btn:hover {
+      background: rgba(34, 211, 238, 0.15);
+      border-color: var(--cyan-primary);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .pill-btn:active {
+      transform: translateY(1px);
+    }
+
+    .pill-btn.active {
+      background: rgba(34, 211, 238, 0.22);
+      border-color: var(--cyan-primary);
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.4);
+    }
+
+    /* Voice Agent Trigger Button (ElevenLabs Style) */
+    .voice-agent-pill {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(34, 211, 238, 0.4));
+      border: 1.5px solid #22d3ee;
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.4);
+      animation: pulse-pill 2s infinite alternate;
+    }
+
+    @keyframes pulse-pill {
+      0% { box-shadow: 0 0 12px rgba(34, 211, 238, 0.3); transform: scale(1); }
+      100% { box-shadow: 0 0 22px rgba(16, 185, 129, 0.6); transform: scale(1.02); }
+    }
+
+    /* ==========================================================
+       3. BOTTOM CONTROLS & HUD
+       ========================================================== */
+    .hud-bottom-left {
+      position: absolute;
+      bottom: 20px;
+      left: 28px;
+      z-index: 10;
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .bottom-caption {
+      font-size: 11px;
+      color: #64748b;
+      font-family: var(--font-ui);
+      letter-spacing: 0.3px;
+    }
+
+    /* Bottom Center Slider */
+    .hud-bottom-center {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: auto;
+      background: rgba(11, 20, 38, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 24px;
+      padding: 7px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(14px);
+      font-size: 12px;
+      font-weight: 600;
+      color: #cbd5e1;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .phase-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 170px;
+      height: 6px;
+      background: rgba(56, 189, 248, 0.25);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .phase-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--cyan-primary);
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--cyan-primary);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    .phase-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+      background: #38bdf8;
+    }
+
+    #phaseLabel {
+      min-width: 120px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    /* Bottom Right Radar / Minimap */
+    .hud-bottom-right {
+      position: absolute;
+      bottom: 20px;
+      right: 28px;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .minimap-card {
+      width: 135px;
+      height: 135px;
+      background: rgba(8, 15, 30, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 12px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #minimapCanvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ==========================================================
+       4. NEXO VOICE AI - COMPACT HIGH-IMPACT QUANTUM SPHERE
+       ========================================================== */
+    .eleven-docked-widget {
+      position: absolute;
+      bottom: 56px;
+      left: 24px;
+      width: 185px;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      color: #f8fafc;
+      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: auto;
+    }
+
+    .eleven-docked-widget.hidden-dock {
+      transform: translateY(120%) scale(0.85);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Floating Sleek Badge */
+    .eleven-top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .eleven-badge-pill {
+      background: rgba(8, 15, 30, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 16px;
+      padding: 3px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #38bdf8;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+      letter-spacing: 0.4px;
+    }
+
+    .eleven-badge-icon {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px #22d3ee;
+      display: inline-block;
+      animation: badgePulse 2s infinite ease-in-out alternate;
+    }
+
+    @keyframes badgePulse {
+      0% { transform: scale(0.85); opacity: 0.7; }
+      100% { transform: scale(1.25); opacity: 1; }
+    }
+
+    .eleven-close-btn {
+      position: absolute;
+      right: -2px;
+      top: 1px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      font-size: 12px;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .eleven-close-btn:hover {
+      background: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    /* High-Impact Quantum Core Container with Dual Orbitals */
+    .eleven-orb-container {
+      position: relative;
+      width: 104px;
+      height: 104px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1px 0;
+    }
+
+    /* Concentric 3D Orbital Energy Rings */
+    .eleven-orb-container::before {
+      content: '';
+      position: absolute;
+      width: 100px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      transform: rotate(-22deg);
+      pointer-events: none;
+      animation: orbitRingSpin 14s linear infinite;
+    }
+
+    .eleven-orb-container::after {
+      content: '';
+      position: absolute;
+      width: 92px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      transform: rotate(38deg);
+      pointer-events: none;
+      animation: orbitRingReverse 18s linear infinite reverse;
+    }
+
+    @keyframes orbitRingSpin {
+      from { transform: rotate(-22deg) rotateZ(0deg); }
+      to { transform: rotate(-22deg) rotateZ(360deg); }
+    }
+
+    @keyframes orbitRingReverse {
+      from { transform: rotate(38deg) rotateZ(0deg); }
+      to { transform: rotate(38deg) rotateZ(360deg); }
+    }
+
+    /* High-Impact Glowing Quantum Sphere */
+    .eleven-fluid-circle {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #38bdf8 0%, #1d4ed8 42%, #0a1128 80%, #030712 100%);
+      box-shadow: 0 0 28px rgba(56, 189, 248, 0.38), inset 0 0 20px rgba(129, 140, 248, 0.5);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.25s ease, filter 0.25s ease, box-shadow 0.25s ease;
+      overflow: hidden;
+      animation: quantumBreathe 4s infinite ease-in-out alternate;
+    }
+
+    #orbFluidCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+      opacity: 0.9;
+    }
+
+    .eleven-fluid-circle:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 36px rgba(56, 189, 248, 0.6), inset 0 0 22px rgba(56, 189, 248, 0.6);
+    }
+
+    .eleven-fluid-circle.talking {
+      animation: quantumTalk 0.8s infinite ease-in-out alternate;
+      filter: saturate(1.4) hue-rotate(15deg);
+      box-shadow: 0 0 44px rgba(56, 189, 248, 0.75), inset 0 0 24px rgba(34, 211, 238, 0.8);
+    }
+
+    .eleven-fluid-circle.listening {
+      animation: quantumListen 1s infinite ease-in-out alternate;
+      filter: saturate(1.5);
+      box-shadow: 0 0 44px rgba(45, 212, 191, 0.75), inset 0 0 24px rgba(16, 185, 129, 0.8);
+    }
+
+    @keyframes quantumBreathe {
+      0% { transform: scale(0.96) rotate(0deg); }
+      50% { transform: scale(1.03) rotate(180deg); }
+      100% { transform: scale(0.98) rotate(360deg); }
+    }
+
+    @keyframes quantumTalk {
+      0% { transform: scale(0.97) rotate(0deg); }
+      100% { transform: scale(1.10) rotate(180deg); }
+    }
+
+    @keyframes quantumListen {
+      0% { transform: scale(1.0) rotate(0deg); }
+      100% { transform: scale(1.08) rotate(-180deg); }
+    }
+
+    /* Compact Glowing Mic / Call Toggle Button */
+    .eleven-call-btn {
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(8, 15, 30, 0.95);
+      color: #38bdf8;
+      border: 1.5px solid rgba(56, 189, 248, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7), 0 0 10px rgba(56, 189, 248, 0.35);
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 5;
+    }
+
+    .eleven-call-btn:hover {
+      transform: translateX(-50%) scale(1.15);
+      background: rgba(34, 211, 238, 0.25);
+      color: #ffffff;
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
+    }
+
+    .eleven-call-btn.active {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: #ef4444;
+      color: #fca5a5;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.7);
+    }
+
+    /* Holographic Subtitles Box - Compact Dark Glass */
+    .eleven-subtitles-bar {
+      font-size: 10px;
+      color: #cbd5e1;
+      text-align: center;
+      max-height: 38px;
+      overflow-y: auto;
+      line-height: 1.35;
+      padding: 5px 8px;
+      font-weight: 500;
+      background: rgba(8, 15, 30, 0.75);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 8px;
+      backdrop-filter: blur(12px);
+      width: 100%;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Floating Dark Capsule Switcher [ Voice | Chat ] */
+    .eleven-bottom-switcher {
+      background: rgba(8, 15, 30, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 16px;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      width: 115px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .eleven-tab-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 3px 0;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .eleven-tab-btn.active {
+      background: rgba(56, 189, 248, 0.22);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+    }
+
+    /* ==========================================================
+       5. CINEMATIC TOUR HUD BANNER
+       ========================================================== */
+    .tour-banner {
+      position: absolute;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 45;
+      background: rgba(8, 15, 30, 0.94);
+      border: 1.5px solid var(--cyan-primary);
+      border-radius: 14px;
+      padding: 12px 24px;
+      display: none;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 24px var(--cyan-glow);
+      backdrop-filter: blur(16px);
+      pointer-events: auto;
+      animation: fadeInDown 0.3s ease;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translate(-50%, -15px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .tour-banner.active {
+      display: flex;
+    }
+
+    .tour-stop-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tour-stop-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .tour-stop-btn {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 7px 16px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tour-stop-btn:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    /* ==========================================================
+       6. 3D HOVER TOOLTIP & DRAWER PANEL
+       ========================================================== */
+    #node-tooltip {
+      position: absolute;
+      display: none;
+      z-index: 50;
+      background: rgba(8, 15, 30, 0.95);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--cyan-primary);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #fff;
+      font-size: 12px;
+      pointer-events: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(34, 211, 238, 0.3);
+      transform: translate(-50%, -125%);
+      white-space: nowrap;
+    }
+
+    #node-tooltip .tt-title {
+      font-weight: 700;
+      color: var(--cyan-primary);
+      margin-bottom: 2px;
+    }
+
+    #node-tooltip .tt-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    aside.panel {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      bottom: 24px;
+      width: 440px;
+      z-index: 35;
+      background: var(--bg-card);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: auto;
+    }
+
+    aside.panel.collapsed {
+      transform: translateX(calc(100% + 35px));
+    }
+
+    .panel-toggle-tab {
+      position: absolute;
+      top: 50%;
+      left: -34px;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 64px;
+      background: rgba(8, 15, 30, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-right: none;
+      border-radius: 10px 0 0 10px;
+      color: var(--cyan-primary);
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: -6px 0 20px rgba(0, 0, 0, 0.45);
+      transition: all 0.2s ease;
+      z-index: 36;
+      outline: none;
+    }
+
+    .panel-toggle-tab:hover {
+      background: rgba(34, 211, 238, 0.22);
+      color: #ffffff;
+      box-shadow: -6px 0 22px var(--cyan-glow);
+    }
+
+    .agent-header {
+      padding: 18px 20px;
+      background: linear-gradient(180deg, rgba(34, 211, 238, 0.12) 0%, rgba(15, 23, 42, 0.4) 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .agent-header-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .agent-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(3, 7, 18, 0.85);
+      border: 1.5px solid var(--cyan-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.3);
+    }
+
+    .panel-tabs {
+      display: flex;
+      background: rgba(3, 7, 18, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .panel-tab {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .panel-tab:hover { color: #fff; }
+    .panel-tab.active {
+      color: var(--cyan-primary);
+      border-bottom-color: var(--cyan-primary);
+      background: rgba(34, 211, 238, 0.05);
+    }
+
+    .tab-content {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 16px;
+    }
+    .tab-content.active { display: flex; }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-right: 6px;
+      user-select: text;
+    }
+
+    .chat-msg {
+      max-width: 96%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      animation: fadeInMsg 0.25s ease forwards;
+    }
+
+    @keyframes fadeInMsg {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #fff;
+    }
+
+    .chat-msg.agent {
+      align-self: flex-start;
+      background: rgba(30, 41, 59, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #e2e8f0;
+    }
+
+    .evidence-chip {
+      margin-top: 10px;
+      padding: 6px 10px;
+      background: rgba(3, 7, 18, 0.65);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--cyan-primary);
+      cursor: pointer;
+    }
+
+    .evidence-content {
+      margin-top: 6px;
+      padding: 6px 8px;
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 4px;
+      color: #cbd5e1;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+    }
+
+    .chat-redirect-card {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: rgba(8, 15, 30, 0.95);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .chat-redirect-btn {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.7);
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+    }
+
+    .chat-redirect-btn:hover {
+      background: #38bdf8;
+      color: #030712;
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
+      transform: translateY(-1.5px);
+    }
+
+    .chat-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .chat-chip {
+      font-size: 11px;
+      padding: 5px 10px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .chat-chip:hover {
+      background: rgba(34, 211, 238, 0.2);
+      border-color: var(--cyan-primary);
+      color: #ffffff;
+    }
+    .chat-chip.chip-end {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      font-weight: 700;
+    }
+    .chat-chip.chip-end:hover {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+    }
+
+    .chat-msg-actions {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-action-pill {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .chat-action-pill:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .chat-closed-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .chat-input-box {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chat-input-box textarea {
+      flex: 1;
+      height: 44px;
+      background: rgba(3, 7, 18, 0.7);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 12.5px;
+      resize: none;
+      outline: none;
+    }
+
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0284c7, #22d3ee);
+      border: none;
+      color: #030712;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .send-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Training Tab */
+    .train-card {
+      background: rgba(3, 7, 18, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .train-card label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--cyan-primary);
+      margin-bottom: 6px;
+    }
+    .train-card input, .train-card textarea {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .train-submit-btn {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      border-radius: 8px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Toast */
+    #toast-notification {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(16, 185, 129, 0.95);
+      color: #030712;
+      font-weight: 700;
+      font-size: 12.5px;
+      padding: 10px 22px;
+      border-radius: 10px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      animation: fadeInUp 0.2s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translate(-50%, 10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* Touch control optimization for mobile canvas */
+    #webgl-container, #webgl-container canvas {
+      touch-action: none !important;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+    }
+
+    /* Backend Connection Modal */
+    .backend-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 7, 18, 0.75);
+      backdrop-filter: blur(12px);
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .backend-modal.active {
+      display: flex;
+    }
+    .backend-modal-card {
+      background: rgba(8, 15, 30, 0.96);
+      border: 1.5px solid var(--cyan-primary);
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 24px var(--cyan-glow);
+      color: #fff;
+    }
+    .backend-modal-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--cyan-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .backend-modal-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+    .backend-input {
+      width: 100%;
+      background: rgba(3, 7, 18, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin-bottom: 14px;
+      outline: none;
+    }
+    .backend-modal-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .backend-btn-save {
+      background: linear-gradient(135deg, #0284c7, #22d3ee);
+      color: #030712;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .backend-btn-cancel {
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* ==========================================================
+       10. RESPONSIVE DESIGN - MOBILE, TABLET & DESKTOP ADAPTATION
+       ========================================================== */
+    @media (max-width: 1024px) {
+      .header-top-left {
+        max-width: 440px;
+        top: 16px;
+        left: 18px;
+      }
+      .brand-h1 {
+        font-size: 26px;
+      }
+      aside.panel {
+        width: 380px;
+        right: 16px;
+        top: 16px;
+        bottom: 16px;
+      }
+      .controls-top-right {
+        top: 16px;
+        right: 18px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      /* Mobile layout adaptations */
+      .header-top-left {
+        top: 12px;
+        left: 12px;
+        max-width: calc(100vw - 24px);
+        pointer-events: none;
+      }
+      .header-top-left * {
+        pointer-events: auto;
+      }
+      .brand-h1 {
+        font-size: 19px;
+        letter-spacing: 0.8px;
+      }
+      .brand-sub {
+        font-size: 11px;
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .stats-line, .sync-line {
+        display: none !important;
+      }
+
+      /* Compact Controls on Mobile */
+      .controls-top-right {
+        top: 10px;
+        right: 10px;
+        gap: 6px;
+        max-width: 65%;
+      }
+      .filters-row {
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .filter-group:nth-child(2),
+      .filter-group:nth-child(3),
+      .filter-group:nth-child(4) {
+        display: none !important; /* Hide secondary filter dropdowns on mobile */
+      }
+      .filter-input {
+        width: 100px;
+        font-size: 11px;
+        padding: 5px 8px;
+      }
+      .buttons-row {
+        gap: 5px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .pill-btn {
+        padding: 5px 8px;
+        font-size: 10px;
+        gap: 4px;
+      }
+      .pill-btn span.btn-label-long {
+        display: none;
+      }
+
+      /* Native Bottom Sheet Drawer for Chat & Agent Details */
+      aside.panel {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100% !important;
+        height: 72vh;
+        max-height: 82vh;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        border-left: none;
+        border-right: none;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 55;
+      }
+      aside.panel.collapsed {
+        transform: translateY(100%) !important;
+      }
+      .panel-toggle-tab {
+        top: -38px;
+        left: 50%;
+        transform: translateX(-50%) !important;
+        width: 110px;
+        height: 38px;
+        border-radius: 14px 14px 0 0;
+        border-right: 1px solid var(--border-glass);
+        border-bottom: none;
+        font-size: 12px;
+        gap: 6px;
+        background: rgba(8, 15, 30, 0.96);
+        box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.6);
+      }
+      .panel-toggle-tab i {
+        transform: rotate(90deg);
+        transition: transform 0.25s ease;
+      }
+      aside.panel:not(.collapsed) .panel-toggle-tab i {
+        transform: rotate(-90deg);
+      }
+      .toggle-mobile-text {
+        display: inline-block !important;
+      }
+
+      /* Compact Bottom HUD */
+      .hud-bottom-center {
+        bottom: 12px;
+        padding: 5px 10px;
+        gap: 6px;
+        font-size: 10.5px;
+        border-radius: 18px;
+      }
+      .phase-slider {
+        width: 75px;
+      }
+      #phaseLabel {
+        min-width: 60px;
+        font-size: 10px;
+      }
+      .hud-bottom-left {
+        display: none !important; /* Hide minimap on small screens */
+      }
+
+      /* Voice AI Orb on Mobile */
+      .eleven-docked-widget {
+        bottom: 56px;
+        left: 10px;
+        width: 130px;
+        transform: scale(0.85);
+        transform-origin: bottom left;
+      }
+
+      /* Tour banner */
+      .tour-banner {
+        top: 60px;
+        width: 92%;
+        padding: 8px 14px;
+      }
+      .tour-stop-title {
+        font-size: 12px;
+      }
+      .tour-stop-desc {
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .brand-h1 {
+        font-size: 17px;
+      }
+      .controls-top-right {
+        max-width: 70%;
+      }
+      .filter-input {
+        width: 85px;
+      }
+      .hud-bottom-center {
+        display: none; /* Maximum screen real-estate for 3D exploration on phones */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebGL Canvas -->
+  <div id="webgl-container"></div>
+
+  <!-- 3D Node Hover Tooltip -->
+  <div id="node-tooltip">
+    <div class="tt-title" id="tt-title">NEXO ETB</div>
+    <div class="tt-sub" id="tt-sub">Dominio / Estado</div>
+  </div>
+
+  <!-- 1. TOP LEFT HEADER -->
+  <div class="header-top-left">
+    <h1 class="brand-h1">NEXO ETB</h1>
+    <p class="brand-sub">Red neuronal 3D de infraestructura y portafolio corporativo. Explore en tiempo real los nodos estratégicos y departamentos de telecomunicaciones.</p>
+  </div>
+
+  <!-- 2. TOP RIGHT CONTROLS & FILTERS -->
+  <div class="controls-top-right">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label class="filter-label">BUSCAR</label>
+        <input type="text" id="filterSearch" class="filter-input" placeholder="Buscar servicio o nodo...">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">DEPARTAMENTO</label>
+        <select id="filterDomain" class="filter-select">
+          <option value="all">Todos los Departamentos</option>
+          <option value="Red Troncal & Fibra Óptica">Red Troncal & Fibra Óptica</option>
+          <option value="Data Centers & Nube Híbrida">Data Centers & Nube Híbrida</option>
+          <option value="Soluciones Corporativas & B2B">Soluciones Corporativas & B2B</option>
+          <option value="Gobernanza Legal & Normativa">Gobernanza Legal & Normativa</option>
+          <option value="Planeación Financiera & Costos">Planeación Financiera & Costos</option>
+          <option value="Despliegue de Red & Proyectos">Despliegue de Red & Proyectos</option>
+          <option value="Mesa de Ayuda & Soporte Técnico">Mesa de Ayuda & Soporte Técnico</option>
+          <option value="Experiencia de Cliente & VIP">Experiencia de Cliente & VIP</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">RESPONSABLE</label>
+        <select id="filterResp" class="filter-select">
+          <option value="all">Todos los Responsables</option>
+          <option value="Presidencia">Presidencia Ejecutiva</option>
+          <option value="Operaciones">Operaciones & Red Troncal</option>
+          <option value="Tecnologia">Tecnología & Data Centers</option>
+          <option value="Comercial">Comercial & Soluciones B2B</option>
+          <option value="Juridica">Secretaría General & Jurídica</option>
+          <option value="Financiera">Planeación Financiera & Costos</option>
+          <option value="PMO">Despliegue de Red & PMO</option>
+          <option value="Soporte">Mesa de Ayuda & Soporte</option>
+          <option value="Experiencia">Experiencia de Cliente & VIP</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">SEDE / INFRAESTRUCTURA</label>
+        <select id="filterSede" class="filter-select">
+          <option value="all">Todas las Sedes</option>
+          <option value="Bogota">Sede Central (Torre ETB)</option>
+          <option value="Alma">Data Center Alma (Suba)</option>
+          <option value="Prado">Data Center Prado (Puente Aranda)</option>
+          <option value="Troncal">Anillo Troncal Metropolitano DWDM</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pill-buttons-row">
+      <button class="pill-btn" id="btnResetView">Reset</button>
+      <button class="pill-btn active" id="btnToggleOrbit">Órbita</button>
+      <button class="pill-btn" id="btnSedes">Sedes</button>
+      <button class="pill-btn" id="btnTour">Tour</button>
+      <button class="pill-btn" id="btnOpenBackendModal" title="Configurar conexión con servidor en la nube / Render">
+        <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> <span class="btn-label-long">Nube</span>
+      </button>
+      <button class="pill-btn voice-agent-pill" id="btnOpenVoiceAgent">
+        <i data-lucide="mic" style="width: 14px; height: 14px;"></i> <span class="btn-label-long">Voz IA</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. BOTTOM CONTROLS & HUD -->
+  <div class="hud-bottom-left">
+    <div class="bottom-caption">
+      CLIC: consultar nodo • BUSCAR: nombre • Esc: cerrar panel
+    </div>
+  </div>
+
+
+  <!-- 5. BOTTOM RIGHT RADAR MINIMAP -->
+  <div class="hud-bottom-right">
+    <div class="minimap-card">
+      <canvas id="minimapCanvas" width="135" height="135"></canvas>
+    </div>
+  </div>
+
+  <!-- 6. CINEMATIC TOUR HUD BANNER -->
+  <div class="tour-banner" id="tourBanner">
+    <div>
+      <div class="tour-stop-title">
+        <i data-lucide="navigation" style="width: 16px; height: 16px; color: #22d3ee;"></i>
+        <span id="tourTitle">Tour Cinemático ETB</span>
+      </div>
+      <div class="tour-stop-desc" id="tourDesc">Explorando la infraestructura de telecomunicaciones corporativa...</div>
+    </div>
+    <button class="tour-stop-btn" id="btnStopTour">Detener Tour</button>
+  </div>
+
+  <!-- 7. ELEVENLABS / ELEVENAGENTS VOICE WIDGET (COMPACT QUANTUM CORE) -->
+  <div class="eleven-docked-widget" id="elevenVoiceModal">
+    <!-- Top Pill -->
+    <div class="eleven-top-bar">
+      <div class="eleven-badge-pill">
+        <span class="eleven-badge-icon"></span>
+        <span>NEXO Voice IA</span>
+      </div>
+      <button class="eleven-close-btn" id="btnCloseElevenModal" title="Ocultar Widget">&times;</button>
+    </div>
+
+    <!-- Center Compact Quantum Fluid Sphere with Dual Orbitals -->
+    <div class="eleven-orb-container">
+      <div class="eleven-fluid-circle" id="elevenFluidOrb" title="Clic para hablar con el Agente ETB">
+        <canvas id="orbFluidCanvas" width="90" height="90"></canvas>
+      </div>
+      
+      <!-- Overlay Phone/Mic Toggle Button -->
+      <button class="eleven-call-btn" id="elevenCallBtn" title="Iniciar / Colgar Consulta de Voz">
+        <i data-lucide="mic" id="elevenCallIcon" style="width: 15px; height: 15px;"></i>
+      </button>
+    </div>
+
+    <!-- Live Teleprompter Subtitles -->
+    <div class="eleven-subtitles-bar" id="elevenSubtitles">
+      🎙️ Pulse el botón para consultar con NEXO Voice IA
+    </div>
+
+    <!-- Bottom Switcher Pill [ Voice | Chat ] -->
+    <div class="eleven-bottom-switcher">
+      <button class="eleven-tab-btn active" id="tabModeVoice">Voice</button>
+      <button class="eleven-tab-btn" id="tabModeChat">Chat</button>
+    </div>
+  </div>
+
+  <!-- Backend Cloud Connector Modal -->
+  <div class="backend-modal" id="backendModal">
+    <div class="backend-modal-card">
+      <div class="backend-modal-title">
+        <i data-lucide="cloud" style="width: 18px; height: 18px;"></i> Servidor Backend & Modo Nube
+      </div>
+      <p class="backend-modal-desc">
+        Conéctate con tu motor FastAPI en la nube (Render, Railway, o red local) para consultar y entrenar los agentes desde tu celular o cualquier dispositivo:
+      </p>
+      <input type="text" id="backendUrlInput" class="backend-input" placeholder="https://etb-neural-constellation.onrender.com">
+      <div style="font-size:11px; color:#64748b; margin-bottom:14px;">
+        💡 Si lo dejas en blanco, usará el servidor local o el modo de respuesta inteligente integrado.
+      </div>
+      <div class="backend-modal-btns">
+        <button class="backend-btn-cancel" id="btnCancelBackend">Cerrar</button>
+        <button class="backend-btn-save" id="btnSaveBackend">Guardar y Conectar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. SIDE PANEL (DRAWER) -->
+  <aside class="panel collapsed" id="sidePanel">
+    <button id="btnTogglePanel" class="panel-toggle-tab" title="Mostrar/Ocultar Panel">
+      <i data-lucide="chevron-left" id="toggleIcon" style="width: 20px; height: 20px;"></i>
+      <span class="toggle-mobile-text" style="display:none; font-size:11px; font-weight:800; margin-left:4px;">CHAT</span>
+    </button>
+
+    <div class="agent-header">
+      <div class="agent-header-top">
+        <div class="agent-avatar" id="agent-avatar">👑</div>
+        <div style="flex:1;">
+          <h2 id="agent-name" style="font-size: 16px; font-weight: 700;">NEXO ETB CORE</h2>
+          <p id="agent-role" style="font-size: 11px; color: #94a3b8;">Presidencia Ejecutiva & Dirección General</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-tabs">
+      <div class="panel-tab active" data-tab="chat">
+        <i data-lucide="message-square" style="width: 14px; height: 14px;"></i> Terminal Chat
+      </div>
+      <div class="panel-tab" data-tab="train">
+        <i data-lucide="cpu" style="width: 14px; height: 14px;"></i> Entrenamiento
+      </div>
+      <div class="panel-tab" data-tab="metrics">
+        <i data-lucide="activity" style="width: 14px; height: 14px;"></i> Telemetría
+      </div>
+    </div>
+
+    <!-- Tab Chat -->
+    <div class="tab-content active" id="tab-chat">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg agent">
+          <p><strong>[👑 NEXO ETB CORE]</strong></p>
+          <p>Bienvenido al Centro de Comando de la Constelación Corporativa ETB. La arquitectura de federación de conocimiento global está activa con 47 nodos de telecomunicaciones y servicios empresariales.</p>
+        </div>
+      </div>
+
+      <div class="chat-chips">
+        <div class="chat-chip chip-end" data-prompt="No tengo más consultas, finalizar chat">🛑 Finalizar Chat</div>
+        <div class="chat-chip" data-prompt="Dictamen ejecutivo de solución corporativa de fibra simétrica frente a Claro, Tigo y Movistar">⚡ Dictamen vs Competencia</div>
+        <div class="chat-chip" data-prompt="Estado de disponibilidad y latencia de los anillos metropolitanos DWDM">🛡️ Anillos NOC 100G</div>
+        <div class="chat-chip" data-prompt="Certificaciones y soberanía de datos en los Data Centers Alma y Prado">🏢 Data Centers Tier III</div>
+      </div>
+
+      <div class="chat-input-box">
+        <textarea id="chat-input" placeholder="Escriba una instrucción o consulta corporativa..."></textarea>
+        <button class="send-btn" id="chat-send-btn">
+          <i data-lucide="send" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Training -->
+    <div class="tab-content" id="tab-train">
+      <div class="train-card">
+        <label>Departamento / Iniciativa</label>
+        <input type="text" id="train-dept-display" value="master" readonly>
+      </div>
+      <div class="train-card">
+        <label>Tema o Asunto</label>
+        <input type="text" id="train-topic-input" placeholder="Ej: Anillo Fibra Óptica Suba 100G">
+      </div>
+      <div class="train-card" style="flex:1;">
+        <label>Contenido de Conocimiento</label>
+        <textarea id="train-content-input" placeholder="Pegue aquí el texto técnico o comercial..." style="height: 120px;"></textarea>
+      </div>
+      <button class="train-submit-btn" id="train-submit-btn">
+        <i data-lucide="upload-cloud" style="width: 16px; height: 16px;"></i> Inyectar Conocimiento
+      </button>
+    </div>
+
+    <!-- Tab Telemetry -->
+    <div class="tab-content" id="tab-metrics">
+      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">Métricas operacionales de la red en tiempo real.</p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div style="background: rgba(3,7,18,0.7); padding: 12px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 10px; color: #94a3b8;">DISPONIBILIDAD SLA</div>
+          <div style="font-size: 18px; font-weight: 800; color: #2dd4bf; font-family: var(--font-mono);">99.985%</div>
+        </div>
+        <div style="background: rgba(3,7,18,0.7); padding: 12px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 10px; color: #94a3b8;">LATENCIA NAP</div>
+          <div style="font-size: 18px; font-weight: 800; color: #22d3ee; font-family: var(--font-mono);">&lt; 3.2 ms</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Notification Toast -->
+  <div id="toast-notification">
+    <i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i>
+    <span id="toast-msg">Notificación</span>
+  </div>
+
+  <!-- APPLICATION LOGIC & THREE.JS ENGINE -->
+  <script>
+    lucide.createIcons();
+
+    function resolveApiBase() {
+      const custom = localStorage.getItem("etb_api_url");
+      if (custom && custom.trim()) return custom.trim().replace(/\/$/, "");
+
+      if (window.location.port === "8000" || window.location.pathname.startsWith("/static")) {
+        return window.location.origin;
+      }
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        return `http://${window.location.hostname}:8000`;
+      }
+      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(window.location.hostname)) {
+        return `http://${window.location.hostname}:8000`;
+      }
+      return window.location.origin;
+    }
+
+    let API_BASE = resolveApiBase();
+
+    let selectedAgentId = "master";
+    let hierarchyData = null;
+    let autoRotate = true;
+    let panelCollapsed = true;
+
+    // Three.js Globals
+    let scene, camera, renderer, controls;
+    let nodeMeshMap = new Map();
+    let hitBoxList = [];
+    let edgeObjects = [];
+    let pulseParticles = [];
+    let raycaster, mouse;
+    let hoveredHitBox = null;
+
+    let pointerDownPos = { x: 0, y: 0 };
+    const DRAG_THRESHOLD_PX = 4;
+
+    const tooltipEl = document.getElementById("node-tooltip");
+    const ttTitle = document.getElementById("tt-title");
+    const ttSub = document.getElementById("tt-sub");
+
+    // ==========================================================
+    // 1. THREE.JS ENGINE INITIALIZATION
+    // ==========================================================
+    function initThreeEngine() {
+      const container = document.getElementById("webgl-container");
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x030712);
+      scene.fog = new THREE.FogExp2(0x030712, 0.0055);
+
+      camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.5, 1000);
+      camera.position.set(0, 18, 62);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      renderer.domElement.addEventListener("contextmenu", (e) => e.preventDefault());
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.rotateSpeed = 0.8;
+      controls.panSpeed = 0.8;
+      controls.enablePan = true;
+      controls.screenSpacePanning = true;
+      controls.mouseButtons = {
+        LEFT: THREE.MOUSE.ROTATE,
+        MIDDLE: THREE.MOUSE.DOLLY,
+        RIGHT: THREE.MOUSE.PAN
+      };
+      controls.touches = {
+        ONE: THREE.TOUCH.ROTATE,
+        TWO: THREE.TOUCH.DOLLY_PAN
+      };
+      controls.maxDistance = 220;
+      controls.minDistance = 10;
+      controls.autoRotate = autoRotate;
+      controls.autoRotateSpeed = 0.45;
+      controls.target.set(0, 0, 0);
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambientLight);
+
+      const coreLight = new THREE.PointLight(0x22d3ee, 4.0, 200);
+      coreLight.position.set(0, 0, 0);
+      scene.add(coreLight);
+
+      const hemiLight = new THREE.HemisphereLight(0x38bdf8, 0x030712, 0.9);
+      scene.add(hemiLight);
+
+      createStarfield();
+
+      raycaster = new THREE.Raycaster();
+      mouse = new THREE.Vector2();
+
+      window.addEventListener("resize", onWindowResize);
+      renderer.domElement.addEventListener("pointerdown", onPointerDown);
+      renderer.domElement.addEventListener("pointermove", onPointerMove);
+      renderer.domElement.addEventListener("pointerup", onPointerUp);
+
+      animate();
+      initFluidOrbAnimation();
+    }
+
+    function createStarfield() {
+      const starGeo = new THREE.BufferGeometry();
+      const starCount = 2400;
+      const positions = new Float32Array(starCount * 3);
+      const colors = new Float32Array(starCount * 3);
+
+      const palette = [
+        new THREE.Color(0x22d3ee),
+        new THREE.Color(0xf472b6),
+        new THREE.Color(0x2dd4bf),
+        new THREE.Color(0xffffff)
+      ];
+
+      for (let i = 0; i < starCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 600;
+        positions[i + 1] = (Math.random() - 0.5) * 450;
+        positions[i + 2] = (Math.random() - 0.5) * 600;
+
+        const color = palette[Math.floor(Math.random() * palette.length)];
+        colors[i] = color.r;
+        colors[i + 1] = color.g;
+        colors[i + 2] = color.b;
+      }
+
+      starGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      starGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+      const starMat = new THREE.PointsMaterial({
+        size: 1.5,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending
+      });
+
+      const stars = new THREE.Points(starGeo, starMat);
+      scene.add(stars);
+    }
+
+    // ==========================================================
+    // 2. TEXT SPRITE GENERATOR - BALANCED & CRISP READABILITY
+    // ==========================================================
+    // 2. TEXT SPRITE GENERATOR - BALANCED, CRISP & ZERO-CLIPPING
+    // ==========================================================
+    function createPillTextSprite(text, isDomain = false, isMaster = false, statusColor = "#ffffff") {
+      // Offscreen canvas for precise font measurement
+      const measureCanvas = document.createElement("canvas");
+      const mCtx = measureCanvas.getContext("2d");
+
+      let fontSize = isMaster ? 36 : (isDomain ? 30 : 26);
+      let fontWeight = (isMaster || isDomain) ? "bold" : "600";
+      const fontStr = `${fontWeight} ${fontSize}px 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif`;
+      mCtx.font = fontStr;
+
+      let displayText = text || "";
+      if (!isMaster && !isDomain && displayText.length > 25) {
+        displayText = displayText.substring(0, 23) + "...";
+      }
+
+      const textMetrics = mCtx.measureText(displayText);
+      const textWidth = textMetrics.width;
+
+      const dotSpacing = (!isMaster && !isDomain) ? 30 : 0;
+      const paddingX = isMaster ? 44 : (isDomain ? 36 : 28);
+
+      const canvasHeight = isMaster ? 110 : (isDomain ? 100 : 90);
+      const canvasWidth = Math.max(isMaster ? 360 : (isDomain ? 320 : 240), Math.ceil(textWidth + (paddingX * 2) + dotSpacing));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      const pillHeight = isMaster ? 72 : (isDomain ? 64 : 54);
+      const pillY = (canvasHeight - pillHeight) / 2;
+      const pillX = 8;
+      const pillW = canvasWidth - 16;
+      const radius = pillHeight / 2;
+
+      if (isMaster) {
+        // Master Pill (NEXO ETB CORE)
+        ctx.fillStyle = "rgba(4, 9, 24, 0.94)";
+        ctx.strokeStyle = "rgba(34, 211, 238, 0.9)";
+        ctx.lineWidth = 4;
+        roundRect(ctx, pillX, pillY, pillW, pillHeight, radius, true, true);
+
+        ctx.font = fontStr;
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(34, 211, 238, 0.85)";
+        ctx.shadowBlur = 12;
+        ctx.fillText(displayText, canvasWidth / 2, canvasHeight / 2);
+
+      } else if (isDomain) {
+        // Domain Cage Pill (Gobernanza Legal & Normativa, etc.)
+        ctx.fillStyle = "rgba(4, 9, 22, 0.92)";
+        ctx.strokeStyle = statusColor || "rgba(34, 211, 238, 0.85)";
+        ctx.lineWidth = 3.5;
+        roundRect(ctx, pillX, pillY, pillW, pillHeight, radius, true, true);
+
+        ctx.font = fontStr;
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+        ctx.shadowBlur = 8;
+        ctx.fillText(displayText, canvasWidth / 2, canvasHeight / 2);
+
+      } else {
+        // Project Subnode Pill
+        ctx.fillStyle = "rgba(4, 9, 20, 0.90)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.28)";
+        ctx.lineWidth = 2.5;
+        roundRect(ctx, pillX, pillY, pillW, pillHeight, radius, true, true);
+
+        // Status indicator dot
+        const dotX = pillX + 22;
+        const dotY = canvasHeight / 2;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 6.5, 0, Math.PI * 2);
+        ctx.fillStyle = statusColor || "#2dd4bf";
+        ctx.shadowColor = statusColor || "#2dd4bf";
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.font = fontStr;
+        ctx.fillStyle = "#f8fafc";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+        ctx.shadowBlur = 6;
+        ctx.fillText(displayText, (canvasWidth + dotSpacing) / 2, canvasHeight / 2);
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = false;
+
+      const spriteMat = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false
+      });
+      const sprite = new THREE.Sprite(spriteMat);
+
+      // Auto-scale based on canvas aspect ratio to guarantee 0% stretching/distortion
+      const aspect = canvasWidth / canvasHeight;
+      const baseHeight = isMaster ? 1.85 : (isDomain ? 1.55 : 1.25);
+      sprite.scale.set(baseHeight * aspect, baseHeight, 1);
+      return sprite;
+    }
+
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+      if (typeof radius === "number") {
+        radius = { tl: radius, tr: radius, br: radius, bl: radius };
+      }
+      ctx.beginPath();
+      ctx.moveTo(x + radius.tl, y);
+      ctx.lineTo(x + width - radius.tr, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+      ctx.lineTo(x + width, y + height - radius.br);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+      ctx.lineTo(x + radius.bl, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+      ctx.lineTo(x, y + radius.tl);
+      ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    // ==========================================================
+    // 3. CONSTELLATION BUILDER
+    // ==========================================================
+    function buildConstellation(data) {
+      hierarchyData = data;
+      const nodes = data.nodes || [];
+      const links = data.links || [];
+
+
+
+      nodeMeshMap.forEach(mesh => scene.remove(mesh));
+      nodeMeshMap.clear();
+      hitBoxList = [];
+      edgeObjects.forEach(obj => scene.remove(obj));
+      edgeObjects = [];
+      pulseParticles.forEach(p => scene.remove(p.mesh));
+      pulseParticles = [];
+
+      nodes.forEach(node => {
+        const group = new THREE.Group();
+        group.position.set(node.x, node.y, node.z);
+
+        const isMaster = node.type === "master";
+        const isDomain = node.type === "domain_cage";
+
+        if (isMaster) {
+          // Master Central Geodesic Wireframe
+          const geoIco = new THREE.IcosahedronGeometry(2.2, 2);
+          const matWire = new THREE.MeshBasicMaterial({
+            color: 0x22d3ee,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.85
+          });
+          const wireMesh = new THREE.Mesh(geoIco, matWire);
+          group.add(wireMesh);
+          group.wireMesh = wireMesh;
+
+          const coreGeo = new THREE.SphereGeometry(0.9, 24, 24);
+          const coreMat = new THREE.MeshStandardMaterial({
+            color: 0x22d3ee,
+            emissive: 0x22d3ee,
+            emissiveIntensity: 0.95
+          });
+          group.add(new THREE.Mesh(coreGeo, coreMat));
+
+          const label = createPillTextSprite("NEXO ETB CORE", false, true, "#22d3ee");
+          label.position.y = 3.2;
+          group.add(label);
+
+        } else if (isDomain) {
+          // Domain Geometric Cage
+          const cageGeo = new THREE.IcosahedronGeometry(1.6, 1);
+          const colorHex = parseInt(node.color.replace("#", "0x"));
+          const cageMat = new THREE.MeshBasicMaterial({
+            color: colorHex,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.75
+          });
+          const cageMesh = new THREE.Mesh(cageGeo, cageMat);
+          group.add(cageMesh);
+          group.wireMesh = cageMesh;
+
+          const sphereGeo = new THREE.SphereGeometry(0.48, 16, 16);
+          const sphereMat = new THREE.MeshStandardMaterial({
+            color: colorHex,
+            emissive: colorHex,
+            emissiveIntensity: 0.65
+          });
+          group.add(new THREE.Mesh(sphereGeo, sphereMat));
+
+          const label = createPillTextSprite(node.name, true, false, node.color);
+          label.position.y = 2.4;
+          group.add(label);
+
+        } else {
+          // Project Node
+          const colorHex = parseInt(node.color.replace("#", "0x"));
+          const radius = node.radius || 0.28;
+
+          const sphereGeo = new THREE.SphereGeometry(radius, 20, 20);
+          const sphereMat = new THREE.MeshStandardMaterial({
+            color: colorHex,
+            emissive: colorHex,
+            emissiveIntensity: node.status_cat === "Quick Win" ? 0.75 : 0.5,
+            roughness: 0.2,
+            metalness: 0.7
+          });
+          const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
+          group.add(sphereMesh);
+
+          const ringGeo = new THREE.TorusGeometry(radius * 1.6, 0.015, 12, 36);
+          const ringMat = new THREE.MeshBasicMaterial({
+            color: colorHex,
+            transparent: true,
+            opacity: 0.45
+          });
+          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+          ringMesh.rotation.x = Math.PI / 2;
+          group.add(ringMesh);
+
+          const label = createPillTextSprite(node.name, false, false, node.status_color);
+          label.position.y = radius + 1.0;
+          group.add(label);
+        }
+
+        // Raycast Hit Box
+        const hitRadius = isMaster ? 3.0 : (isDomain ? 2.2 : 1.3);
+        const hitBoxGeo = new THREE.SphereGeometry(hitRadius, 8, 8);
+        const hitBoxMat = new THREE.MeshBasicMaterial({ visible: false });
+        const hitBox = new THREE.Mesh(hitBoxGeo, hitBoxMat);
+        hitBox.userData = node;
+        group.add(hitBox);
+        hitBoxList.push(hitBox);
+
+        group.userData = node;
+        scene.add(group);
+        nodeMeshMap.set(node.id, group);
+      });
+
+      // Synaptic Connections
+      links.forEach((link, idx) => {
+        const srcGroup = nodeMeshMap.get(link.source);
+        const tgtGroup = nodeMeshMap.get(link.target);
+
+        if (srcGroup && tgtGroup) {
+          const p1 = srcGroup.position;
+          const p2 = tgtGroup.position;
+
+          const curve = new THREE.LineCurve3(p1, p2);
+          const tubeRadius = link.type === "synapse_primary" ? 0.035 : 0.02;
+          const tubeGeo = new THREE.TubeGeometry(curve, 12, tubeRadius, 4, false);
+          const colorHex = parseInt((link.color || "#22d3ee").replace("#", "0x"));
+          const tubeMat = new THREE.MeshBasicMaterial({
+            color: colorHex,
+            transparent: true,
+            opacity: 0.35,
+            blending: THREE.AdditiveBlending
+          });
+          const tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
+          tubeMesh.userData = { source: link.source, target: link.target };
+          scene.add(tubeMesh);
+          edgeObjects.push(tubeMesh);
+
+          const pulseGeo = new THREE.SphereGeometry(0.14, 6, 6);
+          const pulseMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending
+          });
+          const pulseMesh = new THREE.Mesh(pulseGeo, pulseMat);
+          scene.add(pulseMesh);
+
+          pulseParticles.push({
+            mesh: pulseMesh,
+            p1: p1,
+            p2: p2,
+            source: link.source,
+            target: link.target,
+            progress: (idx * 0.08) % 1.0,
+            speed: 0.006 * (link.pulse_speed || 1.0)
+          });
+        }
+      });
+    }
+
+    // ==========================================================
+    // 4. INTERACTION (DRAG VS CLICK & SELECTION)
+    // ==========================================================
+    function onPointerDown(event) {
+      pointerDownPos.x = event.clientX;
+      pointerDownPos.y = event.clientY;
+    }
+
+    function onPointerMove(event) {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(hitBoxList, false);
+
+      if (intersects.length > 0) {
+        hoveredHitBox = intersects[0].object;
+        document.body.style.cursor = "pointer";
+        const node = hoveredHitBox.userData;
+        ttTitle.textContent = node.name;
+        ttSub.textContent = `${node.department || 'ETB'} · ${node.status_cat || 'Activo'}`;
+        tooltipEl.style.display = "block";
+        tooltipEl.style.left = `${event.clientX}px`;
+        tooltipEl.style.top = `${event.clientY}px`;
+      } else {
+        hoveredHitBox = null;
+        document.body.style.cursor = "default";
+        tooltipEl.style.display = "none";
+      }
+    }
+
+    function onPointerUp(event) {
+      const diffX = event.clientX - pointerDownPos.x;
+      const diffY = event.clientY - pointerDownPos.y;
+      if (Math.hypot(diffX, diffY) > DRAG_THRESHOLD_PX) return;
+
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(hitBoxList, false);
+
+      if (intersects.length > 0) {
+        const hitNode = intersects[0].object.userData;
+        if (hitNode && hitNode.id) {
+          selectNode(hitNode.id);
+        }
+      }
+    }
+
+    function selectNode(nodeId) {
+      selectedAgentId = nodeId;
+      togglePanel(false);
+
+      const targetGroup = nodeMeshMap.get(nodeId);
+      if (targetGroup) {
+        const p = targetGroup.position;
+        focusCameraOn(p.x, p.y, p.z);
+        triggerNodeFlash(targetGroup);
+      }
+
+      updatePanelForNode(nodeId);
+    }
+
+    function focusCameraOn(tx, ty, tz, camDist = 26, onComplete = null) {
+      const startCam = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const endTarget = new THREE.Vector3(tx, ty, tz);
+      const endCam = new THREE.Vector3(tx + (tx === 0 ? 0 : 10), ty + 8, tz + camDist);
+
+      let t = 0;
+      function step() {
+        t += 0.04;
+        if (t >= 1) {
+          camera.position.copy(endCam);
+          controls.target.copy(endTarget);
+          controls.update();
+          if (typeof onComplete === "function") {
+            onComplete();
+          }
+          return;
+        }
+        camera.position.lerpVectors(startCam, endCam, t);
+        controls.target.lerpVectors(startTarget, endTarget, t);
+        controls.update();
+        requestAnimationFrame(step);
+      }
+      step();
+    }
+
+    function triggerNodeFlash(group) {
+      const orig = group.scale.clone();
+      group.scale.set(1.35, 1.35, 1.35);
+      setTimeout(() => group.scale.copy(orig), 250);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // ==========================================================
+    // 5. ANIMATION LOOP & MINIMAP
+    // ==========================================================
+    function animate() {
+      requestAnimationFrame(animate);
+
+      nodeMeshMap.forEach(group => {
+        if (group.wireMesh) {
+          group.wireMesh.rotation.y += 0.006;
+          group.wireMesh.rotation.x += 0.003;
+        }
+      });
+
+      pulseParticles.forEach(p => {
+        const srcGroup = nodeMeshMap.get(p.source);
+        const tgtGroup = nodeMeshMap.get(p.target);
+        if (srcGroup && tgtGroup && srcGroup.visible && tgtGroup.visible) {
+          p.mesh.visible = true;
+          p.progress += p.speed;
+          if (p.progress > 1.0) p.progress = 0.0;
+          p.mesh.position.lerpVectors(p.p1, p.p2, p.progress);
+        } else {
+          p.mesh.visible = false;
+        }
+      });
+
+      controls.update();
+      renderer.render(scene, camera);
+
+      renderMinimapRadar();
+    }
+
+    function renderMinimapRadar() {
+      const canvas = document.getElementById("minimapCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.15)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+      ctx.arc(cx, cy, 50, 0, Math.PI * 2);
+      ctx.stroke();
+
+      const angle = Math.atan2(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
+      ctx.fillStyle = "rgba(34, 211, 238, 0.12)";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, 60, -angle - Math.PI / 4, -angle + Math.PI / 4);
+      ctx.closePath();
+      ctx.fill();
+
+      if (hierarchyData && hierarchyData.nodes) {
+        hierarchyData.nodes.forEach(n => {
+          const group = nodeMeshMap.get(n.id);
+          if (group && group.visible) {
+            const mapX = cx + (n.x / 40) * 55;
+            const mapY = cy + (n.z / 40) * 55;
+            ctx.fillStyle = n.color || "#22d3ee";
+            ctx.beginPath();
+            ctx.arc(mapX, mapY, n.type === "master" ? 3.5 : 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+      }
+    }
+
+    // ==========================================================
+    // 6. SEDES, TOUR & FILTER CONTROLS IMPLEMENTATION
+    // ==========================================================
+    let currentSedeIndex = 0;
+    const sedesList = [
+      { name: "Sede Central: Torre ETB (Carrera 8a # 20-00)", target: "master", x: 0, y: 0, z: 0, desc: "Presidencia Ejecutiva & Gobernanza Corporativa" },
+      { name: "Data Center Alma (Suba)", target: "n_alma", x: 19.5, y: 0.5, z: 8.5, desc: "Centro de Datos Principal Tier III / ICREA Nivel V" },
+      { name: "Data Center Prado (Puente Aranda)", target: "n_prado", x: 28.5, y: 2.0, z: 4.0, desc: "Nodo Georedundante y Disaster Recovery Plan (DRP)" },
+      { name: "Red Troncal Anillos DWDM 100G", target: "n_dwdm", x: -12.5, y: 15.0, z: -3.0, desc: "Malla Metropolitana de Fibra Óptica 100G" },
+      { name: "Centro de Operaciones de Red (NOC)", target: "c_noc", x: -8.0, y: 18.0, z: -6.0, desc: "Supervisión 24/7/365 de Telecomunicaciones" }
+    ];
+
+    function handleSedesButton() {
+      const sede = sedesList[currentSedeIndex];
+      currentSedeIndex = (currentSedeIndex + 1) % sedesList.length;
+
+      showToast(`🏢 ${sede.name}`);
+      focusCameraOn(sede.x, sede.y, sede.z, 24);
+
+      const targetGroup = nodeMeshMap.get(sede.target);
+      if (targetGroup) triggerNodeFlash(targetGroup);
+    }
+
+    // Cinematic Guided Tour
+    let isTourRunning = false;
+    let tourStep = 0;
+    let tourTimer = null;
+    const tourStops = [
+      { title: "1. NEXO ETB CORE", desc: "Presidencia Ejecutiva & Dirección General Corporativa", x: 0, y: 0, z: 0 },
+      { title: "2. Red Troncal & Fibra Óptica", desc: "Monitoreo NOC 24/7 de anillos DWDM 100G y latencias <3.5ms", x: -8, y: 18, z: -6 },
+      { title: "3. Data Centers & Nube Híbrida", desc: "Data Centers Propios Tier III Alma y Prado DRP + Mitigación SOC Anti-DDoS", x: 24, y: -3, z: 6 },
+      { title: "4. Soluciones Corporativas & B2B", desc: "Internet Dedicado Simétrico 1:1, Troncales SIP y SD-WAN Multi-Sede", x: 18, y: 14, z: -8 },
+      { title: "5. Gobernanza Legal & Normativa", desc: "Cumplimiento normativo CRC 5111, Ley 1581 y Contratación SECOP II", x: -22, y: -4, z: 8 },
+      { title: "6. Planeación Financiera & Costos", desc: "Optimización de costos TCO en Pesos (COP) y amortización de ductería", x: 6, y: -14, z: 4 },
+      { title: "7. Despliegue de Red & Proyectos", desc: "Expansión de red, permisos de obra IDU y certificación OTDR", x: -20, y: 10, z: -12 },
+      { title: "8. Mesa de Ayuda & Soporte Técnico", desc: "Service Desk ITIL v4 N1/N2 con tiempos de respuesta FRT < 3 min", x: -10, y: -16, z: -8 },
+      { title: "9. Experiencia de Cliente & VIP", desc: "Gestores corporativos dedicados y satisfacción CSAT > 94%", x: 22, y: -14, z: -6 }
+    ];
+
+    function startTour() {
+      isTourRunning = true;
+      tourStep = 0;
+      document.getElementById("tourBanner").classList.add("active");
+      runTourStep();
+    }
+
+    function stopTour() {
+      isTourRunning = false;
+      if (tourTimer) clearTimeout(tourTimer);
+      document.getElementById("tourBanner").classList.remove("active");
+      focusCameraOn(0, 18, 62, 35);
+      showToast("Tour finalizado");
+    }
+
+    function runTourStep() {
+      if (!isTourRunning) return;
+      const stop = tourStops[tourStep];
+      document.getElementById("tourTitle").textContent = stop.title;
+      document.getElementById("tourDesc").textContent = stop.desc;
+
+      focusCameraOn(stop.x, stop.y, stop.z, 22);
+
+      tourStep = (tourStep + 1) % tourStops.length;
+      tourTimer = setTimeout(runTourStep, 5000);
+    }
+
+    // Unified Filter Synchronizer (Dominio, Sede, Resp, Buscar)
+    function applyAllFilters() {
+      const searchQuery = (document.getElementById("filterSearch")?.value || "").trim().toLowerCase();
+      const domainVal = document.getElementById("filterDomain")?.value || "all";
+      const respVal = document.getElementById("filterResp")?.value || "all";
+      const sedeVal = document.getElementById("filterSede")?.value || "all";
+
+      let visibleCount = 0;
+
+      nodeMeshMap.forEach((group) => {
+        const data = group.userData;
+        const isMaster = data.type === "master";
+
+        // Search Check
+        let passSearch = true;
+        if (searchQuery) {
+          passSearch = (data.name && data.name.toLowerCase().includes(searchQuery)) ||
+                       (data.department && data.department.toLowerCase().includes(searchQuery)) ||
+                       (data.role && data.role.toLowerCase().includes(searchQuery));
+        }
+
+        // Domain Check
+        let passDomain = true;
+        if (domainVal !== "all") {
+          passDomain = isMaster || (data.cluster === domainVal) || (data.department === domainVal);
+        }
+
+        // Resp Check
+        let passResp = true;
+        if (respVal !== "all") {
+          if (respVal === "Presidencia") passResp = isMaster;
+          else if (respVal === "Operaciones") passResp = data.cluster === "Red Troncal & Fibra Óptica";
+          else if (respVal === "Tecnologia") passResp = data.cluster === "Data Centers & Nube Híbrida";
+          else if (respVal === "Comercial") passResp = data.cluster === "Soluciones Corporativas & B2B";
+          else if (respVal === "Juridica") passResp = data.cluster === "Gobernanza Legal & Normativa";
+          else if (respVal === "Financiera") passResp = data.cluster === "Planeación Financiera & Costos";
+          else if (respVal === "PMO") passResp = data.cluster === "Despliegue de Red & Proyectos";
+          else if (respVal === "Soporte") passResp = data.cluster === "Mesa de Ayuda & Soporte Técnico";
+          else if (respVal === "Experiencia") passResp = data.cluster === "Experiencia de Cliente & VIP";
+        }
+
+        // Sede Check
+        let passSede = true;
+        if (sedeVal === "Alma") passSede = isMaster || (data.id && data.id.includes("alma")) || data.cluster === "Data Centers & Nube Híbrida";
+        else if (sedeVal === "Prado") passSede = isMaster || (data.id && data.id.includes("prado")) || data.cluster === "Data Centers & Nube Híbrida";
+        else if (sedeVal === "Bogota") passSede = isMaster || data.cluster === "Gobernanza Legal & Normativa" || (data.id && data.id.includes("dwdm"));
+        else if (sedeVal === "Troncal") passSede = isMaster || data.cluster === "Red Troncal & Fibra Óptica" || (data.id && (data.id.includes("dwdm") || data.id.includes("gpon")));
+
+        // Combine
+        const isVisible = passSearch && passDomain && passResp && passSede;
+        group.visible = isVisible;
+        if (isVisible) visibleCount++;
+      });
+
+      // Update edge connections visibility
+      edgeObjects.forEach(edge => {
+        const srcGroup = nodeMeshMap.get(edge.userData.source);
+        const tgtGroup = nodeMeshMap.get(edge.userData.target);
+        if (srcGroup && tgtGroup) {
+          edge.visible = srcGroup.visible && tgtGroup.visible;
+        }
+      });
+    }
+
+    // ==========================================================
+    // 7. ELEVENAGENTS VOICE AI ENGINE & LIVE SHADER ORB (IMAGE 2)
+    // ==========================================================
+    let isCallActive = false;
+    let isListening = false;
+    let isSpeaking = false;
+    let speechRecognition = null;
+
+    // High-Impact Quantum Core Ripple Shader for NEXO Voice Orb
+    function initFluidOrbAnimation() {
+      const canvas = document.getElementById("orbFluidCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      let frame = 0;
+      const sparks = Array.from({ length: 8 }, () => ({
+        a: Math.random() * Math.PI * 2,
+        speed: 0.02 + Math.random() * 0.03,
+        dist: 16 + Math.random() * 20,
+        size: 1.2 + Math.random() * 1.5,
+        alpha: 0.3 + Math.random() * 0.5
+      }));
+
+      function drawOrbNoise() {
+        frame += isSpeaking ? 0.06 : (isListening ? 0.04 : 0.018);
+        ctx.clearRect(0, 0, 90, 90);
+
+        const cx = 45;
+        const cy = 45;
+        const radius = 40;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.clip();
+
+        // Layer 1: Multi-harmonic Quantum Wave Plasma
+        const grad1 = ctx.createLinearGradient(0, 0, 90, 90);
+        grad1.addColorStop(0, "rgba(56, 189, 248, 0.35)");
+        grad1.addColorStop(0.5, "rgba(129, 140, 248, 0.3)");
+        grad1.addColorStop(1, "rgba(30, 58, 138, 0.45)");
+
+        ctx.fillStyle = grad1;
+        ctx.beginPath();
+        for (let a = 0; a < Math.PI * 2; a += 0.25) {
+          const wave = Math.sin(a * 3 + frame) * (isSpeaking ? 7 : (isListening ? 4.5 : 2.5)) + Math.cos(a * 2 - frame) * 3;
+          const r = radius - 5 + wave;
+          const x = cx + Math.cos(a) * r;
+          const y = cy + Math.sin(a) * r;
+          if (a === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        // Layer 2: Orbiting Energy Spark Particles
+        sparks.forEach(p => {
+          p.a += p.speed * (isSpeaking ? 1.8 : 1.0);
+          const px = cx + Math.cos(p.a) * (p.dist + Math.sin(frame * 2) * 3);
+          const py = cy + Math.sin(p.a) * (p.dist * 0.75 + Math.cos(frame * 2) * 3);
+          ctx.fillStyle = `rgba(224, 242, 254, ${p.alpha})`;
+          ctx.beginPath();
+          ctx.arc(px, py, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Layer 3: Glowing Luminescent Core
+        const grad2 = ctx.createRadialGradient(cx - 7, cy - 7, 4, cx, cy, 40);
+        grad2.addColorStop(0, "rgba(255, 255, 255, 0.4)");
+        grad2.addColorStop(0.35, "rgba(56, 189, 248, 0.18)");
+        grad2.addColorStop(1, "transparent");
+        ctx.fillStyle = grad2;
+        ctx.fillRect(0, 0, 90, 90);
+
+        ctx.restore();
+        requestAnimationFrame(drawOrbNoise);
+      }
+      drawOrbNoise();
+    }
+
+    function initElevenVoiceSystem() {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRec) {
+        speechRecognition = new SpeechRec();
+        speechRecognition.lang = "es-CO";
+        speechRecognition.continuous = false;
+        speechRecognition.interimResults = true;
+
+        speechRecognition.onstart = () => {
+          isListening = true;
+          setOrbState("listening");
+          document.getElementById("elevenSubtitles").textContent = "Escuchando su consulta sobre ETB...";
+        };
+
+        speechRecognition.onresult = (event) => {
+          const transcript = Array.from(event.results).map(r => r[0].transcript).join("");
+          document.getElementById("elevenSubtitles").textContent = `"${transcript}"`;
+
+          if (event.results[0].isFinal) {
+            handleVoiceAiQuery(transcript);
+          }
+        };
+
+        speechRecognition.onerror = (e) => {
+          console.warn("Speech recognition error:", e);
+          isListening = false;
+          setOrbState("idle");
+        };
+
+        speechRecognition.onend = () => {
+          isListening = false;
+          if (!isSpeaking) setOrbState("idle");
+        };
+      }
+    }
+
+    function toggleElevenVoiceModal() {
+      const modal = document.getElementById("elevenVoiceModal");
+      modal.classList.toggle("hidden-dock");
+    }
+
+    function toggleVoiceCall() {
+      isCallActive = !isCallActive;
+      const callBtn = document.getElementById("elevenCallBtn");
+      const callIcon = document.getElementById("elevenCallIcon");
+
+      if (isCallActive) {
+        callBtn.classList.add("active");
+        callIcon.setAttribute("data-lucide", "phone-off");
+        lucide.createIcons();
+        document.getElementById("elevenSubtitles").textContent = "Canal de voz activo. Hable con el Agente ETB...";
+        startListening();
+      } else {
+        callBtn.classList.remove("active");
+        callIcon.setAttribute("data-lucide", "phone");
+        lucide.createIcons();
+        stopVoiceCall();
+      }
+    }
+
+    function startListening() {
+      if (speechRecognition && !isListening) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        try {
+          speechRecognition.start();
+        } catch (e) {
+          console.warn(e);
+        }
+      } else if (!speechRecognition) {
+        document.getElementById("elevenSubtitles").textContent = "Micrófono no soportado en este navegador. Escriba en Chat.";
+      }
+    }
+
+    function stopVoiceCall() {
+      if (speechRecognition) speechRecognition.stop();
+      window.speechSynthesis.cancel();
+      isListening = false;
+      isSpeaking = false;
+      setOrbState("idle");
+      document.getElementById("elevenSubtitles").textContent = "Llamada finalizada. Clic en el botón para reiniciar.";
+    }
+
+    function setOrbState(state) {
+      const orb = document.getElementById("elevenFluidOrb");
+      orb.className = "eleven-fluid-circle " + (state !== "idle" ? state : "");
+    }
+
+    async function handleVoiceAiQuery(text) {
+      if (!text || text.trim().length === 0) return;
+      document.getElementById("elevenSubtitles").textContent = "Procesando con Constelación ETB...";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender: "voice_user",
+            target_agent: "master",
+            message: text
+          })
+        });
+
+        const data = await res.json();
+        const spoken = data.voice_summary || (data.response ? data.response.slice(0, 240) : "Solución procesada por ETB.");
+
+        document.getElementById("elevenSubtitles").textContent = spoken;
+        speakText(spoken);
+      } catch (err) {
+        const fallback = "ETB garantiza fibra simétrica 100% pura y Centros de Datos Tier 3 propios en Colombia con disponibilidad del 99.98%.";
+        document.getElementById("elevenSubtitles").textContent = fallback;
+        speakText(fallback);
+      }
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "es-ES";
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+
+      const voices = window.speechSynthesis.getVoices();
+      const esVoice = voices.find(v => v.lang.startsWith("es"));
+      if (esVoice) utterance.voice = esVoice;
+
+      utterance.onstart = () => {
+        isSpeaking = true;
+        setOrbState("talking");
+      };
+
+      utterance.onend = () => {
+        isSpeaking = false;
+        setOrbState("idle");
+        if (isCallActive) {
+          setTimeout(startListening, 700);
+        }
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // ==========================================================
+    // 8. PANEL & CHAT API INTEGRATIONS
+    // ==========================================================
+    function togglePanel(forceState = null) {
+      const panel = document.getElementById("sidePanel");
+      const icon = document.getElementById("toggleIcon");
+
+      if (forceState !== null) panelCollapsed = forceState;
+      else panelCollapsed = !panelCollapsed;
+
+      if (panelCollapsed) {
+        panel.classList.add("collapsed");
+        icon.setAttribute("data-lucide", "chevron-left");
+      } else {
+        panel.classList.remove("collapsed");
+        icon.setAttribute("data-lucide", "chevron-right");
+      }
+      lucide.createIcons();
+    }
+
+    function getDefaultHierarchyData() {
+      const nodes = [
+        {
+          id: "master",
+          name: "NEXO ETB CORE",
+          title: "Presidencia Ejecutiva & Dirección General",
+          department: "Presidencia Ejecutiva & Dirección General",
+          role: "Núcleo de Inteligencia Artificial Corporativa ETB",
+          color: "#22d3ee",
+          emblem: "👑",
+          type: "master",
+          radius: 1.25,
+          x: 0.0,
+          y: 0.0,
+          z: 0.0,
+          cluster: "Presidencia",
+          status_cat: "Consolidado",
+          status_color: "#2dd4bf",
+          files_count: 5
+        }
+      ];
+
+      const clusters_def = [
+        { id: "c_noc", name: "Red Troncal & Fibra Óptica", dept: "Red Troncal & Fibra Óptica", x: -8.0, y: 18.0, z: -6.0, color: "#10b981", cat: "Consolidado" },
+        { id: "c_cib", name: "Data Centers & Nube Híbrida", dept: "Data Centers & Nube Híbrida", x: 24.0, y: -3.0, z: 6.0, color: "#818cf8", cat: "Consolidado" },
+        { id: "c_com", name: "Soluciones Corporativas & B2B", dept: "Soluciones Corporativas & B2B", x: 18.0, y: 14.0, z: -8.0, color: "#38bdf8", cat: "Consolidado" },
+        { id: "c_gob", name: "Gobernanza Legal & Normativa", dept: "Gobernanza Legal & Normativa", x: -22.0, y: -4.0, z: 8.0, color: "#f59e0b", cat: "Consolidado" },
+        { id: "c_erp", name: "Planeación Financiera & Costos", dept: "Planeación Financiera & Costos", x: 6.0, y: -14.0, z: 4.0, color: "#a855f7", cat: "Consolidado" },
+        { id: "c_pmo", name: "Despliegue de Red & Proyectos", dept: "Despliegue de Red & Proyectos", x: -20.0, y: 10.0, z: -12.0, color: "#06b6d4", cat: "Consolidado" },
+        { id: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", dept: "Mesa de Ayuda & Soporte Técnico", x: -10.0, y: -16.0, z: -8.0, color: "#ec4899", cat: "Consolidado" },
+        { id: "c_cx", name: "Experiencia de Cliente & VIP", dept: "Experiencia de Cliente & VIP", x: 22.0, y: -14.0, z: -6.0, color: "#14b8a6", cat: "Consolidado" }
+      ];
+
+      const links = [];
+
+      clusters_def.forEach(c => {
+        nodes.push({
+          id: c.id,
+          name: c.name,
+          title: `Dominio ${c.name}`,
+          department: c.dept,
+          role: `Dominio Departamental: ${c.name}`,
+          color: c.color,
+          emblem: "🌐",
+          type: "domain_cage",
+          radius: 0.85,
+          x: c.x,
+          y: c.y,
+          z: c.z,
+          cluster: c.name,
+          status_cat: c.cat,
+          status_color: "#2dd4bf",
+          files_count: 2
+        });
+        links.push({
+          source: "master",
+          target: c.id,
+          type: "synapse_primary",
+          color: c.color,
+          pulse_speed: 1.2
+        });
+      });
+
+      const projects_def = [
+        { id: "n_dwdm", name: "Anillo DWDM Bogotá 100G", parent: "c_noc", cluster: "Red Troncal & Fibra Óptica", cat: "Consolidado", color: "#2dd4bf", offset: [-4.5, -3.0, 3.0] },
+        { id: "n_gpon_mesh", name: "Malla FTTH GPON / XGS-PON", parent: "c_noc", cluster: "Red Troncal & Fibra Óptica", cat: "Consolidado", color: "#2dd4bf", offset: [4.5, 3.0, -2.5] },
+        { id: "n_nap_intercon", name: "Interconexión NAP Colombia", parent: "c_noc", cluster: "Red Troncal & Fibra Óptica", cat: "Consolidado", color: "#2dd4bf", offset: [-5.5, 4.5, 2.0] },
+        { id: "n_telemetry_otdr", name: "Telemetría y OTDR 24/7", parent: "c_noc", cluster: "Red Troncal & Fibra Óptica", cat: "Quick Win", color: "#f472b6", offset: [4.0, -4.5, 3.5] },
+        { id: "n_microtrench", name: "Microzanjado Subterráneo", parent: "c_noc", cluster: "Red Troncal & Fibra Óptica", cat: "Diagnóstico", color: "#fb7185", offset: [6.5, 2.0, 4.0] },
+        { id: "n_noc_l3", name: "Vigilancia NOC Nivel 3", parent: "c_noc", cluster: "Red Troncal & Fibra Óptica", cat: "Diagnóstico", color: "#fb7185", offset: [-2.0, 6.5, -4.0] },
+
+        { id: "n_alma", name: "Data Center Alma Tier III", parent: "c_cib", cluster: "Data Centers & Nube Híbrida", cat: "Consolidado", color: "#2dd4bf", offset: [-4.5, 3.5, 2.5] },
+        { id: "n_prado", name: "Data Center Prado DRP", parent: "c_cib", cluster: "Data Centers & Nube Híbrida", cat: "Consolidado", color: "#2dd4bf", offset: [4.5, 5.0, -2.0] },
+        { id: "n_soc_ddos", name: "SOC & Anti-DDoS L3-L7 100G", parent: "c_cib", cluster: "Data Centers & Nube Híbrida", cat: "Quick Win", color: "#f472b6", offset: [6.0, -3.5, 3.5] },
+        { id: "n_etb_cloud", name: "Nube Soberana ETB Cloud", parent: "c_cib", cluster: "Data Centers & Nube Híbrida", cat: "Quick Win", color: "#f472b6", offset: [-5.0, -5.0, 3.0] },
+        { id: "n_zero_trust", name: "Arquitectura Zero-Trust", parent: "c_cib", cluster: "Data Centers & Nube Híbrida", cat: "Diagnóstico", color: "#fb7185", offset: [6.5, 2.5, -3.5] },
+        { id: "n_draas_backup", name: "DRaaS & Backup Soberano", parent: "c_cib", cluster: "Data Centers & Nube Híbrida", cat: "Diagnóstico", color: "#fb7185", offset: [2.0, -7.0, -2.5] },
+
+        { id: "n_ftth_ded", name: "Internet Dedicado Simétrico", parent: "c_com", cluster: "Soluciones Corporativas & B2B", cat: "Consolidado", color: "#2dd4bf", offset: [3.5, 4.0, 2.0] },
+        { id: "n_p2p_l2l3", name: "Transporte Punto a Punto L2/L3", parent: "c_com", cluster: "Soluciones Corporativas & B2B", cat: "Consolidado", color: "#2dd4bf", offset: [-4.0, 5.5, 2.5] },
+        { id: "n_sip_cloud", name: "Troncales SIP Cloud & PBX", parent: "c_com", cluster: "Soluciones Corporativas & B2B", cat: "Quick Win", color: "#f472b6", offset: [5.5, -3.0, -3.0] },
+        { id: "n_sdwan", name: "SD-WAN Administrado Multi-Sede", parent: "c_com", cluster: "Soluciones Corporativas & B2B", cat: "Quick Win", color: "#f472b6", offset: [-3.5, -4.5, 3.5] },
+        { id: "n_smart_city", name: "Soluciones Smart City & IoT", parent: "c_com", cluster: "Soluciones Corporativas & B2B", cat: "Diagnóstico", color: "#fb7185", offset: [6.0, 3.5, 3.0] },
+        { id: "n_pymes_cloud", name: "Conectividad Pymes + Seguridad", parent: "c_com", cluster: "Soluciones Corporativas & B2B", cat: "Diagnóstico", color: "#fb7185", offset: [1.5, -6.5, -3.5] },
+
+        { id: "n_crc_5111", name: "Régimen Usuarios CRC 5111", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#2dd4bf", offset: [-4.0, 3.5, 2.5] },
+        { id: "n_secop", name: "Contratación Estatal SECOP II", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#2dd4bf", offset: [4.5, -3.5, 2.5] },
+        { id: "n_habeas", name: "Ley 1581 Protección Datos", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#2dd4bf", offset: [-5.5, -4.0, -2.5] },
+        { id: "n_crc_5050", name: "Calidad de Servicio CRC 5050", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Quick Win", color: "#f472b6", offset: [5.0, 4.0, -2.5] },
+        { id: "n_spectrum_reg", name: "Regulación Espectro MinTIC", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Diagnóstico", color: "#fb7185", offset: [2.0, 6.5, 3.0] },
+
+        { id: "n_tco_cop", name: "Optimización TCO en Pesos (COP)", parent: "c_erp", cluster: "Planeación Financiera & Costos", cat: "Consolidado", color: "#2dd4bf", offset: [-3.5, 3.5, 2.0] },
+        { id: "n_duct_infra", name: "Amortización Ductería Propia", parent: "c_erp", cluster: "Planeación Financiera & Costos", cat: "Consolidado", color: "#2dd4bf", offset: [4.0, 4.0, -2.5] },
+        { id: "n_capex_model", name: "Modelación CAPEX/OPEX de Red", parent: "c_erp", cluster: "Planeación Financiera & Costos", cat: "Quick Win", color: "#f472b6", offset: [4.5, -3.5, 2.5] },
+        { id: "n_e_invoicing", name: "Facturación Electrónica B2B", parent: "c_erp", cluster: "Planeación Financiera & Costos", cat: "Diagnóstico", color: "#fb7185", offset: [-4.5, -4.5, -2.0] },
+        { id: "n_roi_fiber", name: "Plan de Retorno ROI Fibra", parent: "c_erp", cluster: "Planeación Financiera & Costos", cat: "Diagnóstico", color: "#fb7185", offset: [1.5, -6.5, 3.0] },
+
+        { id: "n_pmo_agile", name: "Ruta Crítica PMO & Sprints", parent: "c_pmo", cluster: "Despliegue de Red & Proyectos", cat: "Consolidado", color: "#2dd4bf", offset: [3.5, 2.5, 2.5] },
+        { id: "n_idu_permits", name: "Permisos IDU y Espacio Público", parent: "c_pmo", cluster: "Despliegue de Red & Proyectos", cat: "Quick Win", color: "#f472b6", offset: [-4.0, 4.0, -2.5] },
+        { id: "n_suba_expansion", name: "Expansión Troncal Suba-Usaquén", parent: "c_pmo", cluster: "Despliegue de Red & Proyectos", cat: "Diagnóstico", color: "#fb7185", offset: [4.5, -3.5, -2.0] },
+        { id: "n_otdr_cert", name: "Certificación OTDR Cuadrillas", parent: "c_pmo", cluster: "Despliegue de Red & Proyectos", cat: "Diagnóstico", color: "#fb7185", offset: [-4.5, -4.0, 2.5] },
+        { id: "n_sabana_reach", name: "Cobertura Troncal Sabana", parent: "c_pmo", cluster: "Despliegue de Red & Proyectos", cat: "Diagnóstico", color: "#fb7185", offset: [1.5, 6.0, 3.0] },
+
+        { id: "n_itil_desk", name: "Service Desk ITIL v4 N1/N2", parent: "c_desk", cluster: "Mesa de Ayuda & Soporte Técnico", cat: "Consolidado", color: "#2dd4bf", offset: [-3.5, 3.0, 2.0] },
+        { id: "n_ont_triage", name: "Diagnóstico Remoto ONT/CPE", parent: "c_desk", cluster: "Mesa de Ayuda & Soporte Técnico", cat: "Quick Win", color: "#f472b6", offset: [4.0, 3.5, -2.0] },
+        { id: "n_vip_desk", name: "Mesa Preferencial Clientes VIP", parent: "c_desk", cluster: "Mesa de Ayuda & Soporte Técnico", cat: "Quick Win", color: "#f472b6", offset: [3.5, -3.5, 2.5] },
+        { id: "n_frt_opt", name: "Optimización FRT (< 3 min)", parent: "c_desk", cluster: "Mesa de Ayuda & Soporte Técnico", cat: "Diagnóstico", color: "#fb7185", offset: [-4.0, -4.0, -2.5] },
+
+        { id: "n_nps_b2b", name: "NPS Corporativo B2B > 68 pts", parent: "c_cx", cluster: "Experiencia de Cliente & VIP", cat: "Consolidado", color: "#2dd4bf", offset: [3.5, 3.0, 2.0] },
+        { id: "n_csat_enterprise", name: "CSAT 94% Enlaces Empresariales", parent: "c_cx", cluster: "Experiencia de Cliente & VIP", cat: "Quick Win", color: "#f472b6", offset: [-3.5, 3.5, -2.0] },
+        { id: "n_selfservice_cx", name: "Portal Autoservicio Cliente", parent: "c_cx", cluster: "Experiencia de Cliente & VIP", cat: "Diagnóstico", color: "#fb7185", offset: [4.0, -3.5, 2.5] },
+        { id: "n_proactive_care", name: "Acompañamiento VIP Proactivo", parent: "c_cx", cluster: "Experiencia de Cliente & VIP", cat: "Diagnóstico", color: "#fb7185", offset: [-3.5, -4.0, -2.0] }
+      ];
+
+      projects_def.forEach(p => {
+        const parentNode = nodes.find(n => n.id === p.parent);
+        const px = parentNode ? parentNode.x + p.offset[0] : p.offset[0];
+        const py = parentNode ? parentNode.y + p.offset[1] : p.offset[1];
+        const pz = parentNode ? parentNode.z + p.offset[2] : p.offset[2];
+
+        nodes.push({
+          id: p.id,
+          name: p.name,
+          title: p.name,
+          department: p.cluster,
+          role: `Iniciativa ${p.cat} - ${p.cluster}`,
+          color: p.color,
+          emblem: p.cat === "Quick Win" ? "✨" : (p.cat === "Consolidado" ? "💎" : "🔹"),
+          type: "project_node",
+          radius: p.cat === "Consolidado" ? 0.32 : 0.24,
+          x: Math.round(px * 100) / 100,
+          y: Math.round(py * 100) / 100,
+          z: Math.round(pz * 100) / 100,
+          cluster: p.cluster,
+          status_cat: p.cat,
+          status_color: p.cat === "Quick Win" ? "#f472b6" : (p.cat === "Consolidado" ? "#2dd4bf" : "#fb7185"),
+          files_count: 1
+        });
+
+        links.push({
+          source: p.parent,
+          target: p.id,
+          type: "synapse_satellite",
+          color: p.color,
+          pulse_speed: 1.6
+        });
+      });
+
+      const inter_mesh = [
+        ["c_noc", "c_cib", "#818cf8"],
+        ["c_cib", "c_erp", "#a855f7"],
+        ["c_erp", "c_gob", "#f59e0b"],
+        ["c_gob", "c_pmo", "#06b6d4"],
+        ["c_pmo", "c_noc", "#10b981"],
+        ["c_com", "c_erp", "#38bdf8"],
+        ["c_desk", "c_cx", "#14b8a6"],
+        ["c_noc", "c_desk", "#ec4899"],
+        ["n_dwdm", "n_alma", "#2dd4bf"],
+        ["n_alma", "n_prado", "#2dd4bf"],
+        ["n_ftth_ded", "n_gpon_mesh", "#2dd4bf"],
+        ["n_soc_ddos", "n_noc_l3", "#f472b6"],
+        ["n_sdwan", "n_etb_cloud", "#f472b6"]
+      ];
+
+      inter_mesh.forEach(([s, t, col]) => {
+        links.push({
+          source: s,
+          target: t,
+          type: "synapse_inter",
+          color: col,
+          pulse_speed: 1.0
+        });
+      });
+
+      return {
+        constellation_name: "NEXO ETB",
+        version: "3.2.0-Enterprise",
+        total_nodes: nodes.length,
+        total_links: links.length,
+        nodes: nodes,
+        links: links
+      };
+    }
+
+    async function fetchHierarchy() {
+      // 1. Build immediately with embedded fallback so nodes always render instantly
+      if (!hierarchyData) {
+        buildConstellation(getDefaultHierarchyData());
+      }
+      // 2. Fetch live data from backend to sync any updates
+      try {
+        const res = await fetch(`${API_BASE}/api/hierarchy`);
+        if (res.ok) {
+          const data = await res.json();
+          buildConstellation(data);
+        }
+      } catch (err) {
+        console.warn("Backend loading, using fallback constellation:", err);
+      }
+    }
+
+    function updatePanelForNode(nodeId) {
+      const node = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === nodeId) : null;
+      if (!node) return;
+
+      document.getElementById("agent-avatar").textContent = node.emblem || "👑";
+      document.getElementById("agent-name").textContent = node.name;
+      document.getElementById("agent-role").textContent = `${node.department || 'ETB'} · ${node.status_cat || 'Activo'}`;
+      document.getElementById("train-dept-display").value = node.id;
+    }
+
+    function navigateToNode(nodeId) {
+      selectedAgentId = nodeId;
+      updatePanelForNode(nodeId);
+      const targetNode = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === nodeId) : null;
+      if (targetNode) {
+        focusCameraOn(targetNode.x, targetNode.y, targetNode.z, 22);
+        const targetGroup = nodeMeshMap.get(targetNode.id);
+        if (targetGroup) triggerNodeFlash(targetGroup);
+        showToast("📍 Enfocando nodo: " + targetNode.name);
+      }
+    }
+    window.navigateToNode = navigateToNode;
+
+    let chatHistory = [];
+
+    async function sendMessage() {
+      const input = document.getElementById("chat-input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = "";
+      appendChatMessage("user", text);
+      chatHistory.push({ role: "user", content: text, agent: selectedAgentId });
+
+      const loadId = appendChatMessage("agent", "⏳ *Sincronizando con NEXO ETB...*");
+
+      try {
+        const res = await fetch(`${API_BASE}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender: "user",
+            target_agent: selectedAgentId,
+            message: text,
+            history: chatHistory
+          })
+        });
+        const data = await res.json();
+        removeChatMessage(loadId);
+
+        if (res.ok) {
+          // Caso: Transferencia Inter-Departamental Cinematográfica
+          if (data.is_transfer && data.redirect_target && selectedAgentId !== data.redirect_target) {
+            // 1. Mostrar aviso del agente actual explicando que no es su área y que lo transferirá
+            const introMsg = data.transfer_intro || `ℹ️ Esta consulta no corresponde a mi área. Te voy a transferir al nodo de **${data.redirect_name}**...`;
+            appendChatMessage("agent", introMsg);
+            chatHistory.push({ role: "assistant", content: introMsg, agent: selectedAgentId });
+
+            // 2. Esperar 1.3 segundos para lectura fluida
+            setTimeout(() => {
+              // 3. Cerrar la ventana de chat
+              togglePanel(true);
+
+              // 4. Iniciar vuelo de cámara 3D al nodo correspondiente
+              const targetNode = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === data.redirect_target) : null;
+              if (targetNode) {
+                focusCameraOn(targetNode.x, targetNode.y, targetNode.z, 22, () => {
+                  // 5. Al llegar al nodo: activar destello, actualizar panel
+                  const targetGroup = nodeMeshMap.get(targetNode.id);
+                  if (targetGroup) triggerNodeFlash(targetGroup);
+                  
+                  selectedAgentId = data.redirect_target;
+                  updatePanelForNode(selectedAgentId);
+
+                  // 6. Abrir de nuevo la ventana de chat
+                  setTimeout(() => {
+                    togglePanel(false);
+
+                    // 7. Mostrar mensaje de bienvenida al nodo y continuar la respuesta retomando la solicitud
+                    const welcomeHeader = `### ${data.emblem || '🌐'} ${data.welcome_message || ('Bienvenido a ' + data.redirect_name)}\n\n${data.response}`;
+                    appendChatMessage("agent", welcomeHeader, data.source_meta, data.suggested_action);
+                    chatHistory.push({ role: "assistant", content: welcomeHeader, agent: selectedAgentId });
+                    showToast("📍 Conectado con " + data.redirect_name);
+                  }, 400);
+                });
+              } else {
+                togglePanel(false);
+                appendChatMessage("agent", data.response, data.source_meta, data.suggested_action);
+              }
+            }, 1300);
+
+          } else {
+            // Flujo regular dentro del mismo nodo
+            appendChatMessage("agent", data.response, data.source_meta, data.suggested_action);
+            chatHistory.push({ role: "assistant", content: data.response, agent: selectedAgentId });
+          }
+        }
+      } catch (e) {
+        removeChatMessage(loadId);
+        // Fallback inteligente para despliegues estáticos (GitHub Pages) o sin conexión al backend
+        const fallbackResp = generateClientFallbackResponse(selectedAgentId, text);
+        appendChatMessage("agent", fallbackResp);
+        chatHistory.push({ role: "assistant", content: fallbackResp, agent: selectedAgentId });
+      }
+    }
+
+    function generateClientFallbackResponse(nodeId, userMsg) {
+      const msg = userMsg.toLowerCase().trim();
+      const node = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === nodeId) : null;
+      const nodeName = node ? node.name : "NEXO ETB CORE";
+      const nodeDept = node ? (node.department || "Presidencia Ejecutiva") : "Dirección General";
+
+      // 1. Detección de cierre de conversación
+      if (/(no gracias|no, gracias|no tengo mas|no tengo más|eso es todo|eso seria todo|eso sería todo|ninguna|cerrar|finalizar|hasta luego)/i.test(msg)) {
+        return `### 🤝 ¡Sesión Finalizada con Éxito en NEXO ETB!\n\nMe alegra haberte asistido en **${nodeName}** (${nodeDept}).\n\n- 🌟 **Atención Corporativa:** Toda la red neuronal 3D continúa activa para tus requerimientos empresariales.\n- 📞 **Canales Oficiales:** PBX **(601) 377-7777** | Línea Nacional **01 8000 111 112**.\n\nDoy por cerrada esta consulta. ¡Que tengas un excelente día! 🚀`;
+      }
+
+      // 2. Soporte Técnico & Conectividad
+      if (/(wifi|falla|caida|intermiten|lento|ont|cpe|potencia|dbm|fibra|rojo|pon|los)/i.test(msg)) {
+        return `**[🛠️ Mesa de Ayuda & Soporte Técnico — ETB]**\n\nComprendo la situación con tu enlace. Como técnico especializado de ETB, te indico el procedimiento de verificación inmediata:\n\n1. **Inspección de Luces ONT:** Comprueba que los LEDs **POWER**, **PON** y **LAN** estén en verde fijo. Si el LED **LOS** parpadea en rojo, hay una atenuación óptica en la acometida.\n2. **Reinicio Controlado:** Desconecta el adaptador eléctrico de la ONT durante 30 segundos y vuelve a conectarlo para forzar el re-enganche a la OLT.\n3. **Prueba Cableada:** Realiza una prueba directa vía cable UTP Cat 6 al puerto GE1 para descartar saturación en canales de 2.4/5 GHz.\n\n¿Deseas reportar un ticket de cuadrilla o necesitas soporte adicional?`;
+      }
+
+      // 3. Comercial & Ventas Fibra
+      if (/(precio|costo|cotiza|tarifa|cuanto vale|plan|adquirir|contratar|megas|dedicado)/i.test(msg)) {
+        return `**[💼 Soluciones Corporativas & B2B — ETB]**\n\n¡Excelente elección! La infraestructura de Fibra Óptica Corporativa ETB ofrece los siguientes estándares de conectividad:\n\n- **Internet Dedicado Simétrico 1:1:** Capacidad garantizada en subida y bajada desde 100 Mbps hasta 10 Gbps con ductería propia.\n- **Disponibilidad SLA:** 99.85% respaldado por anillos metropolitanos DWDM y supervisión NOC 24/7.\n- **Costos y Facturación:** Los planes empresariales se liquidan 100% en Pesos Colombianos (COP) sin exposición a fluctuaciones TRM.\n\n¿Deseas que un consultor comercial de cuentas corporativas se contacte contigo?`;
+      }
+
+      // 4. Jurídica y Normativa
+      if (/(legal|ley|norma|contrato|crc|secop|habeas|regulacion|derecho)/i.test(msg)) {
+        return `**[⚖️ Gobernanza Legal & Normativa — ETB]**\n\nEn el marco normativo de telecomunicaciones en Colombia, las operaciones de ETB se rigen bajo:\n\n- **Régimen de Protección de Usuarios:** Resolución CRC 5111 de 2017 y CRC 5050.\n- **Habeas Data:** Ley Estatutaria 1581 de 2012 y Decreto 1377 de 2013.\n- **Contratación Estatal:** Plataforma SECOP II bajo los principios de la Ley 80 de 1993.\n\n¿Requieres el dictamen de una cláusula o trámite contractual específico?`;
+      }
+
+      // 5. Respuesta por defecto estructurada
+      return `**[👑 ${nodeName} — ${nodeDept}]**\n\nHemos procesado tu consulta: *"**${userMsg}**"*.\n\nDesde el nodo estratégico **${nodeName}**, gestionamos la arquitectura corporativa con total redundancia geográfica y soporte 24/7 en Bogotá y la Región Sabana.\n\n¿En qué aspecto específico de este departamento deseas profundizar o tienes alguna otra consulta?`;
+    }
+
+    function sendQuickMessage(text) {
+      const input = document.getElementById("chat-input");
+      if (!input) return;
+      input.value = text;
+      sendMessage();
+    }
+    window.sendQuickMessage = sendQuickMessage;
+
+    function appendChatMessage(sender, content, sourceMeta = null, suggestedAction = null) {
+      const box = document.getElementById("chat-messages");
+      const div = document.createElement("div");
+      const id = "msg-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4);
+      div.id = id;
+      div.className = `chat-msg ${sender}`;
+
+      if (sender === "user") {
+        div.innerHTML = `<p>${content}</p>`;
+      } else {
+        const html = marked.parse(content);
+        let evidenceHtml = "";
+        if (sourceMeta && sourceMeta.filename) {
+          evidenceHtml = `
+            <details class="evidence-chip">
+              <summary>📁 Fuente: ${sourceMeta.filename} (Ver extracto)</summary>
+              <div class="evidence-content">${sourceMeta.excerpt}</div>
+            </details>
+          `;
+        }
+
+        let actionHtml = "";
+        if (suggestedAction && suggestedAction.target) {
+          actionHtml = `
+            <div class="chat-redirect-card">
+              <span style="font-size:11px; color:#94a3b8;">Acción recomendada:</span>
+              <button class="chat-redirect-btn" onclick="navigateToNode('${suggestedAction.target}')">
+                <span>👉 ${suggestedAction.label || 'Ver Nodo Especializado'}</span>
+              </button>
+            </div>
+          `;
+        }
+
+        // Action buttons (Finalizar Chat or closed badge)
+        let actionsHtml = "";
+        const isClosed = /Sesión Finalizada|cerrada esta consulta|Consulta Finalizada|finalizada esta sesión|¡Ha sido un placer asistirte/i.test(content);
+        if (isClosed) {
+          actionsHtml = `
+            <div class="chat-msg-actions">
+              <span class="chat-closed-badge">✅ Consulta Finalizada</span>
+            </div>
+          `;
+        } else {
+          actionsHtml = `
+            <div class="chat-msg-actions">
+              <button class="chat-action-pill" onclick="sendQuickMessage('No tengo más consultas, finalizar chat')">
+                <span>🛑 Finalizar Chat</span>
+              </button>
+            </div>
+          `;
+        }
+
+        div.innerHTML = `${html}${evidenceHtml}${actionHtml}${actionsHtml}`;
+      }
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+      return id;
+    }
+
+    function removeChatMessage(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast-notification");
+      document.getElementById("toast-msg").textContent = msg;
+      toast.style.display = "flex";
+      setTimeout(() => { toast.style.display = "none"; }, 3500);
+    }
+
+    // ==========================================================
+    // 9. EVENT LISTENERS & WIRING
+    // ==========================================================
+    document.addEventListener("DOMContentLoaded", () => {
+      initThreeEngine();
+      fetchHierarchy();
+      initElevenVoiceSystem();
+      initFluidOrbAnimation();
+
+      // Side panel toggle
+      document.getElementById("btnTogglePanel").addEventListener("click", () => togglePanel());
+
+      // Filters
+      document.getElementById("filterSearch").addEventListener("input", applyAllFilters);
+      document.getElementById("filterDomain").addEventListener("change", applyAllFilters);
+      document.getElementById("filterResp").addEventListener("change", applyAllFilters);
+      document.getElementById("filterSede").addEventListener("change", applyAllFilters);
+
+      // Sedes Button
+      document.getElementById("btnSedes").addEventListener("click", handleSedesButton);
+
+      // Tour Button & Stop
+      document.getElementById("btnTour").addEventListener("click", startTour);
+      document.getElementById("btnStopTour").addEventListener("click", stopTour);
+
+      // Voice Modal Trigger (Image 2)
+      document.getElementById("btnOpenVoiceAgent").addEventListener("click", toggleElevenVoiceModal);
+      document.getElementById("btnCloseElevenModal").addEventListener("click", toggleElevenVoiceModal);
+      document.getElementById("elevenCallBtn").addEventListener("click", toggleVoiceCall);
+      document.getElementById("elevenFluidOrb").addEventListener("click", toggleVoiceCall);
+
+      // Voice / Chat switchers in Eleven modal (Image 2)
+      document.getElementById("tabModeVoice").addEventListener("click", () => {
+        document.getElementById("tabModeVoice").classList.add("active");
+        document.getElementById("tabModeChat").classList.remove("active");
+      });
+      document.getElementById("tabModeChat").addEventListener("click", () => {
+        document.getElementById("tabModeChat").classList.add("active");
+        document.getElementById("tabModeVoice").classList.remove("active");
+        toggleElevenVoiceModal();
+        togglePanel(false); // Opens Chat drawer
+      });
+
+      // Orbit Button
+      const orbBtn = document.getElementById("btnToggleOrbit");
+      orbBtn.addEventListener("click", () => {
+        autoRotate = !autoRotate;
+        controls.autoRotate = autoRotate;
+        orbBtn.classList.toggle("active", autoRotate);
+      });
+
+      // Reset View Button
+      document.getElementById("btnResetView").addEventListener("click", () => {
+        focusCameraOn(0, 0, 0, 35);
+        document.getElementById("filterSearch").value = "";
+        document.getElementById("filterDomain").value = "all";
+        document.getElementById("filterResp").value = "all";
+        document.getElementById("filterSede").value = "all";
+        applyAllFilters();
+        showToast("Vista restablecida");
+      });
+
+      // Chat Quick Prompts
+      document.querySelectorAll(".chat-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          document.getElementById("chat-input").value = chip.getAttribute("data-prompt");
+          sendMessage();
+        });
+      });
+
+      // Tab switcher in panel
+      document.querySelectorAll(".panel-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".panel-tab").forEach(t => t.classList.remove("active"));
+          document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+          tab.classList.add("active");
+          document.getElementById(`tab-${tab.getAttribute("data-tab")}`).classList.add("active");
+        });
+      });
+
+      // Chat Send
+      document.getElementById("chat-send-btn").addEventListener("click", sendMessage);
+      document.getElementById("chat-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      // Training Tab Submit
+      document.getElementById("train-submit-btn").addEventListener("click", async () => {
+        const dept = document.getElementById("train-dept-display").value || "master";
+        const topic = document.getElementById("train-topic-input").value.trim();
+        const content = document.getElementById("train-content-input").value.trim();
+
+        if (!content) {
+          showToast("⚠️ Ingrese texto de conocimiento");
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_BASE}/api/train`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ department: dept, content: content, topic: topic })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showToast(`✅ Conocimiento integrado en ${dept}`);
+            document.getElementById("train-topic-input").value = "";
+            document.getElementById("train-content-input").value = "";
+          }
+        } catch (e) {
+          showToast("⚠️ Error guardando entrenamiento");
+        }
+      });
+
+      // Backend Cloud Connector Modal Events
+      const backendModal = document.getElementById("backendModal");
+      const backendUrlInput = document.getElementById("backendUrlInput");
+      const btnOpenBackend = document.getElementById("btnOpenBackendModal");
+      const btnCancelBackend = document.getElementById("btnCancelBackend");
+      const btnSaveBackend = document.getElementById("btnSaveBackend");
+
+      if (btnOpenBackend) {
+        btnOpenBackend.addEventListener("click", () => {
+          backendUrlInput.value = localStorage.getItem("etb_api_url") || API_BASE;
+          backendModal.classList.add("active");
+        });
+      }
+      if (btnCancelBackend) {
+        btnCancelBackend.addEventListener("click", () => {
+          backendModal.classList.remove("active");
+        });
+      }
+      if (btnSaveBackend) {
+        btnSaveBackend.addEventListener("click", () => {
+          const val = backendUrlInput.value.trim();
+          if (val) {
+            localStorage.setItem("etb_api_url", val);
+          } else {
+            localStorage.removeItem("etb_api_url");
+          }
+          API_BASE = resolveApiBase();
+          backendModal.classList.remove("active");
+          showToast(`🔗 Conexión actualizada: ${API_BASE}`);
+          fetchHierarchy();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
