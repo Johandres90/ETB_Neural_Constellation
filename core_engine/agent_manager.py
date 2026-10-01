@@ -205,10 +205,9 @@ class AgentManager:
                 "emblem": "🤝"
             }
 
-        # 2. Marco Legal, Normativa CRC, Derecho de Petición, PQR, Cancelación de Contratos, Cláusula de Permanencia, Habeas Data, SECOP II
+        # 2. Marco Legal, Normativa CRC, Derecho de Petición, Tutelas, Ley 1755, Cláusula de Permanencia
         if any(w in msg_lower for w in [
-            "derecho de peticion", "derecho de petición", "peticion", "petición", "pqr", "reclamo", "queja", 
-            "tutela", "radicar", "radicacion", "radicación", "sic", "superintendencia", "legal", "juridic", 
+            "derecho de peticion", "derecho de petición", "tutela", "sic", "superintendencia", "legal", "juridic", 
             "abogad", "clausula", "permanencia", "cancelar", "cancelacion", "dar de baja", "terminar contrato", 
             "derecho", "regulac", "crc", "5111", "5050", "ley 1581", "ley 1755", "habeas data", "datos personales", 
             "secop", "licitacion", "pliego", "rup", "colombia compra", "regimen", "silencio administrativo"
@@ -219,6 +218,20 @@ class AgentManager:
                 "node_id": "c_gob",
                 "dept_name": "Gobernanza Legal & Normativa",
                 "emblem": "⚖️"
+            }
+
+        # 3. Servicio al Cliente, PQRs, Quejas, Reclamos, CUN, Asesor Humano
+        if any(w in msg_lower for w in [
+            "pqr", "pqrs", "reclamo", "reclamos", "queja", "quejas", "servicio al cliente", "atencion al cliente",
+            "atención al cliente", "asesor", "agente humano", "hablar con un asesor", "inconformidad", 
+            "radicar queja", "radicar reclamo", "radicacion pqr", "radicación pqr", "cun"
+        ]):
+            return {
+                "intent": "cx",
+                "dept_key": "experiencia_cliente",
+                "node_id": "c_cx",
+                "dept_name": "Servicio al Cliente & Experiencia",
+                "emblem": "🌟"
             }
 
         # 3. Respuestas de diagnóstico de módem, telemetría y pruebas técnicas de soporte
@@ -1110,14 +1123,14 @@ class AgentManager:
             ]
             is_explicit_transfer = any(k in msg_lower for k in explicit_transfer_keywords)
 
-            # Regla de oro para no expulsar al usuario de su conversación:
-            # - Si el chat ya está en curso (is_active_chat), SOLO transferir si el usuario lo pide explícitamente.
-            # - Si es el primer mensaje (not is_active_chat), se transfiere si la consulta pertenece inequívocamente a otra área.
-            should_transfer = False
-            if is_explicit_transfer:
-                should_transfer = (owner_dept != target_dept and owner_dept != "master")
-            elif not is_active_chat:
-                should_transfer = (intent not in ["general", "greeting", "satisfaction_close"] and owner_dept != target_dept and owner_dept != "master")
+            # Transferencia inter-departamental fluida:
+            # Si la consulta pertenece inequívocamente a otra área especializada (owner_dept != target_dept y owner_dept != "master")
+            # y no es una confirmación genérica, saludo ni gestión de ticket/contrato en curso:
+            should_transfer = (
+                owner_dept != target_dept and 
+                owner_dept != "master" and 
+                intent not in ["general", "greeting", "satisfaction_close", "contract_or_ticket"]
+            )
 
             if should_transfer:
                 is_transfer = True

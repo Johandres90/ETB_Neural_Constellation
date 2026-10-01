@@ -2885,12 +2885,12 @@
       const clusters_def = [
         { id: "c_noc", name: "Red Troncal & Fibra Óptica", dept: "Red Troncal & Fibra Óptica", x: -8.0, y: 18.0, z: -6.0, color: "#10b981", cat: "Consolidado" },
         { id: "c_cib", name: "Data Centers & Nube Híbrida", dept: "Data Centers & Nube Híbrida", x: 24.0, y: -3.0, z: 6.0, color: "#818cf8", cat: "Consolidado" },
-        { id: "c_com", name: "Soluciones Corporativas & B2B", dept: "Soluciones Corporativas & B2B", x: 18.0, y: 14.0, z: -8.0, color: "#38bdf8", cat: "Consolidado" },
+        { id: "c_com", name: "Ventas & Soluciones Corporativas", dept: "Ventas & Soluciones Corporativas", x: 18.0, y: 14.0, z: -8.0, color: "#38bdf8", cat: "Consolidado" },
         { id: "c_gob", name: "Gobernanza Legal & Normativa", dept: "Gobernanza Legal & Normativa", x: -22.0, y: -4.0, z: 8.0, color: "#f59e0b", cat: "Consolidado" },
-        { id: "c_erp", name: "Planeación Financiera & Costos", dept: "Planeación Financiera & Costos", x: 6.0, y: -14.0, z: 4.0, color: "#a855f7", cat: "Consolidado" },
+        { id: "c_erp", name: "Planeación Financiera & Facturación", dept: "Planeación Financiera & Facturación", x: 6.0, y: -14.0, z: 4.0, color: "#a855f7", cat: "Consolidado" },
         { id: "c_pmo", name: "Despliegue de Red & Proyectos", dept: "Despliegue de Red & Proyectos", x: -20.0, y: 10.0, z: -12.0, color: "#06b6d4", cat: "Consolidado" },
         { id: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", dept: "Mesa de Ayuda & Soporte Técnico", x: -10.0, y: -16.0, z: -8.0, color: "#ec4899", cat: "Consolidado" },
-        { id: "c_cx", name: "Experiencia de Cliente & VIP", dept: "Experiencia de Cliente & VIP", x: 22.0, y: -14.0, z: -6.0, color: "#14b8a6", cat: "Consolidado" }
+        { id: "c_cx", name: "Servicio al Cliente & Experiencia", dept: "Servicio al Cliente & Experiencia", x: 22.0, y: -14.0, z: -6.0, color: "#14b8a6", cat: "Consolidado" }
       ];
 
       const links = [];
@@ -3092,12 +3092,12 @@
       const mapping = {
         "c_noc": { id: "c_noc", name: "Red Troncal & Fibra Óptica", emblem: "🌐" },
         "c_cib": { id: "c_cib", name: "Data Centers & Nube Híbrida", emblem: "🏢" },
-        "c_com": { id: "c_com", name: "Soluciones Corporativas & B2B", emblem: "💼" },
+        "c_com": { id: "c_com", name: "Ventas & Soluciones Corporativas", emblem: "💼" },
         "c_gob": { id: "c_gob", name: "Gobernanza Legal & Normativa", emblem: "⚖️" },
-        "c_erp": { id: "c_erp", name: "Planeación Financiera & Costos", emblem: "💰" },
+        "c_erp": { id: "c_erp", name: "Planeación Financiera & Facturación", emblem: "💰" },
         "c_pmo": { id: "c_pmo", name: "Despliegue de Red & Proyectos", emblem: "🚀" },
         "c_desk": { id: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", emblem: "🛠️" },
-        "c_cx": { id: "c_cx", name: "Experiencia de Cliente & VIP", emblem: "🌟" }
+        "c_cx": { id: "c_cx", name: "Servicio al Cliente & Experiencia", emblem: "🌟" }
       };
       if (mapping[nodeId]) return mapping[nodeId];
 
@@ -3110,48 +3110,52 @@
 
     function classifyUserIntent(msgLower) {
       // 1. Cierre / Despedida
-      if (/(no gracias|no, gracias|no tengo mas|no tengo más|eso es todo|eso seria todo|eso sería todo|ninguna|cerrar|finalizar|hasta luego)/i.test(msgLower)) {
+      if (/(no gracias|no, gracias|no tengo mas|no tengo más|eso es todo|eso seria todo|eso sería todo|ninguna|cerrar|finalizar|hasta luego|chao|adios|adiós)/i.test(msgLower)) {
         return { intent: "close", deptId: "master", name: "NEXO ETB CORE", emblem: "🤝" };
       }
 
-      // 2. Gobernanza Legal, Normativa, PQRs & Derechos de Petición (c_gob) - MÁXIMA PRIORIDAD
-      if (/(derecho de peticion|derecho de petición|peticion|petición|pqr|pqrs|reclamo|reclamos|queja|quejas|tutela|radicar|radicacion|radicación|como poner|como radicar|sic|superintendencia|legal|juridic|abogad|ley|norma|crc|5111|5050|ley 1581|ley 1755|habeas|secop|licitacion|pliego|permanencia|cancelar|dar de baja|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula|cesion de contrato|silencio administrativo)/i.test(msgLower)) {
+      // 2. Gobernanza Legal, Normativa & Derechos de Petición (c_gob)
+      // Derechos de petición, tutelas, leyes, normas, SIC, CRC van a Jurídica/Legal
+      if (/(derecho de peticion|derecho de petición|tutela|abogad|juridic|legal|ley 1755|ley 1581|ley 80|normativ|norma|decreto|resolucion crc|resolución crc|crc 5111|crc 5050|secop|licitacion|silencio administrativo|habeas data|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula de permanencia)/i.test(msgLower)) {
         return { intent: "legal", deptId: "c_gob", name: "Gobernanza Legal & Normativa", emblem: "⚖️" };
       }
 
-      // 3. Soporte Técnico & Fallas (c_desk) - INCLUYE TICKET, REPORTAR, CUADRILLA, VISITA Y AVERÍAS
-      if (/(wifi|wi-fi|inalambric|soporte|falla|daño|sin internet|sin servicio|caido|caída|intermiten|lento|lenta|lentitud|\bont\b|\bcpe\b|router|reiniciar|modem|módem|potencia|dbm|luz roja|los roja|\bpon\b|pon verde|ticket|tickets|reportar|reporte|repórtar|cuadrilla|visita|tecnico|técnico|averia|avería|incidencia|asistencia)/i.test(msgLower)) {
-        return { intent: "support", deptId: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", emblem: "🛠️" };
+      // 3. Servicio al Cliente & Experiencia de Usuario (c_cx)
+      // PQRs, quejas, reclamos, atención al cliente van a Servicio al Cliente
+      if (/(pqr|pqrs|queja|quejas|reclamo|reclamos|servicio al cliente|atencion al cliente|atención al cliente|asesor|agente humano|hablar con un asesor|inconformidad|radicar queja|radicar reclamo|radicacion pqr|radicación pqr|\bcun\b|experiencia|nps|csat|vip|gestor)/i.test(msgLower)) {
+        return { intent: "cx", deptId: "c_cx", name: "Servicio al Cliente & Experiencia", emblem: "🌟" };
       }
 
       // 4. Soluciones Corporativas & B2B / Ventas (c_com)
-      if (/(precio|costo|tarifa|cuanto vale|cuanto cuesta|planes|cotiz|dedicado|simetr|megas|mbps|gbps|sip|sd-wan|comprar|adquirir|pyme|comercial|ventas|claro|tigo|movistar|competencia)/i.test(msgLower)) {
-        return { intent: "commercial", deptId: "c_com", name: "Soluciones Corporativas & B2B", emblem: "💼" };
+      // Costos de instalación, precios, cotizaciones, planes, ventas van a Ventas y Servicios
+      if (/(costo de instalacion|costos de instalacion|costo de instalación|costos de instalación|instalacion|instalación|precio|precios|costo|costos|tarifa|tarifas|cuanto vale|cuanto cuesta|planes|plan|cotiz|cotizacion|cotización|comprar|adquirir|ventas|comercial|dedicado|simetr|megas|mbps|gbps|sip|sd-wan|traslado|pyme|corporativ|claro|tigo|movistar|competencia)/i.test(msgLower)) {
+        return { intent: "commercial", deptId: "c_com", name: "Ventas & Soluciones Corporativas", emblem: "💼" };
       }
 
-      // 5. Data Centers & Ciberseguridad (c_cib)
-      if (/(data center|datacenter|alma|prado|tier|cloud|nube|vps|soc|ciberseguridad|ddos|firewall|zero trust|backup)/i.test(msgLower)) {
+      // 5. Mesa de Ayuda & Soporte Técnico (c_desk)
+      // Soportes de internet, Wi-Fi, fallas, lentitud, módem/ONT, cuadrilla técnica y tickets van a Soporte Técnico
+      if (/(soporte|internet|wifi|wi-fi|inalambric|falla|fallas|daño|daños|sin internet|sin servicio|caido|caída|intermiten|lento|lenta|lentitud|\bont\b|\bcpe\b|router|reiniciar|modem|módem|potencia|dbm|luz roja|los roja|\bpon\b|pon verde|ticket|tickets|reportar|reporte|repórtar|cuadrilla|visita|tecnico|técnico|averia|avería|incidencia|asistencia tecnica|asistencia técnica)/i.test(msgLower)) {
+        return { intent: "support", deptId: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", emblem: "🛠️" };
+      }
+
+      // 6. Data Centers & Ciberseguridad (c_cib)
+      if (/(data center|datacenter|alma|prado|tier|colocation|cloud|nube|vps|soc|ciberseguridad|ddos|anti-ddos|firewall|zero trust|backup|servidor)/i.test(msgLower)) {
         return { intent: "dc_cloud", deptId: "c_cib", name: "Data Centers & Nube Híbrida", emblem: "🏢" };
       }
 
-      // 6. Red Troncal & NOC (c_noc)
-      if (/(dwdm|troncal|anillo|latencia|nap|peering|olt|malla|atenuacion)/i.test(msgLower)) {
+      // 7. Red Troncal & NOC (c_noc)
+      if (/(dwdm|troncal|anillo|latencia|nap|peering|olt|malla|atenuacion|noc|transporte)/i.test(msgLower)) {
         return { intent: "noc", deptId: "c_noc", name: "Red Troncal & Fibra Óptica", emblem: "🌐" };
       }
 
-      // 7. Planeación Financiera & Costos (c_erp)
-      if (/(financier|capex|opex|tco|ahorro|presupuesto|facturacion|pesos cop|roi)/i.test(msgLower)) {
-        return { intent: "finance", deptId: "c_erp", name: "Planeación Financiera & Costos", emblem: "💰" };
+      // 8. Planeación Financiera, Facturación & Costos (c_erp)
+      if (/(factura|facturas|facturacion|facturación|recibo|doble cobro|pago|pagar|financier|capex|opex|tco|ahorro|presupuesto|pesos cop|roi)/i.test(msgLower)) {
+        return { intent: "finance", deptId: "c_erp", name: "Planeación Financiera & Facturación", emblem: "💰" };
       }
 
-      // 8. Despliegue & PMO (c_pmo)
-      if (/(cronograma|despliegue|obra|idu|permiso|cobertura|expansion|sabana|plazos|otdr)/i.test(msgLower)) {
+      // 9. Despliegue de Red & PMO (c_pmo)
+      if (/(obra|obras|excavacion|idu|alcaldia|alcaldía|permiso|cobertura|expansion|despliegue|cronograma|sabana|plazos|otdr|tendido)/i.test(msgLower)) {
         return { intent: "pmo", deptId: "c_pmo", name: "Despliegue de Red & Proyectos", emblem: "🚀" };
-      }
-
-      // 9. Experiencia VIP (c_cx)
-      if (/(nps|csat|vip|gestor|satisfaccion|experiencia)/i.test(msgLower)) {
-        return { intent: "cx", deptId: "c_cx", name: "Experiencia de Cliente & VIP", emblem: "🌟" };
       }
 
       return { intent: "general", deptId: "master", name: "NEXO ETB CORE", emblem: "👑" };
@@ -3159,76 +3163,55 @@
 
     function getSpecializedResponseText(deptId, userMsg, msgLower) {
       if (deptId === "c_gob") {
-        if (/(derecho de peticion|derecho de petición|peticion|petición|pqr|pqrs|reclamo|reclamos|queja|quejas|tutela|radicar|radicacion|radicación|como poner|como radicar)/i.test(msgLower)) {
-          return `### ⚖️ Procedimiento Oficial para Radicar un Derecho de Petición o PQR en ETB\n\nComo Dirección Jurídica y Normativa de ETB, te indico los canales oficiales y requisitos legales conforme a la **Ley 1755 de 2015** y la **Resolución CRC 5111 de 2017**:\n\n1. **Canales Oficiales Habilitados:**\n   - 🌐 **Portal Web Oficial (Inmediato):** Ingresa a la sección PQR en **etb.com/pqr** o en el Portal Mi ETB. El sistema te asignará de inmediato un número CUN (Código Único Numérico) para seguimiento.\n   - 📞 **Línea Telefónica Gratuita:** Marca al **178** (desde línea fija ETB), al PBX **(601) 377-7777** en Bogotá, o a la línea nacional **01 8000 111 112**.\n   - 🏢 **Puntos Presenciales:** Radicación física directa en cualquier Centro de Experiencia y Atención ETB en Bogotá y Cundinamarca.\n   - ✉️ **Ventanilla Única de Correspondencia:** Envío de carta formal radicada en ventanilla dirigida a la Secretaría General de ETB.\n\n2. **Requisitos de la Solicitud:**\n   - Nombres, apellidos y documento de identidad (Cédula o NIT de la empresa).\n   - Número de cuenta, contrato o línea de servicio asociada.\n   - Hechos claros y pretensiones precisas (motivo de la reclamación técnica, facturación o contractual).\n   - Dirección física o correo electrónico autorizado para recibir la notificación.\n\n3. **Tiempos Legales y Garantías:**\n   - **Término Legal de Respuesta:** Máximo **15 días hábiles** siguientes a la fecha de radicación.\n   - **Silencio Administrativo Positivo (SAP):** Si ETB no notifica respuesta en el plazo legal de 15 días hábiles, la petición se entiende resuelta favorablemente para el usuario.\n   - **Recursos ante la SIC:** Si la respuesta no satisface tus pretensiones, dispones de 10 días hábiles para presentar **Recurso de Reposición y en subsidio de Apelación ante la Superintendencia de Industria y Comercio (SIC)**.\n\n¿Deseas orientación sobre algún punto específico de tu petición?`;
+        if (/(derecho de peticion|derecho de petición|tutela)/i.test(msgLower)) {
+          return `### ⚖️ Radicación de Derecho de Petición (Ley 1755 / CRC 5111)\n\nComo Dirección Jurídica de ETB, te oriento para una radicación válida y efectiva:\n\n- 🌐 **Canales Oficiales:** En línea vía **etb.com/pqr**, marcando al **178** o en ventanilla física en sedes ETB.\n- 📋 **Requisitos:** Cédula o NIT, número de contrato/línea, hechos concretos y correo de notificación.\n- ⏱️ **Plazo Legal:** Máximo **15 días hábiles** de respuesta. Opera el **Silencio Administrativo Positivo** a tu favor.\n- 🏛️ **Recursos:** Ante inconformidad, procede reposición y apelación ante la **SIC**.\n\n¿Deseas validar algún punto específico de tu petición?`;
         }
-        if (/(cancelar|cancelacion|dar de baja|terminar contrato|retirar|desvincular)/i.test(msgLower)) {
-          return `### ⚖️ Procedimiento Legal para Cancelación de Servicios en ETB\n\nConforme al Régimen de Protección al Usuario (Resolución CRC 5111 de 2017):\n\n1. **Oportunidad de Solicitud:** Puedes solicitar la cancelación con al menos **3 días hábiles de anticipación** a tu fecha de corte de facturación.\n2. **Canales Oficiales:** La solicitud puede presentarse por línea telefónica (178 o (601) 377-7777), portal web Mi ETB o centros presenciales sin trabas ni exigencias de documentos adicionales.\n3. **Devolución de Equipos:** Se coordina la recogida o entrega de equipos en comodato (ONT/módem) sin penalidades.\n4. **Paz y Salvo:** Se emite una vez cancelada la última factura de consumos efectuados.\n\n¿Deseas verificar la fecha de corte de tu contrato?`;
+        if (/(permanencia|clausula)/i.test(msgLower)) {
+          return `### ⚖️ Dictamen Legal: Permanencia Mínima (Resolución CRC 5111)\n\n- 🚫 **Prohibición Legal:** ETB y ningún operador pueden cobrarte mensualidades futuras no disfrutadas.\n- 💰 **Liquidación Justa:** Solo cancelas el saldo prorrateado del subsidio de instalación de los meses restantes.\n- 📜 **Sin Renovación Automática:** Vencido el plazo inicial (12/24 meses), el contrato pasa a ser indefinido sin permanencia.\n\n¿Deseas verificar si tu contrato cuenta con permanencia vigente?`;
         }
-        if (/(permanencia|penaliz|multa|clausula)/i.test(msgLower)) {
-          return `### ⚖️ Dictamen Jurídico: Cláusula de Permanencia Mínima (CRC 5111)\n\n1. **Condición de Validez:** Solo es aplicable si fue pactada por escrito y el usuario recibió un descuento sustancial en la instalación o equipos.\n2. **Prohibición Legal:** Está terminantemente **prohibido cobrar mensualidades futuras** no disfrutadas.\n3. **Fórmula de Liquidación:** Solo se liquida el saldo prorrateado del descuento de instalación correspondiente a los meses faltantes: \`Saldo = (Descuento / Meses totales) × Meses restantes\`.\n4. **No Renovación:** Al vencer el término inicial, el contrato pasa a ser indefinido sin permanencia.\n\n¿Deseas revisar si tu contrato tiene permanencia vigente?`;
-        }
-        return `### ⚖️ Gobernanza Legal & Normativa ETB\n\nSupervisamos el cumplimiento del marco regulatorio de telecomunicaciones en Colombia:\n\n- **Protección al Usuario:** Resoluciones CRC 5111 de 2017 y CRC 5050.\n- **Habeas Data:** Ley Estatutaria 1581 de 2012 para protección de datos personales.\n- **Contratación Estatal:** SECOP II y Colombia Compra Eficiente bajo Ley 80 de 1993.\n\n¿Requieres asistencia sobre PQR, derecho de petición, contratos o normatividad?`;
-      }
-
-      if (deptId === "c_desk") {
-        // 1. Confirmación de radicación de ticket o solicitud de visita
-        if (/(ticket|reportar|repórtar|cuadrilla|visita|agendar|abrir ticket|crear ticket|generar ticket|si deseo|si por favor|claro que si|deseo reportar|si|sí|por favor)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
-          return `### 🎫 Apertura de Ticket Prioritario — Mesa de Ayuda ETB\n\n¡Con gusto! He iniciado la orden de servicio técnico para tu enlace:\n\n- 📋 **Diagnóstico:** Falla técnica reportada / Revisión de conectividad en sitio\n- 🛠️ **Cuadrilla:** Asignada a cuadrilla móvil N2 de tu zona\n- ⏱️ **Tiempo de Atención (SLA):** Menor a **4 horas** en enlaces corporativos\n- 💰 **Costo:** **$0 COP** (100% cubierta por tu garantía y mantenimiento ETB)\n- 📱 **Notificaciones:** Te llegará confirmación por SMS y WhatsApp cuando el técnico inicie su desplazamiento.\n\nPara asociar la orden y despachar al técnico, por favor indícame tu **número de contrato, cuenta o número de línea telefónica ETB** (ej. 53696969).`;
-        }
-
-        // 2. Respuesta con número de contrato, cuenta o teléfono
-        if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|línea|linea)/i.test(msgLower)) {
-          const matchNum = msgLower.match(/\b\d{5,12}\b/);
-          const num = matchNum ? matchNum[0] : "53696969";
-          return `### ✅ Ticket Radicado Exitosamente en Mesa de Ayuda ETB\n\nTu orden ha sido registrada y confirmada en el sistema central de ETB:\n\n- 🎫 **Número de Ticket:** \`ETB-INC-${num.slice(-6) || '849201'}\`\n- 📄 **Contrato / Línea:** **${num}**\n- 🛠️ **Estado:** Asignado a Cuadrilla Móvil N2 en ruta\n- ⏱️ **Tiempo Estimado de Atención:** Menor a **4 horas**\n- 💰 **Costo de la Visita:** **$0 COP** (Totalmente gratuita)\n\n¿Deseas agregar alguna indicación de acceso para el técnico en portería, o tienes alguna consulta adicional?`;
-        }
-
-        // 3. Pérdida óptica / Luz LOS roja
-        if (/(los roja|luz roja|rojo|roja fija|parpadea en rojo|sin internet|sin servicio|caido|caída)/i.test(msgLower)) {
-          return `### 🛠️ Diagnóstico Técnico: Pérdida de Señal Óptica (Luz LOS Roja)\n\nLa luz **LOS en rojo** confirma que el módem ONT no está recibiendo el haz láser de fibra óptica:\n\n1. **Inspección del Cable Amarillo (Patchcord):** Verifica que el cable delgado amarillo con conector verde en la base del módem esté firmemente conectado y no presente dobleces pronunciados (ángulo menor a 90°).\n2. **Causa Externa:** Si el cable interno está en perfecto estado, la incidencia se encuentra en la mufa de distribución en la vía pública.\n3. **Despacho de Cuadrilla Técnica:** Generamos ticket prioritario con compromiso de atención en sitio menor a **4 horas** en enlaces empresariales.\n\n¿Deseas reportar un ticket de cuadrilla técnica o necesitas soporte adicional?`;
-        }
-
-        // 4. Velocidad lenta / Red Wi-Fi
-        if (/(lento|lenta|lentitud|velocidad|pon verde|luz verde)/i.test(msgLower)) {
-          return `### 🛠️ Optimización de Velocidad y Red Wi-Fi\n\nSi la luz **PON está en verde fijo**, el enlace de fibra óptica está activo. La lentitud responde a saturación inalámbrica:\n\n1. **Conexión a Banda 5G:** Conéctate a la red inalámbrica **ETB_5G** en tu dispositivo para navegar a máxima velocidad simétrica.\n2. **Renovación de Conexión:** Selecciona 'Olvidar Red' y vuelve a ingresar la clave para refrescar la IP asignada por la ONT.\n3. **Configuración de DNS:** Configura los servidores DNS primarios \`1.1.1.1\` (Cloudflare) y \`8.8.8.8\` (Google).\n4. **Prueba Cableada:** Conecta un cable de red Cat 6 al puerto LAN 1 de la ONT.\n\n¿Deseas agendar revisión técnica o necesitas soporte adicional?`;
-        }
-
-        // 5. Procedimiento general de mesa de ayuda
-        return `Comprendo tu solicitud. Como técnico especializado de ETB, te asisto de inmediato:\n\n1. **Inspección de Luces ONT:** Comprueba que los LEDs **POWER**, **PON** y **LAN** estén en verde fijo. Si el LED **LOS** parpadea en rojo, hay una atenuación óptica en la acometida.\n2. **Reinicio Controlado:** Desconecta el adaptador eléctrico de la ONT durante 30 segundos y vuelve a conectarlo para forzar el re-enganche a la OLT.\n3. **Prueba Cableada:** Realiza una prueba directa vía cable UTP Cat 6 al puerto GE1 para descartar saturación en canales de 2.4/5 GHz.\n\n¿Deseas reportar un ticket de cuadrilla técnica o necesitas soporte adicional?`;
-      }
-
-      if (deptId === "c_com") {
-        if (/(precio|costo|tarifa|cuanto vale|cuanto cuesta|planes|cotiz)/i.test(msgLower)) {
-          return `### 💼 Portafolio de Conectividad Corporativa & Tarifas ETB\n\nOfrecemos soluciones de fibra óptica simétrica 1:1 con canalizaciones propias:\n\n- **Internet Dedicado Pyme (100 a 300 Mbps):** Canal exclusivo 100% simétrico con IP fija pública y SLA del 99.85%.\n- **Internet Dedicado Empresarial (500 Mbps a 10 Gbps):** Conexión directa a la red troncal DWDM, redundancia física y soporte NOC 24/7.\n- **Facturación en Pesos (COP):** Tarifas fijas en moneda local sin indexación al dólar (TRM).\n- **Servicios Adicionales:** Redes SD-WAN, enlaces Punto a Punto (P2P) y Troncal SIP para telefonía corporativa.\n\n¿Qué velocidad o número de sedes deseas cotizar para tu empresa?`;
-        }
-        if (/(claro|tigo|movistar|competencia|diferencia|por que etb)/i.test(msgLower)) {
-          return `### 🛡️ Diferenciales Estratégicos de ETB frente a la Competencia\n\n1. **Fibra Óptica 100% Pura:** A diferencia de redes híbridas HFC con cable coaxial, ETB despliega fibra óptica hasta el interior de tu sede (FTTH/FTTO).\n2. **Simetría y Sin Sobreventa:** 100% de velocidad garantizada tanto en subida como en bajada (1:1), sin degradación en horas pico.\n3. **Conexión Directa al NAP Colombia:** Menor latencia nacional e internacional (<3.2 ms en Bogotá) al interconectar directamente con los principales CDNs del mundo.\n4. **Centros de Datos Propios Tier III:** Almacenamiento soberano en Bogotá (Alma y Prado), a diferencia de operadores que revenden capacidad de terceros.\n\n¿Deseas que un consultor comercial corporativo agende una reunión con tu equipo?`;
-        }
-        return `¡Excelente elección! La infraestructura de Fibra Óptica Corporativa ETB ofrece los siguientes estándares de conectividad:\n\n- **Internet Dedicado Simétrico 1:1:** Capacidad garantizada en subida y bajada desde 100 Mbps hasta 10 Gbps con ductería propia.\n- **Disponibilidad SLA:** 99.85% respaldado por anillos metropolitanos DWDM y supervisión NOC 24/7.\n- **Costos y Facturación:** Los planes empresariales se liquidan 100% en Pesos Colombianos (COP) sin exposición a fluctuaciones TRM.\n\n¿Deseas que un consultor comercial de cuentas corporativas se contacte contigo?`;
-      }
-
-      if (deptId === "c_cib") {
-        return `### 🏢 Data Centers Propios Tier III & Ciberseguridad ETB\n\nETB opera la infraestructura de centros de datos más segura de Bogotá (Alma en Suba y Prado en Puente Aranda):\n\n- **Certificación Tier III (Uptime Institute) & ICREA Nivel V:** Disponibilidad 99.982% y conmutación transparente sin cortes de energía.\n- **Soberanía de Datos:** 100% alojados en territorio colombiano bajo ley local.\n- **SOC de Ciberseguridad 24/7:** Mitigación en tiempo real Anti-DDoS con scrubbing centers dedicados.\n\n¿Deseas conocer especificaciones de colocation o nube privada?`;
-      }
-
-      if (deptId === "c_noc") {
-        return `### 🌐 Red Troncal Metropolitana & Operaciones NOC\n\nLa red de transporte de ETB opera con tecnología DWDM sobre anillos de fibra de 100 Gbps:\n\n- **Latencia Inter-Sedes:** Menor a 3.2 ms en Bogotá y Región Sabana.\n- **Conexión Directa al NAP Colombia:** Interconexión de baja latencia con los principales CDNs globales.\n- **Monitoreo Continuo:** Monitoreo activo de atenuación óptica en tiempo real 24/7/365.\n\n¿Deseas verificar telemetría de algún circuito troncal específico?`;
-      }
-
-      if (deptId === "c_erp") {
-        return `### 💰 Planeación Financiera, Facturación & Costos\n\nOptimizamos el Costo Total de Propiedad (TCO) corporativo:\n\n- **Facturación en Pesos (COP):** Sin costos ocultos indexados a divisas extranjeras (TRM).\n- **Amortización de Infraestructura:** Retorno de inversión acelerado con ductería y canalizaciones propias.\n\n¿Deseas un comparativo de amortización CAPEX vs OPEX para tu empresa?`;
-      }
-
-      if (deptId === "c_pmo") {
-        return `### 🚀 Despliegue de Red & Gestión de Proyectos PMO\n\nSupervisamos las obras de expansión de infraestructura:\n\n- **Permisos Distritales:** Trámite ágil de licencias de excavación y espacio público IDU.\n- **Certificación OTDR:** Cada tramo de fibra es calibrado y certificado con reflectometría óptica de precisión.\n\n¿Requieres el estado de avance de alguna troncal en despliegue?`;
+        return `### ⚖️ Gobernanza Legal & Normativa ETB\n\nGarantizamos el cumplimiento normativo ante la **CRC**, **MinTIC**, **SIC** y **Ley 1581 de Protección de Datos**.\n\n¿Requieres asistencia sobre derechos de petición, tutelas o normatividad contractual?`;
       }
 
       if (deptId === "c_cx") {
-        return `### 🌟 Experiencia de Cliente & Atención VIP Corporativa\n\nGarantizamos atención preferencial para cuentas estratégicas:\n\n- **Gestor Corporativo Dedicado:** Punto único de contacto para escalamiento 24/7.\n- **Índice de Satisfacción (CSAT):** Superior al 94% en clientes corporativos.\n\n¿Deseas agendar una sesión con tu gestor corporativo asignado?`;
+        return `### 🌟 Servicio al Cliente & Radicación de PQR\n\n¡Hola! En Servicio al Cliente gestionamos tu solicitud con prioridad:\n\n- 🎫 **Radicación Inmediata:** Generamos tu código **CUN** (Código Único Numérico) para seguimiento en tiempo real en **etb.com/pqr**.\n- 💬 **Canales Directos:** WhatsApp Oficial **+57 305 777 7777**, línea **178** o PBX **(601) 377-7777**.\n- 👤 **Atención Personalizada:** Si lo requieres, asignamos un gestor corporativo para atender tu inconformidad de forma directa.\n\n¿Deseas que radiquemos tu PQR o prefieres contactar con un asesor de servicio?`;
       }
 
-      return `Procesando tu solicitud: *"**${userMsg}**"*.\n\nDesde el Centro de Comando NEXO ETB coordinamos los 8 departamentos corporativos y 50 nodos estratégicos.\n\n¿En qué departamento o servicio requieres asistencia?`;
+      if (deptId === "c_com") {
+        if (/(costo de instalacion|costos de instalacion|costo de instalación|instalacion|instalación)/i.test(msgLower)) {
+          return `### 💼 Costos de Instalación & Activación ETB\n\n- 💰 **Costo de Instalación:** **$0 COP** (Gratuita) en zonas con cobertura directa de fibra óptica bajo suscripción comercial.\n- 📦 **Equipos Incluidos:** Módem ONT Wi-Fi 6 en comodato sin costo de alquiler.\n- 🚀 **Disponibilidad:** Internet 100% simétrico desde 100 Mbps hasta 10 Gbps con canalizaciones propias en Bogotá y Sabana.\n\n¿En qué dirección o barrio se encuentra tu sede para verificar cobertura inmediata?`;
+        }
+        return `### 💼 Soluciones Corporativas & Ventas ETB\n\n- 🌐 **Internet Dedicado 1:1:** Capacidad garantizada en subida y bajada, conexión directa al NAP Colombia.\n- 💵 **Facturación en Pesos (COP):** Precios fijos sin indexación a la TRM o dólar.\n- ⚡ **SLA Garantizado:** 99.85% de disponibilidad respaldado por anillos DWDM.\n\n¿Deseas cotizar un plan de internet dedicado para tu empresa o negocio?`;
+      }
+
+      if (deptId === "c_desk") {
+        if (/(ticket|reportar|repórtar|cuadrilla|visita|agendar|si deseo|si por favor|claro|si|sí|por favor)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
+          return `### 🎫 Apertura de Ticket — Mesa de Ayuda ETB\n\n¡Con gusto! He iniciado tu orden de servicio técnico:\n\n- 🛠️ **Cuadrilla Asignada:** Soporte N2 de tu zona\n- ⏱️ **Compromiso SLA:** Atención en sitio menor a **4 horas**\n- 💰 **Costo de la Visita:** **$0 COP** (Cubierta al 100% por tu contrato)\n\nPor favor indícame tu **número de contrato, cuenta o línea telefónica ETB** para despachar la cuadrilla.`;
+        }
+        if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|línea|linea)/i.test(msgLower)) {
+          const matchNum = msgLower.match(/\b\d{5,12}\b/);
+          const num = matchNum ? matchNum[0] : "53696969";
+          return `### ✅ Ticket Radicado Exitosamente\n\n- 🎫 **Ticket ID:** \`ETB-INC-${num.slice(-6) || '849201'}\`\n- 📄 **Contrato / Línea:** **${num}**\n- ⏱️ **Llegada Cuadrilla:** Menor a **4 horas** en tu sede\n- 💰 **Costo:** **$0 COP**\n\nTe notificaremos por SMS y WhatsApp cuando el técnico inicie su desplazamiento. ¿Deseas agregar alguna indicación para la portería?`;
+        }
+        return `### 🛠️ Mesa de Ayuda & Soporte de Internet ETB\n\n- 🟢 **Luz PON Verde fija:** Enlace de fibra óptica sincronizado.\n- 🔴 **Luz LOS Roja:** Atenuación o corte exterior en vía pública (requiere visita técnica inmediata).\n- ⚡ **Reinicio Rápido:** Desconecta el módem 30 segundos para refrescar la IP en la central.\n\n¿Deseas que generemos un ticket para visita de cuadrilla técnica en menos de 4 horas?`;
+      }
+
+      if (deptId === "c_cib") {
+        return `### 🏢 Data Centers Propios Tier III & Ciberseguridad ETB\n\n- 🏛️ **Infraestructura Propia:** Data Centers Alma (Suba) y Prado (Puente Aranda) con certificación Tier III e ICREA V.\n- 🇨🇴 **Soberanía de Datos:** Toda tu información almacenada en Colombia bajo ley local.\n- 🛡️ **SOC 24/7:** Mitigación en tiempo real Anti-DDoS y seguridad perimetral Zero Trust.\n\n¿Deseas conocer opciones de colocation o servidores en la nube privada?`;
+      }
+
+      if (deptId === "c_noc") {
+        return `### 🌐 Red Troncal Metropolitana & NOC ETB\n\n- ⚡ **Anillos DWDM 100G:** Transporte de alta capacidad con latencia < 3.2 ms en Bogotá.\n- 🔗 **Interconexión Directa:** Salida directa al NAP Colombia y a los principales CDNs del mundo.\n\n¿Requieres telemetría o estado de algún circuito troncal?`;
+      }
+
+      if (deptId === "c_erp") {
+        return `### 💰 Facturación & Finanzas ETB\n\n- 📄 **Facturación en Pesos (COP):** Precios claros sin sorpresas cambiarias por TRM.\n- 💳 **Pagos en Línea:** Pago inmediato vía PSE en **etb.com** o portal Mi ETB.\n\n¿Deseas consultar tu saldo actual o aclarar algún cobro en tu factura?`;
+      }
+
+      if (deptId === "c_pmo") {
+        return `### 🚀 Despliegue de Red & Gestión de Proyectos PMO\n\n- 🏗️ **Obras y Canalización:** Tendido subterráneo con permisos del IDU y Alcaldía Mayor de Bogotá.\n- 📏 **Certificación OTDR:** Ensayos de reflectometría óptica en cada tramo instalado.\n\n¿Requieres conocer el avance de obras en tu zona?`;
+      }
+
+      return `Procesando tu solicitud: *"**${userMsg}**"*.\n\nDesde el Centro de Comando NEXO ETB coordinamos los 8 departamentos corporativos. ¿En qué área requieres asistencia?`;
     }
 
     function generateClientFallbackData(nodeId, userMsg) {
@@ -3236,87 +3219,59 @@
       const currentDept = getDepartmentForNodeId(nodeId);
       let targetInfo = classifyUserIntent(msgLower);
 
-      // Si es cierre de conversación
+      // 1. Cierre explícito de sesión
       if (targetInfo.intent === "close") {
         return {
           is_transfer: false,
-          response: `### 🤝 ¡Sesión Finalizada con Éxito en NEXO ETB!\n\nMe alegra haberte asistido en **${currentDept.name}**.\n\n- 🌟 **Atención Corporativa:** Toda la red neuronal 3D continúa activa para tus requerimientos empresariales.\n- 📞 **Canales Oficiales:** PBX **(601) 377-7777** | Línea Nacional **01 8000 111 112**.\n\nDoy por cerrada esta consulta. ¡Que tengas un excelente día! 🚀`,
+          response: `### 🤝 ¡Sesión Finalizada con Éxito en NEXO ETB!\n\nMe alegra haberte asistido en **${currentDept.name}**.\n\n- 🌟 **Atención Corporativa:** Toda la red neuronal 3D continúa activa para tus requerimientos empresariales.\n- 📞 **Canales Oficiales:** PBX **(601) 377-7777** | WhatsApp **+57 305 777 7777**.\n\nDoy por cerrada esta consulta. ¡Que tengas un excelente día! 🚀`,
           voice_summary: "Sesión finalizada con éxito. Recuerda que nuestros canales corporativos están siempre a tu servicio. ¡Que tengas un excelente día!",
           suggested_action: null,
           source_meta: null
         };
       }
 
-      // REGLA FUNDAMENTAL PARA MANTENER EL HILO DE LA CONVERSACIÓN:
-      // Si el usuario ya está interactuando dentro de un departamento especializado (ej. c_desk, c_gob, c_com)
-      // y la respuesta del usuario NO es un cambio explícito de tema hacia otra área,
-      // MANTENER EL HILO Y RESPONDER DENTRO DEL DEPARTAMENTO ACTUAL.
-      if (currentDept.id !== "master") {
-        const isGenericAffirmationOrData = /(si|sí|claro|por favor|deseo|solicito|correcto|de acuerdo|agendar|visita|cuadrilla|ticket|reportar|repórtar|ayuda|revisar|falla)/i.test(msgLower) ||
-          /\b\d{5,12}\b/.test(msgLower) ||
-          /(contrato|cuenta|línea|linea|telefono|teléfono|enlace|sede)/i.test(msgLower);
-
-        // Si el usuario responde afirmativamente, o aporta datos (números/contratos/teléfonos),
-        // o si classifyUserIntent no detectó un departamento específico (targetInfo === master),
-        // RETENER EL HILO EN EL DEPARTAMENTO ACTUAL:
-        if (targetInfo.deptId === "master" || (isGenericAffirmationOrData && targetInfo.deptId !== currentDept.id)) {
-          targetInfo = {
-            intent: currentDept.id,
-            deptId: currentDept.id,
-            name: currentDept.name,
-            emblem: currentDept.emblem
-          };
-        }
+      // 2. RETENCIÓN INTELIGENTE DEL HILO CONVERSACIONAL:
+      // Si la consulta no tiene un destino explícito a otra área (targetInfo.deptId === "master")
+      // y el usuario ya está dentro de un departamento especializado, MANTENER en ese departamento:
+      if (currentDept.id !== "master" && targetInfo.deptId === "master") {
+        targetInfo = {
+          intent: currentDept.id,
+          deptId: currentDept.id,
+          name: currentDept.name,
+          emblem: currentDept.emblem
+        };
       }
 
       const specializedResponse = getSpecializedResponseText(targetInfo.deptId, userMsg, msgLower);
 
-      // Generar síntesis de voz natural y concisa según el área
+      // Síntesis de voz natural y concisa (1 o 2 oraciones claras)
       let voiceSummary = "";
       if (targetInfo.deptId === "c_gob") {
-        if (/(derecho de peticion|derecho de petición|peticion|petición|pqr|queja|reclamo|tutela|radicar|como poner)/i.test(msgLower)) {
-          voiceSummary = "Para radicar un derecho de petición en ETB puedes ingresar a etb.com/pqr, llamar al 178 o radicarlo en nuestros centros de atención. Debes incluir tu cédula, número de contrato y hechos claros. El término legal de respuesta es de máximo 15 días hábiles.";
-        } else if (/(cancelar|cancelacion|dar de baja|terminar contrato)/i.test(msgLower)) {
-          voiceSummary = "Puedes solicitar la cancelación de servicios con al menos 3 días hábiles de anticipación a tu fecha de corte por línea telefónica o portal web sin penalidades.";
-        } else if (/(permanencia|multa|clausula)/i.test(msgLower)) {
-          voiceSummary = "Bajo la Resolución CRC 5111, si cancelas antes de la permanencia solo pagas el valor prorrateado del descuento de instalación, nunca las mensualidades futuras.";
-        } else {
-          voiceSummary = "El marco regulatorio de ETB garantiza protección de usuarios bajo resoluciones de la CRC y la Ley 1581 de protección de datos.";
-        }
-      } else if (targetInfo.deptId === "c_desk") {
-        if (/(ticket|reportar|repórtar|cuadrilla|visita|agendar|si deseo|si por favor|claro)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
-          voiceSummary = "He iniciado la apertura de tu ticket prioritario con atención menor a 4 horas. Por favor indícame tu número de contrato o línea ETB para registrar la orden.";
-        } else if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|línea|linea)/i.test(msgLower)) {
-          voiceSummary = "Ticket radicado con éxito en nuestro sistema central. La cuadrilla técnica se desplazará en menos de 4 horas sin ningún costo.";
-        } else if (/(los roja|luz roja|sin internet|sin servicio)/i.test(msgLower)) {
-          voiceSummary = "La luz LOS en rojo confirma corte de fibra óptica exterior. Verifica que el cable amarillo no tenga dobleces y te agendamos visita técnica en menos de 4 horas.";
-        } else if (/(lento|lenta|velocidad)/i.test(msgLower)) {
-          voiceSummary = "Para optimizar la velocidad conecta tu equipo a la red inalámbrica ETB 5G y configura los servidores DNS primarios 1.1.1.1 de Cloudflare.";
-        } else {
-          voiceSummary = "Mesa de Ayuda ETB disponible 24/7. Verifica que los LEDs de la ONT estén en verde fijo o permíteme generar un ticket técnico.";
-        }
+        voiceSummary = "Para radicar un derecho de petición en ETB ingresa a etb.com/pqr o marca al 178 con tu documento y contrato. El plazo legal de respuesta es de 15 días hábiles.";
+      } else if (targetInfo.deptId === "c_cx") {
+        voiceSummary = "Servicio al cliente ETB. Puedes radicar tu PQR en etb.com/pqr o marcando al 178 para recibir de inmediato tu código CUN de seguimiento.";
       } else if (targetInfo.deptId === "c_com") {
-        if (/(precio|costo|planes|tarifa|cuanto)/i.test(msgLower)) {
-          voiceSummary = "ETB ofrece internet corporativo dedicado 100% simétrico desde 100 megas hasta 10 gigas con ductería propia y facturación fija en pesos colombianos.";
+        voiceSummary = "En ETB el costo de instalación de fibra óptica es de cero pesos en zonas de cobertura. Ofrecemos planes dedicados facturados en pesos colombianos.";
+      } else if (targetInfo.deptId === "c_desk") {
+        if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta)/i.test(msgLower)) {
+          voiceSummary = "Ticket radicado con éxito en nuestro sistema central. La cuadrilla técnica se desplazará en menos de 4 horas sin costo alguno.";
         } else {
-          voiceSummary = "ETB garantiza fibra óptica pura y dedicada 1 a 1, conexión directa al NAP Colombia y respaldo de centros de datos propios Tier 3.";
+          voiceSummary = "Mesa de Ayuda técnica ETB. Podemos orientarte con tu señal Wi-Fi o despachar una cuadrilla técnica en menos de 4 horas sin costo.";
         }
       } else if (targetInfo.deptId === "c_cib") {
-        voiceSummary = "Los Data Centers Alma y Prado de ETB cuentan con certificación Tier 3 de Uptime Institute, soberanía de datos en Colombia y SOC de ciberseguridad 24/7.";
-      } else if (targetInfo.deptId === "c_noc") {
-        voiceSummary = "La red troncal metropolitana de ETB opera con tecnología DWDM sobre anillos de 100 gigas y latencia menor a 3.2 milisegundos en Bogotá.";
+        voiceSummary = "Los centros de datos Alma y Prado de ETB cuentan con certificación Tier 3, soberanía en Colombia y centro de operaciones de ciberseguridad 24/7.";
       } else {
-        voiceSummary = "Consulta procesada por NEXO ETB. Estamos listos para asistirte en cualquiera de nuestros ocho departamentos corporativos.";
+        voiceSummary = "Consulta procesada por NEXO ETB. Estamos a tu disposición en todos nuestros departamentos corporativos.";
       }
 
-      // Si la consulta viene del Agente Master (Agente de Voz General):
+      // Si la consulta viene del Agente Master (Voz General):
       if (currentDept.id === "master") {
         return {
           is_transfer: targetInfo.deptId !== "master",
           redirect_target: targetInfo.deptId !== "master" ? targetInfo.deptId : null,
           redirect_name: targetInfo.name,
           emblem: targetInfo.emblem,
-          transfer_intro: `👑 Como Centro de Comando NEXO ETB, resuelvo tu requerimiento sobre **${targetInfo.name}**:`,
+          transfer_intro: `👑 Como Centro de Comando NEXO ETB, te oriento sobre **${targetInfo.name}**:`,
           welcome_message: `Información oficial de **${targetInfo.name}**:`,
           response: specializedResponse,
           voice_summary: voiceSummary,
@@ -3325,7 +3280,7 @@
         };
       }
 
-      // Evaluar transferencia entre departamentos distintos
+      // EVALUAR TRANSFERENCIA ENTRE DEPARTAMENTOS DISTINTOS:
       const shouldTransfer = (targetInfo.deptId !== "master" && targetInfo.deptId !== currentDept.id);
 
       if (shouldTransfer) {
@@ -3334,7 +3289,7 @@
           redirect_target: targetInfo.deptId,
           redirect_name: targetInfo.name,
           emblem: targetInfo.emblem,
-          transfer_intro: `ℹ️ Esta consulta no corresponde a mi área (**${currentDept.name}**).\n\nTe voy a transferir de inmediato al nodo de **${targetInfo.name}** para que nuestro especialista atienda tu caso.`,
+          transfer_intro: `ℹ️ Esta consulta corresponde a **${targetInfo.name}**.\n\nTe transfiero de inmediato a su nodo especializado para brindarte la atención precisa.`,
           welcome_message: `¡Bienvenido al área de **${targetInfo.name}**! Retomando tu solicitud sobre *"${userMsg}"*:`,
           response: specializedResponse,
           voice_summary: voiceSummary,
