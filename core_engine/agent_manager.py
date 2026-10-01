@@ -205,14 +205,20 @@ class AgentManager:
                 "emblem": "🤝"
             }
 
-        # 2. Respuestas con número de contrato, cuenta, teléfono o radicación de ticket
-        if any(w in msg_lower for w in ["contrato", "cuenta", "linea", "telefono", "mi numero", "ticket", "radicado", "asociar"]) or re.search(r'\b\d{5,12}\b', msg_lower):
+        # 2. Marco Legal, Normativa CRC, Derecho de Petición, PQR, Cancelación de Contratos, Cláusula de Permanencia, Habeas Data, SECOP II
+        if any(w in msg_lower for w in [
+            "derecho de peticion", "derecho de petición", "peticion", "petición", "pqr", "reclamo", "queja", 
+            "tutela", "radicar", "radicacion", "radicación", "sic", "superintendencia", "legal", "juridic", 
+            "abogad", "clausula", "permanencia", "cancelar", "cancelacion", "dar de baja", "terminar contrato", 
+            "derecho", "regulac", "crc", "5111", "5050", "ley 1581", "ley 1755", "habeas data", "datos personales", 
+            "secop", "licitacion", "pliego", "rup", "colombia compra", "regimen", "silencio administrativo"
+        ]):
             return {
-                "intent": "contract_or_ticket",
-                "dept_key": "mesa_ayuda",
-                "node_id": "c_desk",
-                "dept_name": "Mesa de Ayuda & Soporte Técnico",
-                "emblem": "🛠️"
+                "intent": "legal",
+                "dept_key": "juridica",
+                "node_id": "c_gob",
+                "dept_name": "Gobernanza Legal & Normativa",
+                "emblem": "⚖️"
             }
 
         # 3. Respuestas de diagnóstico de módem, telemetría y pruebas técnicas de soporte
@@ -233,14 +239,14 @@ class AgentManager:
                 "emblem": "🛠️"
             }
 
-        # 4. Marco Legal, Normativa CRC, Cancelación de Contratos, Cláusula de Permanencia, Habeas Data, SECOP II
-        if any(w in msg_lower for w in ["legal", "juridic", "abogad", "clausula", "permanencia", "cancelar", "cancelacion", "dar de baja", "terminar contrato", "derecho", "regulac", "crc", "5111", "5050", "ley 1581", "habeas data", "datos personales", "sic", "superintendencia", "pqr", "derecho de peticion", "secop", "licitacion", "pliego", "rup", "colombia compra", "regimen"]):
+        # 4. Respuestas con número de radicación de ticket o consulta de cuenta de soporte
+        if any(w in msg_lower for w in ["ticket de soporte", "ticket soporte", "radicado tecnico", "asociar ticket", "consultar ticket"]) or (re.search(r'\b\d{6,12}\b', msg_lower) and any(w in msg_lower for w in ["falla", "averia", "soporte", "visita", "tecnico"])):
             return {
-                "intent": "legal",
-                "dept_key": "juridica",
-                "node_id": "c_gob",
-                "dept_name": "Gobernanza Legal & Normativa",
-                "emblem": "⚖️"
+                "intent": "contract_or_ticket",
+                "dept_key": "mesa_ayuda",
+                "node_id": "c_desk",
+                "dept_name": "Mesa de Ayuda & Soporte Técnico",
+                "emblem": "🛠️"
             }
 
         # 5. Soporte técnico, Wi-Fi, fallas, ONT, lentitud, luces del módem, canales de asistencia
@@ -703,18 +709,29 @@ class AgentManager:
             voice = "Puedes solicitar la cancelación con al menos 3 días hábiles de anticipación a tu fecha de corte por cualquier canal oficial sin trabas adicionales."
             return text, voice
 
-        # 3. PQR, Reclamos, Tiempos de Respuesta y SIC
-        if any(w in msg_lower for w in ["pqr", "reclamo", "queja", "sic", "superintendencia", "tiempo de respuesta", "derecho de peticion", "compensacion"]):
+        # 3. Derecho de Petición, Radicación, PQR y Reclamos
+        if any(w in msg_lower for w in ["derecho de peticion", "derecho de petición", "peticion", "petición", "pqr", "reclamo", "queja", "tutela", "radicar", "como poner", "interponer", "radicacion", "radicación"]):
             text = (
                 f"{agent_badge}\n"
-                f"### ⚖️ Régimen de PQR, Tiempos de Respuesta y Recursos ante la SIC\n\n"
-                f"¡Hola! Conoce los plazos legales y mecanismos de protección al usuario:\n\n"
-                f"1. **Plazo Legal de Respuesta (PQR):** Todo operador de telecomunicaciones en Colombia dispone de un plazo máximo de **15 días hábiles** contados a partir del día siguiente a la radicación de la PQR para notificar respuesta de fondo.\n"
-                f"2. **Silencio Administrativo Positivo (SAP):** Si el operador no responde dentro de los 15 días hábiles, opera el Silencio Administrativo Positivo a favor del usuario.\n"
-                f"3. **Recursos de Ley:** Si la respuesta no es satisfactoria, dispones de **10 días hábiles** para interponer el **Recurso de Reposición y en subsidio de Apelación** ante la Superintendencia de Industria y Comercio (SIC).\n"
-                f"4. **Compensación por Indisponibilidad (CRC 5050):** Si se presentan fallas o interrupciones en el servicio no atribuibles a fuerza mayor o al usuario, tienes derecho a una **compensación automática en dinero o tiempo** en tu siguiente factura."
+                f"### ⚖️ Procedimiento Oficial para Radicar un Derecho de Petición o PQR en ETB\n\n"
+                f"Como Dirección Jurídica y Normativa de ETB, te indico el procedimiento legal y canales oficiales para radicar tu Derecho de Petición o PQR conforme a la **Ley 1755 de 2015** y la **Resolución CRC 5111 de 2017**:\n\n"
+                f"1. **Canales Oficiales Habilitados:**\n"
+                f"   - 🌐 **Portal Web Oficial (Inmediato):** Ingresa a [etb.com/pqr](https://etb.com) o a través del Portal Mi ETB en la sección *'Peticiones, Quejas y Reclamos'*. El sistema te genera un número CUN (Código Único Numérico) al instante para seguimiento.\n"
+                f"   - 📞 **Línea Telefónica Gratuita:** Comunícate al **178** (desde línea fija ETB), al **(601) 377-7777** en Bogotá, o a la línea nacional **01 8000 111 112**.\n"
+                f"   - 🏢 **Puntos Presenciales / Centros de Experiencia:** Radicación física directa en cualquiera de los Centros de Atención ETB en Bogotá y Cundinamarca.\n"
+                f"   - ✉️ **Ventanilla Única de Correspondencia:** Envío de comunicación escrita dirigida a la Secretaría General de ETB.\n\n"
+                f"2. **Requisitos de la Solicitud:**\n"
+                f"   - Nombres, apellidos y número de documento (Cédula de Ciudadanía, Extranjería o NIT de la empresa).\n"
+                f"   - Número de cuenta, contrato o línea de servicio asociada.\n"
+                f"   - Hechos claros y pretensiones de tu solicitud (reclamación de facturación, inconformidad técnica o administrativa).\n"
+                f"   - Dirección física o correo electrónico donde autorizas recibir la notificación.\n\n"
+                f"3. **Términos Legales y Garantías:**\n"
+                f"   - **Plazo de Respuesta:** Máximo **15 días hábiles** contados a partir del día siguiente a la radicación.\n"
+                f"   - **Silencio Administrativo Positivo (SAP):** Si ETB no responde en los 15 días hábiles, la petición se entenderá resuelta a tu favor por mandato de ley.\n"
+                f"   - **Recursos de Ley:** Si la respuesta no satisface tus pretensiones, dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio de Apelación ante la Superintendencia de Industria y Comercio (SIC)**.\n\n"
+                f"¿Deseas que te oriente en la redacción de tus pretensiones o tienes alguna duda adicional sobre los canales?"
             )
-            voice = "Las PQR tienen un término legal de respuesta de 15 días hábiles, con derecho a recurso de apelación ante la SIC y compensación automática por fallas."
+            voice = "Para radicar un derecho de petición en ETB puedes ingresar a etb.com/pqr, llamar al 178 o radicarlo en nuestros centros de atención. Debes incluir tu cédula, número de contrato y hechos claros. El término legal de respuesta es de máximo 15 días hábiles conforme a la ley."
             return text, voice
 
         # 4. Habeas Data y Protección de Datos Personales (Ley 1581)
