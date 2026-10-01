@@ -2604,9 +2604,103 @@
       orb.className = "eleven-fluid-circle " + (state !== "idle" ? state : "");
     }
 
+    // Sistema de Voz Natural y Profesional para NEXO ETB
+    let systemVoices = [];
+    function loadVoices() {
+      if ('speechSynthesis' in window) {
+        systemVoices = window.speechSynthesis.getVoices();
+      }
+    }
+    if ('speechSynthesis' in window) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function getBestSpanishVoice() {
+      if (!systemVoices || systemVoices.length === 0) {
+        loadVoices();
+      }
+      if (!systemVoices || systemVoices.length === 0) return null;
+
+      const esVoices = systemVoices.filter(v => v.lang && (v.lang.startsWith("es") || v.lang.startsWith("spa")));
+      if (esVoices.length === 0) return null;
+
+      let bestVoice = esVoices[0];
+      let bestScore = -100;
+
+      for (const v of esVoices) {
+        let score = 0;
+        const name = (v.name || "").toLowerCase();
+        const lang = (v.lang || "").toLowerCase();
+
+        // 1. Modelos Naturales / Neuronales (Edge, Chrome, Windows Natural)
+        if (name.includes("natural") || name.includes("neural") || name.includes("online")) score += 60;
+        if (name.includes("google")) score += 40;
+
+        // 2. Voces humanas de alta definición conocidas (Salomé, Gonzalo en Colombia; Sabina, Jorge, Dalia, Paulina)
+        if (name.includes("salome") || name.includes("salomé") || name.includes("gonzalo")) score += 35;
+        else if (name.includes("sabina") || name.includes("jorge") || name.includes("dalia")) score += 30;
+        else if (name.includes("paulina") || name.includes("monica") || name.includes("diego") || name.includes("alonso")) score += 25;
+
+        // 3. Dialecto (ETB Colombia: es-CO / LatAm)
+        if (lang.includes("es-co") || lang.includes("es_co")) score += 20;
+        else if (lang.includes("es-419") || lang.includes("es-mx") || lang.includes("es-us")) score += 15;
+        else if (lang.includes("es-es")) score += 10;
+
+        // 4. Descartar voces robóticas antiguas o de escritorio planas
+        if (name.includes("desktop") || name.includes("zira") || name.includes("espeak")) score -= 25;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestVoice = v;
+        }
+      }
+      return bestVoice;
+    }
+
+    function cleanTextForSpeech(raw) {
+      if (!raw) return "";
+      let t = raw;
+      // Eliminar bloques de código y markdown
+      t = t.replace(/```[\s\S]*?```/g, " ");
+      t = t.replace(/`([^`]+)`/g, "$1");
+      t = t.replace(/\*\*([^*]+)\*\*/g, "$1");
+      t = t.replace(/\*([^*]+)\*/g, "$1");
+      t = t.replace(/__([^_]+)__/g, "$1");
+      t = t.replace(/_([^_]+)_/g, "$1");
+      t = t.replace(/#+\s+/g, "");
+      t = t.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+      t = t.replace(/https?:\/\/\S+/g, "");
+      t = t.replace(/\[.*?\]/g, "");
+      t = t.replace(/%/g, " por ciento ");
+      t = t.replace(/&/g, " y ");
+      t = t.replace(/\+/g, " más ");
+      t = t.replace(/[•\-\*]\s+/g, " ");
+      // Remover emojis para que no lea nombres de caracteres
+      t = t.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, "");
+      t = t.replace(/\s+/g, " ").trim();
+
+      // Sintetizar frases concisas y naturales (hasta 280 caracteres sin cortar palabras)
+      if (t.length > 280) {
+        const sentences = t.match(/[^.!?]+[.!?]+/g);
+        if (sentences && sentences.length > 0) {
+          let acc = "";
+          for (const s of sentences) {
+            if ((acc + s).length <= 280) acc += s + " ";
+            else break;
+          }
+          if (acc.trim().length > 30) t = acc.trim();
+          else t = t.substring(0, 260).replace(/\s+\S*$/, "") + ".";
+        } else {
+          t = t.substring(0, 260).replace(/\s+\S*$/, "") + ".";
+        }
+      }
+      return t;
+    }
+
     async function handleVoiceAiQuery(text) {
       if (!text || text.trim().length === 0) return;
-      document.getElementById("elevenSubtitles").textContent = "Procesando con Constelación ETB...";
+      document.getElementById("elevenSubtitles").textContent = "Analizando con NEXO ETB...";
 
       try {
         const res = await fetch(`${API_BASE}/api/chat`, {
@@ -2614,20 +2708,28 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             sender: "voice_user",
-            target_agent: "master",
+            target_agent: selectedAgentId || "master",
             message: text
           })
         });
 
+        if (!res.ok) throw new Error("Status " + res.status);
         const data = await res.json();
-        const spoken = data.voice_summary || (data.response ? data.response.slice(0, 240) : "Solución procesada por ETB.");
+        handleAgentResponsePayload(data);
 
-        document.getElementById("elevenSubtitles").textContent = spoken;
-        speakText(spoken);
+        const spoken = data.voice_summary || data.response || "Solución procesada por ETB.";
+        const readable = cleanTextForSpeech(spoken);
+        document.getElementById("elevenSubtitles").textContent = readable;
+        speakText(readable);
       } catch (err) {
-        const fallback = "ETB garantiza fibra simétrica 100% pura y Centros de Datos Tier 3 propios en Colombia con disponibilidad del 99.98%.";
-        document.getElementById("elevenSubtitles").textContent = fallback;
-        speakText(fallback);
+        // En GitHub Pages o modo estático, usar clasificador inteligente y mover los nodos 3D
+        const fallbackData = generateClientFallbackData(selectedAgentId || "master", text);
+        handleAgentResponsePayload(fallbackData);
+
+        const spoken = fallbackData.voice_summary || fallbackData.response;
+        const readable = cleanTextForSpeech(spoken);
+        document.getElementById("elevenSubtitles").textContent = readable;
+        speakText(readable);
       }
     }
 
@@ -2635,14 +2737,22 @@
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "es-ES";
-      utterance.rate = 1.05;
-      utterance.pitch = 1.0;
+      const cleaned = cleanTextForSpeech(text);
+      if (!cleaned) return;
 
-      const voices = window.speechSynthesis.getVoices();
-      const esVoice = voices.find(v => v.lang.startsWith("es"));
-      if (esVoice) utterance.voice = esVoice;
+      const utterance = new SpeechSynthesisUtterance(cleaned);
+      const voice = getBestSpanishVoice();
+      if (voice) {
+        utterance.voice = voice;
+        utterance.lang = voice.lang || "es-CO";
+      } else {
+        utterance.lang = "es-CO";
+      }
+
+      // Modulación y cadencia humana profesional (evita tono robótico y apresurado)
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
 
       utterance.onstart = () => {
         isSpeaking = true;
@@ -2653,8 +2763,13 @@
         isSpeaking = false;
         setOrbState("idle");
         if (isCallActive) {
-          setTimeout(startListening, 700);
+          setTimeout(startListening, 600);
         }
+      };
+
+      utterance.onerror = () => {
+        isSpeaking = false;
+        setOrbState("idle");
       };
 
       window.speechSynthesis.speak(utterance);
@@ -2906,30 +3021,6 @@
 
     let chatHistory = [];
 
-    async function sendMessage() {
-      const input = document.getElementById("chat-input");
-      const text = input.value.trim();
-      if (!text) return;
-
-      input.value = "";
-      appendChatMessage("user", text);
-      chatHistory.push({ role: "user", content: text, agent: selectedAgentId });
-
-      const loadId = appendChatMessage("agent", "⏳ *Sincronizando con NEXO ETB...*");
-
-      try {
-        const res = await fetch(`${API_BASE}/api/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sender: "user",
-            target_agent: selectedAgentId,
-            message: text,
-            history: chatHistory
-          })
-        });
-        const data = await res.json();
-        removeChatMessage(loadId);
 
     function getDepartmentForNodeId(nodeId) {
       if (nodeId === "master") return { id: "master", name: "NEXO ETB CORE", emblem: "👑" };
