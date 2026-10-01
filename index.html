@@ -3162,27 +3162,57 @@
     }
 
     function getSpecializedResponseText(deptId, userMsg, msgLower) {
+      // 1. GOBERNANZA LEGAL & NORMATIVA (c_gob)
       if (deptId === "c_gob") {
-        if (/(derecho de peticion|derecho de petición|tutela)/i.test(msgLower)) {
-          return `### ⚖️ Radicación de Derecho de Petición (Ley 1755 / CRC 5111)\n\nComo Dirección Jurídica de ETB, te oriento para una radicación válida y efectiva:\n\n- 🌐 **Canales Oficiales:** En línea vía **etb.com/pqr**, marcando al **178** o en ventanilla física en sedes ETB.\n- 📋 **Requisitos:** Cédula o NIT, número de contrato/línea, hechos concretos y correo de notificación.\n- ⏱️ **Plazo Legal:** Máximo **15 días hábiles** de respuesta. Opera el **Silencio Administrativo Positivo** a tu favor.\n- 🏛️ **Recursos:** Ante inconformidad, procede reposición y apelación ante la **SIC**.\n\n¿Deseas validar algún punto específico de tu petición?`;
+        if (/(permanencia|clausula|multa|penaliz)/i.test(msgLower)) {
+          return `### ⚖️ Dictamen Legal: Permanencia Mínima (Resolución CRC 5111)\n\n- 🚫 **Prohibición Legal:** Ningún operador puede cobrar mensualidades futuras no disfrutadas.\n- 💰 **Fórmula de Liquidación:** Únicamente se cancela el saldo prorrateado del subsidio de instalación: \`Saldo = (Descuento / Meses) × Meses restantes\`.\n- 📜 **Sin Renovación Automática:** Cumplido el periodo inicial (12 o 24 meses), el contrato pasa a ser indefinido sin permanencia.\n\n¿Deseas verificar si tu contrato cuenta con permanencia vigente?`;
         }
-        if (/(permanencia|clausula)/i.test(msgLower)) {
-          return `### ⚖️ Dictamen Legal: Permanencia Mínima (Resolución CRC 5111)\n\n- 🚫 **Prohibición Legal:** ETB y ningún operador pueden cobrarte mensualidades futuras no disfrutadas.\n- 💰 **Liquidación Justa:** Solo cancelas el saldo prorrateado del subsidio de instalación de los meses restantes.\n- 📜 **Sin Renovación Automática:** Vencido el plazo inicial (12/24 meses), el contrato pasa a ser indefinido sin permanencia.\n\n¿Deseas verificar si tu contrato cuenta con permanencia vigente?`;
+        if (/(cancelar|cancelacion|dar de baja|terminar contrato|retirar|desvincular)/i.test(msgLower)) {
+          return `### ⚖️ Procedimiento Legal para Cancelación de Servicios (CRC 5111)\n\n- ⏱️ **Anticipación:** Puedes presentar la solicitud con al menos **3 días hábiles de anticipación** a tu fecha de corte de facturación.\n- 📢 **Canales Oficiales:** Vía telefónica al **178**, portal web **etb.com** o ventanilla presencial sin exigir documentos innecesarios.\n- 📦 **Devolución de Equipos:** Se coordina la entrega de equipos en comodato (ONT/módem) sin costo de penalización.\n- 📄 **Paz y Salvo:** Se expide una vez cancelada la última factura de servicios prestados.\n\n¿Deseas verificar tu fecha de corte para programar la solicitud?`;
         }
-        return `### ⚖️ Gobernanza Legal & Normativa ETB\n\nGarantizamos el cumplimiento normativo ante la **CRC**, **MinTIC**, **SIC** y **Ley 1581 de Protección de Datos**.\n\n¿Requieres asistencia sobre derechos de petición, tutelas o normatividad contractual?`;
+        if (/(radicar|como poner|como radicar|formulario|plantilla|interponer)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
+          return `### ⚖️ Procedimiento para Radicar Derecho de Petición (Ley 1755 de 2015)\n\nPara que tu Derecho de Petición tenga plena validez jurídica ante ETB y la SIC:\n\n1. **Canales Habilitados:** Ingresa a **etb.com/pqr**, llama al **178** o radícalo por escrito en cualquier Centro de Atención ETB.\n2. **Requisitos Indispensables:**\n   - Nombres, apellidos y documento de identidad (CC o NIT).\n   - Número de contrato, cuenta o línea telefónica.\n   - Hechos claros y pretensiones puntuales.\n   - Correo electrónico o dirección para notificación.\n3. **Término Legal:** ETB cuenta con **15 días hábiles** para responder. De lo contrario, opera el **Silencio Administrativo Positivo** a tu favor.\n\n¿Deseas orientación sobre cómo redactar tus pretensiones?`;
+        }
+        if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|cedula|cédula|nit)/i.test(msgLower)) {
+          const matchNum = msgLower.match(/\b\d{5,12}\b/);
+          const num = matchNum ? matchNum[0] : "53696969";
+          return `### ⚖️ Registro y Asesoría Jurídica — Caso Asociado\n\nHemos tomado nota de tu consulta jurídica para el contrato o documento **${num}**:\n\n- 📜 **Marco Aplicable:** Ley 1755 de 2015 y Resolución CRC 5111 de 2017.\n- ⏱️ **Garantía:** Todo trámite cuenta con fecha y hora oficial de radicación y término improrrogable de 15 días hábiles.\n- 🏛️ **Recursos:** Ante respuesta desfavorable, dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio Apelación ante la Superintendencia de Industria y Comercio (SIC)**.\n\n¿Requieres que un asesor jurídico revise un requerimiento particular sobre este contrato?`;
+        }
+        return `### ⚖️ Gobernanza Legal & Normativa ETB\n\nSupervisamos el cumplimiento regulatorio ante la **CRC**, **MinTIC**, **SIC** y el régimen de **Habeas Data (Ley 1581)**:\n\n- **Derecho de Petición:** Término perentorio de 15 días hábiles con Silencio Administrativo Positivo.\n- **Contratos & Permanencia:** Liquidación justa sin cobros de mensualidades futuras.\n\n¿En qué trámite normativo o contractual requieres asesoría?`;
       }
 
+      // 2. SERVICIO AL CLIENTE & EXPERIENCIA (c_cx)
       if (deptId === "c_cx") {
+        if (/(contacta|contactar|comunicar|hablar|asesor|humano|agente|persona|gestor|atencion personalizada|atención personalizada)/i.test(msgLower)) {
+          return `### 👤 Conexión Directa con Asesor de Servicio al Cliente ETB\n\n¡Comprendo perfectamente! Te pongo en contacto directo con nuestros gestores de servicio:\n\n- 📞 **Línea Telefónica Directa:** Marca al **178** (gratis desde fijos ETB) o al PBX **(601) 377-7777** opción 3.\n- 💬 **WhatsApp Oficial:** Escribe a nuestro WhatsApp verificado **+57 305 777 7777** y selecciona *'Atención con Asesor'*.\n- 🏢 **Centros Presenciales:** Atención de lunes a sábado en todos los Centros de Experiencia ETB.\n\n¿Deseas que te asigne un turno preferencial o necesitas radicar una solicitud formal antes de transferirte?`;
+        }
+        if (/(radica|radicar|abrir pqr|crear pqr|generar pqr|si deseo|si radica|si por favor|deseo radicar)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
+          return `### 📝 Radicación de PQR — Servicio al Cliente ETB\n\n¡Con gusto! Para emitir tu **Código Único Numérico (CUN)** oficial con validez ante la CRC y la SIC:\n\nPor favor indícame:\n1. Tu **número de contrato, cuenta o cédula/NIT**.\n2. El **motivo principal** de la PQR (ej. inconformidad con cobro en factura, calidad de servicio o solicitud técnica).\n\nCon este dato registro tu PQR en el sistema central en tiempo real.`;
+        }
+        if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|cedula|cédula|nit)/i.test(msgLower)) {
+          const matchNum = msgLower.match(/\b\d{5,12}\b/);
+          const num = matchNum ? matchNum[0] : "53696969";
+          const cunCode = `CUN-2026-${num.slice(-6).padStart(6, '0')}`;
+          return `### ✅ PQR Radicada con Éxito — Servicio al Cliente ETB\n\nTu reclamación ha quedado registrada formalmente en nuestro sistema central:\n\n- 🎫 **Código Único Numérico (CUN):** \`${cunCode}\`\n- 📄 **Contrato / Documento:** **${num}**\n- ⏱️ **Término Legal de Respuesta:** Máximo **15 días hábiles** (Supervisado por CRC y SIC)\n- 📱 **Seguimiento en Tiempo Real:** Puedes consultar el avance en **etb.com/pqr** o enviando tu CUN al WhatsApp **+57 305 777 7777**.\n\n¿Deseas agregar alguna observación adicional para el equipo de auditoría?`;
+        }
         return `### 🌟 Servicio al Cliente & Radicación de PQR\n\n¡Hola! En Servicio al Cliente gestionamos tu solicitud con prioridad:\n\n- 🎫 **Radicación Inmediata:** Generamos tu código **CUN** (Código Único Numérico) para seguimiento en tiempo real en **etb.com/pqr**.\n- 💬 **Canales Directos:** WhatsApp Oficial **+57 305 777 7777**, línea **178** o PBX **(601) 377-7777**.\n- 👤 **Atención Personalizada:** Si lo requieres, asignamos un gestor corporativo para atender tu inconformidad de forma directa.\n\n¿Deseas que radiquemos tu PQR o prefieres contactar con un asesor de servicio?`;
       }
 
+      // 3. VENTAS & SOLUCIONES CORPORATIVAS (c_com)
       if (deptId === "c_com") {
         if (/(costo de instalacion|costos de instalacion|costo de instalación|instalacion|instalación)/i.test(msgLower)) {
-          return `### 💼 Costos de Instalación & Activación ETB\n\n- 💰 **Costo de Instalación:** **$0 COP** (Gratuita) en zonas con cobertura directa de fibra óptica bajo suscripción comercial.\n- 📦 **Equipos Incluidos:** Módem ONT Wi-Fi 6 en comodato sin costo de alquiler.\n- 🚀 **Disponibilidad:** Internet 100% simétrico desde 100 Mbps hasta 10 Gbps con canalizaciones propias en Bogotá y Sabana.\n\n¿En qué dirección o barrio se encuentra tu sede para verificar cobertura inmediata?`;
+          return `### 💼 Costos de Instalación & Activación ETB\n\n- 💰 **Costo de Instalación:** **$0 COP** (100% gratuita) en zonas de cobertura directa de fibra óptica bajo suscripción comercial.\n- 📦 **Equipos Incluidos:** Módem ONT Wi-Fi 6 en comodato sin costo de alquiler.\n- 🚀 **Disponibilidad:** Internet 100% simétrico desde 100 Mbps hasta 10 Gbps con canalizaciones propias en Bogotá y Sabana.\n\n¿En qué dirección o barrio se encuentra tu sede para verificar cobertura inmediata?`;
         }
-        return `### 💼 Soluciones Corporativas & Ventas ETB\n\n- 🌐 **Internet Dedicado 1:1:** Capacidad garantizada en subida y bajada, conexión directa al NAP Colombia.\n- 💵 **Facturación en Pesos (COP):** Precios fijos sin indexación a la TRM o dólar.\n- ⚡ **SLA Garantizado:** 99.85% de disponibilidad respaldado por anillos DWDM.\n\n¿Deseas cotizar un plan de internet dedicado para tu empresa o negocio?`;
+        if (/(calle|carrera|avenida|cra|cll|diagonal|transversal|chico|suba|chapinero|usaquen|fontibon|centro|bogota|bogotá|zona industrial|parque industrial)/i.test(msgLower)) {
+          return `### 📍 Cobertura y Factibilidad Técnica Confirmada\n\n¡Excelente ubicación! Tu zona cuenta con acceso a la red de fibra óptica subterránea propia de ETB:\n\n- ⚡ **Velocidades Recomendadas:** 300 Mbps, 500 Mbps o 1 Gbps dedicado simétrico 1:1.\n- 💵 **Facturación:** Liquidación en Pesos Colombianos (COP) fijos sin sobrecostos por TRM.\n- ⏱️ **Tiempo de Instalación:** De **3 a 5 días hábiles** con entrega de ONT Wi-Fi 6.\n\n¿Deseas que un consultor comercial corporativo te envíe la propuesta formal a tu correo?`;
+        }
+        if (/(claro|tigo|movistar|competencia|diferencia|por que etb)/i.test(msgLower)) {
+          return `### 🛡️ Diferenciales de ETB frente a la Competencia\n\n1. **Fibra Óptica Pura (FTTO/FTTH):** Sin coaxial híbrido ni cable de cobre que degrade la señal en lluvias.\n2. **Simetría Real 1:1:** Misma velocidad de subida que de bajada, vital para backups, videollamadas y servidores.\n3. **Canalizaciones Propias:** 4.000+ km de ductería subterránea en Bogotá, independiente de postes que puedan ser afectados.\n4. **Data Centers Propios:** Tier III en Bogotá (Alma y Prado) para soberanía total de datos.\n\n¿Deseas una cotización comparativa sin compromiso?`;
+        }
+        return `### 💼 Soluciones Corporativas & Ventas ETB\n\n- 🌐 **Internet Dedicado Simétrico:** Desde 100 Mbps hasta 10 Gbps con SLA 99.85%.\n- 💵 **Facturación en Pesos (COP):** Precios fijos sin indexación al dólar.\n- 📞 **Servicios Adicionales:** Troncal SIP, redes SD-WAN y enlaces punto a punto.\n\n¿Qué velocidad o servicio deseas cotizar para tu empresa?`;
       }
 
+      // 4. MESA DE AYUDA & SOPORTE TÉCNICO (c_desk)
       if (deptId === "c_desk") {
         if (/(ticket|reportar|repórtar|cuadrilla|visita|agendar|si deseo|si por favor|claro|si|sí|por favor)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
           return `### 🎫 Apertura de Ticket — Mesa de Ayuda ETB\n\n¡Con gusto! He iniciado tu orden de servicio técnico:\n\n- 🛠️ **Cuadrilla Asignada:** Soporte N2 de tu zona\n- ⏱️ **Compromiso SLA:** Atención en sitio menor a **4 horas**\n- 💰 **Costo de la Visita:** **$0 COP** (Cubierta al 100% por tu contrato)\n\nPor favor indícame tu **número de contrato, cuenta o línea telefónica ETB** para despachar la cuadrilla.`;
@@ -3192,23 +3222,41 @@
           const num = matchNum ? matchNum[0] : "53696969";
           return `### ✅ Ticket Radicado Exitosamente\n\n- 🎫 **Ticket ID:** \`ETB-INC-${num.slice(-6) || '849201'}\`\n- 📄 **Contrato / Línea:** **${num}**\n- ⏱️ **Llegada Cuadrilla:** Menor a **4 horas** en tu sede\n- 💰 **Costo:** **$0 COP**\n\nTe notificaremos por SMS y WhatsApp cuando el técnico inicie su desplazamiento. ¿Deseas agregar alguna indicación para la portería?`;
         }
+        if (/(tiempo|cuanto demora|cuanto tarda|cuando viene|cuando llega|a que hora)/i.test(msgLower)) {
+          return `### ⏱️ Tiempos de Atención Técnica ETB\n\n- 🚗 **Desplazamiento:** Las cuadrillas técnicas de ETB tienen un tiempo de compromiso en sitio **menor a 4 horas** para clientes corporativos y fibra óptica.\n- 💰 **Costo:** **$0 COP** (100% gratis por mantenimiento de red).\n\n¿Deseas que verifiquemos el estado de tu orden en tiempo real?`;
+        }
         return `### 🛠️ Mesa de Ayuda & Soporte de Internet ETB\n\n- 🟢 **Luz PON Verde fija:** Enlace de fibra óptica sincronizado.\n- 🔴 **Luz LOS Roja:** Atenuación o corte exterior en vía pública (requiere visita técnica inmediata).\n- ⚡ **Reinicio Rápido:** Desconecta el módem 30 segundos para refrescar la IP en la central.\n\n¿Deseas que generemos un ticket para visita de cuadrilla técnica en menos de 4 horas?`;
       }
 
+      // 5. DATA CENTERS & CIBERSEGURIDAD (c_cib)
       if (deptId === "c_cib") {
+        if (/(colocation|rack|hosting|alojar|servidor)/i.test(msgLower)) {
+          return `### 🏢 Servicios de Colocation & Hosting — Data Centers ETB\n\n- 🏛️ **Sedes Propias:** Data Centers Alma (Suba) y Prado (Puente Aranda) certificados **Tier III Facility & Design** por el Uptime Institute.\n- ⚡ **Energía Redundante:** Sistema eléctrico 2N con generadores diésel de arranque automático y autonomía de 72+ horas.\n- 🔒 **Seguridad Física:** 7 anillos de control biométrico y monitoreo CCTV 24/7/365.\n\n¿Qué cantidad de unidades de rack (RU) o potencia en kW requiere tu infraestructura?`;
+        }
+        if (/(cloud|nube|vps|iaas|backup|copia de seguridad)/i.test(msgLower)) {
+          return `### ☁️ Nube Híbrida & Servidores Virtuales ETB\n\n- 🇨🇴 **Soberanía de Datos:** Toda tu información almacenada en Colombia bajo estricto cumplimiento de la Ley 1581.\n- ⚡ **Baja Latencia:** Acceso directo sobre la red troncal DWDM sin transitar por enlaces internacionales.\n- 🛡️ **Respaldos Automatizados:** Esquemas BaaS (Backup as a Service) y DRaaS ante contingencias.\n\n¿Deseas cotizar capacidad de procesamiento (vCPU, RAM, Storage SSD)?`;
+        }
         return `### 🏢 Data Centers Propios Tier III & Ciberseguridad ETB\n\n- 🏛️ **Infraestructura Propia:** Data Centers Alma (Suba) y Prado (Puente Aranda) con certificación Tier III e ICREA V.\n- 🇨🇴 **Soberanía de Datos:** Toda tu información almacenada en Colombia bajo ley local.\n- 🛡️ **SOC 24/7:** Mitigación en tiempo real Anti-DDoS y seguridad perimetral Zero Trust.\n\n¿Deseas conocer opciones de colocation o servidores en la nube privada?`;
       }
 
+      // 6. RED TRONCAL & NOC (c_noc)
       if (deptId === "c_noc") {
-        return `### 🌐 Red Troncal Metropolitana & NOC ETB\n\n- ⚡ **Anillos DWDM 100G:** Transporte de alta capacidad con latencia < 3.2 ms en Bogotá.\n- 🔗 **Interconexión Directa:** Salida directa al NAP Colombia y a los principales CDNs del mundo.\n\n¿Requieres telemetría o estado de algún circuito troncal?`;
+        return `### 🌐 Red Troncal Metropolitana & NOC ETB\n\n- ⚡ **Anillos DWDM 100G:** Transporte de alta capacidad con latencia < 3.2 ms en Bogotá.\n- 🔗 **Interconexión Directa:** Salida directa al NAP Colombia y a los principales CDNs del mundo.\n- 🔍 **Monitoreo NOC:** Detección de atenuación óptica 24/7/365.\n\n¿Requieres telemetría o estado de algún circuito troncal?`;
       }
 
+      // 7. PLANEACIÓN FINANCIERA & FACTURACIÓN (c_erp)
       if (deptId === "c_erp") {
+        if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|factura|recibo)/i.test(msgLower)) {
+          const matchNum = msgLower.match(/\b\d{5,12}\b/);
+          const num = matchNum ? matchNum[0] : "53696969";
+          return `### 💳 Estado de Cuenta & Facturación — Contrato ${num}\n\n- 📄 **Descarga de Duplicado:** Disponible en **etb.com/factura** ingresando tu número de cuenta.\n- 💳 **Pago Seguro en Línea:** Botón PSE habilitado para liquidación inmediata sin recargos.\n- 💵 **Moneda Local:** Facturación 100% en Pesos Colombianos (COP) fijos.\n\n¿Deseas que te enviemos el duplicado de tu factura al correo electrónico registrado?`;
+        }
         return `### 💰 Facturación & Finanzas ETB\n\n- 📄 **Facturación en Pesos (COP):** Precios claros sin sorpresas cambiarias por TRM.\n- 💳 **Pagos en Línea:** Pago inmediato vía PSE en **etb.com** o portal Mi ETB.\n\n¿Deseas consultar tu saldo actual o aclarar algún cobro en tu factura?`;
       }
 
+      // 8. DESPLIEGUE DE RED & PROYECTOS (c_pmo)
       if (deptId === "c_pmo") {
-        return `### 🚀 Despliegue de Red & Gestión de Proyectos PMO\n\n- 🏗️ **Obras y Canalización:** Tendido subterráneo con permisos del IDU y Alcaldía Mayor de Bogotá.\n- 📏 **Certificación OTDR:** Ensayos de reflectometría óptica en cada tramo instalado.\n\n¿Requieres conocer el avance de obras en tu zona?`;
+        return `### 🚀 Despliegue de Red & Gestión de Proyectos PMO\n\n- 🏗️ **Obras y Canalización:** Tendido subterráneo con permisos del IDU y Alcaldía Mayor de Bogotá.\n- 📏 **Certificación OTDR:** Ensayos de reflectometría óptica en cada tramo instalado.\n- ⏱️ **Plazos de Entrega:** 3 a 5 días para FTTH estándar / 10 a 20 días en enlaces dedicados.\n\n¿Requieres conocer el avance de obras en tu zona?`;
       }
 
       return `Procesando tu solicitud: *"**${userMsg}**"*.\n\nDesde el Centro de Comando NEXO ETB coordinamos los 8 departamentos corporativos. ¿En qué área requieres asistencia?`;
@@ -3247,11 +3295,29 @@
       // Síntesis de voz natural y concisa (1 o 2 oraciones claras)
       let voiceSummary = "";
       if (targetInfo.deptId === "c_gob") {
-        voiceSummary = "Para radicar un derecho de petición en ETB ingresa a etb.com/pqr o marca al 178 con tu documento y contrato. El plazo legal de respuesta es de 15 días hábiles.";
+        if (/(radicar|como poner)/i.test(msgLower)) {
+          voiceSummary = "Para radicar un derecho de petición en ETB ingresa a etb.com/pqr o marca al 178 con tu documento y contrato. El plazo legal de respuesta es de 15 días hábiles.";
+        } else if (/(permanencia|clausula)/i.test(msgLower)) {
+          voiceSummary = "Bajo la Resolución CRC 5111, si cancelas antes de la permanencia solo pagas el valor prorrateado del descuento de instalación, nunca las mensualidades futuras.";
+        } else {
+          voiceSummary = "Gobernanza Legal ETB. Velamos por el cumplimiento de las resoluciones de la CRC y la protección de tus derechos como usuario.";
+        }
       } else if (targetInfo.deptId === "c_cx") {
-        voiceSummary = "Servicio al cliente ETB. Puedes radicar tu PQR en etb.com/pqr o marcando al 178 para recibir de inmediato tu código CUN de seguimiento.";
+        if (/(contacta|contactar|comunicar|hablar|asesor|humano|agente|persona|gestor)/i.test(msgLower)) {
+          voiceSummary = "Te pongo en contacto con un asesor humano. Puedes llamar al 178 o escribir a nuestro WhatsApp oficial 305 777 7777 opción asesor.";
+        } else if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|cedula|cédula)/i.test(msgLower)) {
+          voiceSummary = "Tu PQR ha sido radicada con éxito en nuestro sistema central con seguimiento en tiempo real y garantía legal de 15 días hábiles.";
+        } else if (/(radica|radicar|si radica|crear)/i.test(msgLower)) {
+          voiceSummary = "Con gusto iniciamos tu PQR. Por favor indícame tu número de contrato o cédula para generarte el código CUN oficial.";
+        } else {
+          voiceSummary = "Servicio al cliente ETB. Puedes radicar tu PQR de inmediato o comunicarte con un asesor de atención personalizada.";
+        }
       } else if (targetInfo.deptId === "c_com") {
-        voiceSummary = "En ETB el costo de instalación de fibra óptica es de cero pesos en zonas de cobertura. Ofrecemos planes dedicados facturados en pesos colombianos.";
+        if (/(costo de instalacion|instalacion)/i.test(msgLower)) {
+          voiceSummary = "En ETB el costo de instalación de fibra óptica es de cero pesos en zonas de cobertura. Ofrecemos planes dedicados facturados en pesos colombianos.";
+        } else {
+          voiceSummary = "Soluciones Corporativas ETB. Ofrecemos internet simétrico dedicado con ductería propia y facturación fija en pesos colombianos.";
+        }
       } else if (targetInfo.deptId === "c_desk") {
         if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta)/i.test(msgLower)) {
           voiceSummary = "Ticket radicado con éxito en nuestro sistema central. La cuadrilla técnica se desplazará en menos de 4 horas sin costo alguno.";
