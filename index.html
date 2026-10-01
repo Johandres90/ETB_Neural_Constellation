@@ -2931,90 +2931,226 @@
         const data = await res.json();
         removeChatMessage(loadId);
 
-        if (res.ok) {
-          // Caso: Transferencia Inter-Departamental Cinematográfica
-          if (data.is_transfer && data.redirect_target && selectedAgentId !== data.redirect_target) {
-            // 1. Mostrar aviso del agente actual explicando que no es su área y que lo transferirá
-            const introMsg = data.transfer_intro || `ℹ️ Esta consulta no corresponde a mi área. Te voy a transferir al nodo de **${data.redirect_name}**...`;
-            appendChatMessage("agent", introMsg);
-            chatHistory.push({ role: "assistant", content: introMsg, agent: selectedAgentId });
+    function getDepartmentForNodeId(nodeId) {
+      if (nodeId === "master") return { id: "master", name: "NEXO ETB CORE", emblem: "👑" };
+      const mapping = {
+        "c_noc": { id: "c_noc", name: "Red Troncal & Fibra Óptica", emblem: "🌐" },
+        "c_cib": { id: "c_cib", name: "Data Centers & Nube Híbrida", emblem: "🏢" },
+        "c_com": { id: "c_com", name: "Soluciones Corporativas & B2B", emblem: "💼" },
+        "c_gob": { id: "c_gob", name: "Gobernanza Legal & Normativa", emblem: "⚖️" },
+        "c_erp": { id: "c_erp", name: "Planeación Financiera & Costos", emblem: "💰" },
+        "c_pmo": { id: "c_pmo", name: "Despliegue de Red & Proyectos", emblem: "🚀" },
+        "c_desk": { id: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", emblem: "🛠️" },
+        "c_cx": { id: "c_cx", name: "Experiencia de Cliente & VIP", emblem: "🌟" }
+      };
+      if (mapping[nodeId]) return mapping[nodeId];
 
-            // 2. Esperar 1.3 segundos para lectura fluida
-            setTimeout(() => {
-              // 3. Cerrar la ventana de chat
-              togglePanel(true);
+      const node = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === nodeId) : null;
+      if (node && node.parent && mapping[node.parent]) {
+        return mapping[node.parent];
+      }
+      return { id: "master", name: "NEXO ETB CORE", emblem: "👑" };
+    }
 
-              // 4. Iniciar vuelo de cámara 3D al nodo correspondiente
-              const targetNode = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === data.redirect_target) : null;
-              if (targetNode) {
-                focusCameraOn(targetNode.x, targetNode.y, targetNode.z, 22, () => {
-                  // 5. Al llegar al nodo: activar destello, actualizar panel
-                  const targetGroup = nodeMeshMap.get(targetNode.id);
-                  if (targetGroup) triggerNodeFlash(targetGroup);
-                  
-                  selectedAgentId = data.redirect_target;
-                  updatePanelForNode(selectedAgentId);
+    function classifyUserIntent(msgLower) {
+      // 1. Cierre / Despedida
+      if (/(no gracias|no, gracias|no tengo mas|no tengo más|eso es todo|eso seria todo|eso sería todo|ninguna|cerrar|finalizar|hasta luego)/i.test(msgLower)) {
+        return { intent: "close", deptId: "master", name: "NEXO ETB CORE", emblem: "🤝" };
+      }
 
-                  // 6. Abrir de nuevo la ventana de chat
-                  setTimeout(() => {
-                    togglePanel(false);
+      // 2. Soporte Técnico & Fallas (c_desk)
+      if (/(wifi|wi-fi|inalambric|soporte|falla|daño|sin internet|sin servicio|caido|caída|intermiten|lento|lenta|lentitud|ont|cpe|router|reiniciar|modem|módem|potencia|dbm|luz roja|los roja|pon|pon verde)/i.test(msgLower)) {
+        return { intent: "support", deptId: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", emblem: "🛠️" };
+      }
 
-                    // 7. Mostrar mensaje de bienvenida al nodo y continuar la respuesta retomando la solicitud
-                    const welcomeHeader = `### ${data.emblem || '🌐'} ${data.welcome_message || ('Bienvenido a ' + data.redirect_name)}\n\n${data.response}`;
-                    appendChatMessage("agent", welcomeHeader, data.source_meta, data.suggested_action);
-                    chatHistory.push({ role: "assistant", content: welcomeHeader, agent: selectedAgentId });
-                    showToast("📍 Conectado con " + data.redirect_name);
-                  }, 400);
-                });
-              } else {
+      // 3. Gobernanza Legal & Normativa (c_gob)
+      if (/(legal|ley|norma|contrato|crc|5111|5050|ley 1581|habeas|secop|licitacion|permanencia|cancelar|dar de baja|pqr)/i.test(msgLower)) {
+        return { intent: "legal", deptId: "c_gob", name: "Gobernanza Legal & Normativa", emblem: "⚖️" };
+      }
+
+      // 4. Soluciones Corporativas & B2B / Ventas (c_com)
+      if (/(precio|costo|tarifa|cuanto vale|cuanto cuesta|planes|cotiz|dedicado|simetr|megas|mbps|gbps|sip|sd-wan|comprar|adquirir|pyme|comercial|ventas|claro|tigo|movistar|competencia)/i.test(msgLower)) {
+        return { intent: "commercial", deptId: "c_com", name: "Soluciones Corporativas & B2B", emblem: "💼" };
+      }
+
+      // 5. Data Centers & Ciberseguridad (c_cib)
+      if (/(data center|datacenter|alma|prado|tier|cloud|nube|vps|soc|ciberseguridad|ddos|firewall|zero trust|backup)/i.test(msgLower)) {
+        return { intent: "dc_cloud", deptId: "c_cib", name: "Data Centers & Nube Híbrida", emblem: "🏢" };
+      }
+
+      // 6. Red Troncal & NOC (c_noc)
+      if (/(dwdm|troncal|anillo|latencia|nap|peering|olt|malla|atenuacion)/i.test(msgLower)) {
+        return { intent: "noc", deptId: "c_noc", name: "Red Troncal & Fibra Óptica", emblem: "🌐" };
+      }
+
+      // 7. Planeación Financiera & Costos (c_erp)
+      if (/(financier|capex|opex|tco|ahorro|presupuesto|facturacion|pesos cop|roi)/i.test(msgLower)) {
+        return { intent: "finance", deptId: "c_erp", name: "Planeación Financiera & Costos", emblem: "💰" };
+      }
+
+      // 8. Despliegue & PMO (c_pmo)
+      if (/(cronograma|despliegue|obra|idu|permiso|cobertura|expansion|sabana|plazos|otdr)/i.test(msgLower)) {
+        return { intent: "pmo", deptId: "c_pmo", name: "Despliegue de Red & Proyectos", emblem: "🚀" };
+      }
+
+      // 9. Experiencia VIP (c_cx)
+      if (/(nps|csat|vip|gestor|satisfaccion|experiencia)/i.test(msgLower)) {
+        return { intent: "cx", deptId: "c_cx", name: "Experiencia de Cliente & VIP", emblem: "🌟" };
+      }
+
+      return { intent: "general", deptId: "master", name: "NEXO ETB CORE", emblem: "👑" };
+    }
+
+    function getSpecializedResponseText(deptId, userMsg, msgLower) {
+      if (deptId === "c_desk") {
+        return `Comprendo la situación con tu enlace. Como técnico especializado de ETB, te indico el procedimiento de verificación inmediata:\n\n1. **Inspección de Luces ONT:** Comprueba que los LEDs **POWER**, **PON** y **LAN** estén en verde fijo. Si el LED **LOS** parpadea en rojo, hay una atenuación óptica en la acometida.\n2. **Reinicio Controlado:** Desconecta el adaptador eléctrico de la ONT durante 30 segundos y vuelve a conectarlo para forzar el re-enganche a la OLT.\n3. **Prueba Cableada:** Realiza una prueba directa vía cable UTP Cat 6 al puerto GE1 para descartar saturación en canales de 2.4/5 GHz.\n\n¿Deseas reportar un ticket de cuadrilla técnica o necesitas soporte adicional?`;
+      }
+      if (deptId === "c_com") {
+        return `¡Excelente elección! La infraestructura de Fibra Óptica Corporativa ETB ofrece los siguientes estándares de conectividad:\n\n- **Internet Dedicado Simétrico 1:1:** Capacidad garantizada en subida y bajada desde 100 Mbps hasta 10 Gbps con ductería propia.\n- **Disponibilidad SLA:** 99.85% respaldado por anillos metropolitanos DWDM y supervisión NOC 24/7.\n- **Costos y Facturación:** Los planes empresariales se liquidan 100% en Pesos Colombianos (COP) sin exposición a fluctuaciones TRM.\n\n¿Deseas que un consultor comercial de cuentas corporativas se contacte contigo?`;
+      }
+      if (deptId === "c_gob") {
+        return `En el marco normativo de telecomunicaciones en Colombia, las operaciones de ETB se rigen bajo:\n\n- **Régimen de Protección de Usuarios:** Resolución CRC 5111 de 2017 y CRC 5050.\n- **Habeas Data:** Ley Estatutaria 1581 de 2012 y Decreto 1377 de 2013.\n- **Contratación Estatal:** Plataforma SECOP II bajo los principios de la Ley 80 de 1993.\n\n¿Requieres el dictamen de una cláusula o trámite contractual específico?`;
+      }
+      if (deptId === "c_cib") {
+        return `Los Data Centers propios de ETB (Alma en Suba y Prado en Puente Aranda) cuentan con las máximas certificaciones internacionales:\n\n- **Certificación Tier III (Uptime Institute) & ICREA Nivel V:** Disponibilidad 99.982% y conmutación transparente sin cortes de energía.\n- **Soberanía de Datos:** 100% alojados en territorio colombiano bajo ley local.\n- **SOC de Ciberseguridad 24/7:** Mitigación en tiempo real Anti-DDoS con scrubbing centers dedicados.\n\n¿Deseas conocer especificaciones de colocation o nube privada?`;
+      }
+      if (deptId === "c_noc") {
+        return `La red troncal metropolitana de ETB opera con tecnología DWDM sobre anillos de fibra de 100 Gbps:\n\n- **Latencia Inter-Sedes:** Menor a 3.2 ms en Bogotá y Región Sabana.\n- **Conexión Directa al NAP Colombia:** Interconexión de baja latencia con los principales CDNs globales.\n- **Monitoreo Continuo:** Monitoreo activo de atenuación óptica en tiempo real.\n\n¿Deseas verificar telemetría de algún circuito troncal específico?`;
+      }
+      if (deptId === "c_erp") {
+        return `En la dirección de Planeación Financiera & Costos optimizamos el Costo Total de Propiedad (TCO):\n\n- **Facturación en Pesos (COP):** Sin costos ocultos indexados a divisas extranjeras.\n- **Amortización de Infraestructura:** Retorno de inversión acelerado con ductería y canalizaciones propias.\n\n¿Deseas un comparativo de amortización CAPEX vs OPEX para tu empresa?`;
+      }
+      if (deptId === "c_pmo") {
+        return `La oficina de proyectos (PMO) gestiona las fases de despliegue de infraestructura:\n\n- **Permisos Distritales:** Trámite ágil de licencias de excavación y espacio público IDU.\n- **Certificación OTDR:** Cada tramo de fibra es calibrado y certificado con reflectometría óptica de precisión.\n\n¿Requieres el estado de avance de alguna troncal en despliegue?`;
+      }
+      if (deptId === "c_cx") {
+        return `En Experiencia de Cliente & VIP garantizamos atención preferencial para cuentas estratégicas:\n\n- **Gestor Corporativo Dedicado:** Punto único de contacto para escalamiento 24/7.\n- **Índice de Satisfacción (CSAT):** Superior al 94% en clientes corporativos.\n\n¿Deseas agendar una sesión con tu gestor corporativo asignado?`;
+      }
+      return `Procesando tu solicitud: *"**${userMsg}**"*.\n\nDesde el Centro de Comando NEXO ETB coordinamos los 8 departamentos corporativos y 50 nodos estratégicos.\n\n¿En qué departamento o servicio requieres asistencia?`;
+    }
+
+    function generateClientFallbackData(nodeId, userMsg) {
+      const msgLower = userMsg.toLowerCase().trim();
+      const currentDept = getDepartmentForNodeId(nodeId);
+      const targetInfo = classifyUserIntent(msgLower);
+
+      // Si es cierre de conversación
+      if (targetInfo.intent === "close") {
+        return {
+          is_transfer: false,
+          response: `### 🤝 ¡Sesión Finalizada con Éxito en NEXO ETB!\n\nMe alegra haberte asistido en **${currentDept.name}**.\n\n- 🌟 **Atención Corporativa:** Toda la red neuronal 3D continúa activa para tus requerimientos empresariales.\n- 📞 **Canales Oficiales:** PBX **(601) 377-7777** | Línea Nacional **01 8000 111 112**.\n\nDoy por cerrada esta consulta. ¡Que tengas un excelente día! 🚀`,
+          suggested_action: null,
+          source_meta: null
+        };
+      }
+
+      // Evaluar transferencia inter-departamental
+      const shouldTransfer = (targetInfo.deptId !== "master" && targetInfo.deptId !== currentDept.id && currentDept.id !== "master");
+      const specializedResponse = getSpecializedResponseText(targetInfo.deptId, userMsg, msgLower);
+
+      if (shouldTransfer) {
+        return {
+          is_transfer: true,
+          redirect_target: targetInfo.deptId,
+          redirect_name: targetInfo.name,
+          emblem: targetInfo.emblem,
+          transfer_intro: `ℹ️ Esta consulta no corresponde a mi área (**${currentDept.name}**).\n\nTe voy a transferir de inmediato al nodo de **${targetInfo.name}** para que nuestro especialista atienda tu caso.`,
+          welcome_message: `¡Bienvenido al área de **${targetInfo.name}**! Retomando tu solicitud sobre *"${userMsg}"*:`,
+          response: specializedResponse,
+          suggested_action: { label: `Ir a ${targetInfo.name}`, target: targetInfo.deptId },
+          source_meta: { filename: `${targetInfo.name} - ETB`, excerpt: `Información técnica y operacional de ${targetInfo.name}` }
+        };
+      }
+
+      return {
+        is_transfer: false,
+        response: (currentDept.id === "master" && targetInfo.deptId !== "master")
+          ? `**[${targetInfo.emblem} ${targetInfo.name}]**\n\n${specializedResponse}`
+          : specializedResponse,
+        suggested_action: (targetInfo.deptId !== "master" && currentDept.id === "master") ? { label: `Ver ${targetInfo.name}`, target: targetInfo.deptId } : null,
+        source_meta: null
+      };
+    }
+
+    function handleAgentResponsePayload(data) {
+      if (data.is_transfer && data.redirect_target && selectedAgentId !== data.redirect_target) {
+        // 1. Mostrar aviso del agente actual explicando que no es su área y que lo transferirá
+        const introMsg = data.transfer_intro || `ℹ️ Esta consulta no corresponde a mi área. Te voy a transferir al nodo de **${data.redirect_name}**...`;
+        appendChatMessage("agent", introMsg);
+        chatHistory.push({ role: "assistant", content: introMsg, agent: selectedAgentId });
+
+        // 2. Esperar 1.3 segundos para lectura fluida
+        setTimeout(() => {
+          // 3. Cerrar la ventana de chat
+          togglePanel(true);
+
+          // 4. Iniciar vuelo de cámara 3D al nodo correspondiente
+          const targetNode = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === data.redirect_target) : null;
+          if (targetNode) {
+            focusCameraOn(targetNode.x, targetNode.y, targetNode.z, 22, () => {
+              // 5. Al llegar al nodo: activar destello, actualizar panel
+              const targetGroup = nodeMeshMap.get(targetNode.id);
+              if (targetGroup) triggerNodeFlash(targetGroup);
+              
+              selectedAgentId = data.redirect_target;
+              updatePanelForNode(selectedAgentId);
+
+              // 6. Abrir de nuevo la ventana de chat
+              setTimeout(() => {
                 togglePanel(false);
-                appendChatMessage("agent", data.response, data.source_meta, data.suggested_action);
-              }
-            }, 1300);
 
+                // 7. Mostrar mensaje de bienvenida al nodo y continuar la respuesta retomando la solicitud
+                const welcomeHeader = `### ${data.emblem || '🌐'} ${data.welcome_message || ('Bienvenido a ' + data.redirect_name)}\n\n${data.response}`;
+                appendChatMessage("agent", welcomeHeader, data.source_meta, data.suggested_action);
+                chatHistory.push({ role: "assistant", content: welcomeHeader, agent: selectedAgentId });
+                showToast("📍 Conectado con " + data.redirect_name);
+              }, 400);
+            });
           } else {
-            // Flujo regular dentro del mismo nodo
+            togglePanel(false);
             appendChatMessage("agent", data.response, data.source_meta, data.suggested_action);
-            chatHistory.push({ role: "assistant", content: data.response, agent: selectedAgentId });
           }
-        }
-      } catch (e) {
-        removeChatMessage(loadId);
-        // Fallback inteligente para despliegues estáticos (GitHub Pages) o sin conexión al backend
-        const fallbackResp = generateClientFallbackResponse(selectedAgentId, text);
-        appendChatMessage("agent", fallbackResp);
-        chatHistory.push({ role: "assistant", content: fallbackResp, agent: selectedAgentId });
+        }, 1300);
+
+      } else {
+        // Flujo regular dentro del mismo nodo
+        appendChatMessage("agent", data.response, data.source_meta, data.suggested_action);
+        chatHistory.push({ role: "assistant", content: data.response, agent: selectedAgentId });
       }
     }
 
-    function generateClientFallbackResponse(nodeId, userMsg) {
-      const msg = userMsg.toLowerCase().trim();
-      const node = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === nodeId) : null;
-      const nodeName = node ? node.name : "NEXO ETB CORE";
-      const nodeDept = node ? (node.department || "Presidencia Ejecutiva") : "Dirección General";
+    async function sendMessage() {
+      const input = document.getElementById("chat-input");
+      const text = input.value.trim();
+      if (!text) return;
 
-      // 1. Detección de cierre de conversación
-      if (/(no gracias|no, gracias|no tengo mas|no tengo más|eso es todo|eso seria todo|eso sería todo|ninguna|cerrar|finalizar|hasta luego)/i.test(msg)) {
-        return `### 🤝 ¡Sesión Finalizada con Éxito en NEXO ETB!\n\nMe alegra haberte asistido en **${nodeName}** (${nodeDept}).\n\n- 🌟 **Atención Corporativa:** Toda la red neuronal 3D continúa activa para tus requerimientos empresariales.\n- 📞 **Canales Oficiales:** PBX **(601) 377-7777** | Línea Nacional **01 8000 111 112**.\n\nDoy por cerrada esta consulta. ¡Que tengas un excelente día! 🚀`;
+      input.value = "";
+      appendChatMessage("user", text);
+      chatHistory.push({ role: "user", content: text, agent: selectedAgentId });
+
+      const loadId = appendChatMessage("agent", "⏳ *Sincronizando con NEXO ETB...*");
+
+      try {
+        const res = await fetch(`${API_BASE}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender: "user",
+            target_agent: selectedAgentId,
+            message: text,
+            history: chatHistory
+          })
+        });
+        if (!res.ok) throw new Error("Status " + res.status);
+        const data = await res.json();
+        removeChatMessage(loadId);
+        handleAgentResponsePayload(data);
+      } catch (e) {
+        removeChatMessage(loadId);
+        // Motor autónomo de navegación y respuesta para GitHub Pages y modo estático
+        const fallbackData = generateClientFallbackData(selectedAgentId, text);
+        handleAgentResponsePayload(fallbackData);
       }
-
-      // 2. Soporte Técnico & Conectividad
-      if (/(wifi|falla|caida|intermiten|lento|ont|cpe|potencia|dbm|fibra|rojo|pon|los)/i.test(msg)) {
-        return `**[🛠️ Mesa de Ayuda & Soporte Técnico — ETB]**\n\nComprendo la situación con tu enlace. Como técnico especializado de ETB, te indico el procedimiento de verificación inmediata:\n\n1. **Inspección de Luces ONT:** Comprueba que los LEDs **POWER**, **PON** y **LAN** estén en verde fijo. Si el LED **LOS** parpadea en rojo, hay una atenuación óptica en la acometida.\n2. **Reinicio Controlado:** Desconecta el adaptador eléctrico de la ONT durante 30 segundos y vuelve a conectarlo para forzar el re-enganche a la OLT.\n3. **Prueba Cableada:** Realiza una prueba directa vía cable UTP Cat 6 al puerto GE1 para descartar saturación en canales de 2.4/5 GHz.\n\n¿Deseas reportar un ticket de cuadrilla o necesitas soporte adicional?`;
-      }
-
-      // 3. Comercial & Ventas Fibra
-      if (/(precio|costo|cotiza|tarifa|cuanto vale|plan|adquirir|contratar|megas|dedicado)/i.test(msg)) {
-        return `**[💼 Soluciones Corporativas & B2B — ETB]**\n\n¡Excelente elección! La infraestructura de Fibra Óptica Corporativa ETB ofrece los siguientes estándares de conectividad:\n\n- **Internet Dedicado Simétrico 1:1:** Capacidad garantizada en subida y bajada desde 100 Mbps hasta 10 Gbps con ductería propia.\n- **Disponibilidad SLA:** 99.85% respaldado por anillos metropolitanos DWDM y supervisión NOC 24/7.\n- **Costos y Facturación:** Los planes empresariales se liquidan 100% en Pesos Colombianos (COP) sin exposición a fluctuaciones TRM.\n\n¿Deseas que un consultor comercial de cuentas corporativas se contacte contigo?`;
-      }
-
-      // 4. Jurídica y Normativa
-      if (/(legal|ley|norma|contrato|crc|secop|habeas|regulacion|derecho)/i.test(msg)) {
-        return `**[⚖️ Gobernanza Legal & Normativa — ETB]**\n\nEn el marco normativo de telecomunicaciones en Colombia, las operaciones de ETB se rigen bajo:\n\n- **Régimen de Protección de Usuarios:** Resolución CRC 5111 de 2017 y CRC 5050.\n- **Habeas Data:** Ley Estatutaria 1581 de 2012 y Decreto 1377 de 2013.\n- **Contratación Estatal:** Plataforma SECOP II bajo los principios de la Ley 80 de 1993.\n\n¿Requieres el dictamen de una cláusula o trámite contractual específico?`;
-      }
-
-      // 5. Respuesta por defecto estructurada
-      return `**[👑 ${nodeName} — ${nodeDept}]**\n\nHemos procesado tu consulta: *"**${userMsg}**"*.\n\nDesde el nodo estratégico **${nodeName}**, gestionamos la arquitectura corporativa con total redundancia geográfica y soporte 24/7 en Bogotá y la Región Sabana.\n\n¿En qué aspecto específico de este departamento deseas profundizar o tienes alguna otra consulta?`;
     }
 
     function sendQuickMessage(text) {
