@@ -16,6 +16,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
 
+    <!-- Leaflet CSS & JS for Dedicated GIS Map Window (Mapa Aparte) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <!-- JSZip for KMZ extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <!-- Three.js & OrbitControls r128 -->
@@ -1236,6 +1240,141 @@
     
 
     
+    
+    /* GIS Map Modal (Mapa Aparte) */
+    .gis-map-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.88);
+      backdrop-filter: blur(10px);
+      z-index: 100000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .gis-map-modal-window {
+      width: 100%;
+      max-width: 1150px;
+      height: 88vh;
+      max-height: 760px;
+      background: #080f1e;
+      border: 1px solid rgba(52, 211, 153, 0.55);
+      border-radius: 14px;
+      box-shadow: 0 10px 45px rgba(0, 0, 0, 0.85), 0 0 35px rgba(52, 211, 153, 0.25);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .gis-map-modal-header {
+      padding: 12px 18px;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.6), rgba(15, 23, 42, 0.95));
+      border-bottom: 1px solid rgba(52, 211, 153, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .gis-map-modal-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .gis-map-modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .gis-modal-tool-btn {
+      padding: 6px 12px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #cbd5e1;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .gis-modal-tool-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      color: #ffffff;
+      border-color: #38bdf8;
+    }
+    .gis-modal-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .gis-modal-close-btn:hover {
+      background: #ef4444;
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+    .gis-map-modal-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      min-height: 400px;
+    }
+    .gis-map-telemetry-hud {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 1000;
+      background: rgba(8, 15, 30, 0.92);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      border-radius: 8px;
+      padding: 10px 14px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+      font-size: 11px;
+      min-width: 200px;
+    }
+    .gis-hud-title {
+      font-weight: 700;
+      color: #34d399;
+      font-size: 11.5px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(52, 211, 153, 0.25);
+      padding-bottom: 4px;
+    }
+    .gis-hud-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+      color: #94a3b8;
+    }
+    /* Custom Leaflet Dark Popups */
+    .leaflet-popup-content-wrapper {
+      background: rgba(8, 15, 30, 0.95) !important;
+      color: #f8fafc !important;
+      border: 1px solid #34d399 !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+    }
+    .leaflet-popup-tip {
+      background: rgba(8, 15, 30, 0.95) !important;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     /* KMZ Interactive Chat & Action Cards */
     .kmz-action-card {
       margin: 12px 0 8px 0;
@@ -1983,6 +2122,69 @@
       </div>
     </div>
   </aside>
+
+    <!-- 7. GIS CARTOGRAPHIC MAP MODAL (MAPA APARTE) -->
+  <div class="gis-map-modal-backdrop" id="gisMapModal">
+    <div class="gis-map-modal-window">
+      <div class="gis-map-modal-header">
+        <div class="gis-map-modal-title">
+          <i data-lucide="map" style="width: 22px; height: 22px; color: #34d399;"></i>
+          <div>
+            <div style="font-size: 14px; font-weight: 800; color: #f8fafc; letter-spacing: 0.3px;">
+              Visor Cartográfico GIS &amp; Red de Fibra Óptica
+            </div>
+            <div id="gisModalLocationBadge" style="font-size: 11px; color: #34d399; font-family: var(--font-mono);">
+              📍 Carrera 7 con Calle 72 (Zona Financiera)
+            </div>
+          </div>
+        </div>
+
+        <div class="gis-map-modal-actions">
+          <button type="button" class="gis-modal-tool-btn" id="btnToggleGisTiles" onclick="window.toggleGisTilesLayer()" title="Cambiar mapa Satélite / Calles">
+            <i data-lucide="layers" style="width: 14px; height: 14px;"></i> <span id="gisTileLabel">Satélite</span>
+          </button>
+          <button type="button" class="gis-modal-tool-btn" onclick="window.openGISStandaloneWindow()" title="Abrir en ventana independiente del navegador">
+            <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> <span>Ventana Aparte</span>
+          </button>
+          <button type="button" class="gis-modal-tool-btn" onclick="window.downloadCurrentKMZ()" style="background: rgba(16, 185, 129, 0.25); border-color: #34d399; color: #34d399;" title="Descargar plano KMZ">
+            <i data-lucide="download" style="width: 14px; height: 14px;"></i> <span>Descargar KMZ</span>
+          </button>
+          <button type="button" class="gis-modal-close-btn" onclick="window.closeGISMapModal()" title="Cerrar visor cartográfico">
+            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="gis-map-modal-body">
+        <div id="gisLeafletMap" style="width: 100%; height: 100%; min-height: 480px; background: #080f1e;"></div>
+
+        <!-- Telemetría HUD sobre el mapa -->
+        <div class="gis-map-telemetry-hud" id="gisMapTelemetryHud">
+          <div class="gis-hud-title">⚡ Telemetría de Red de Fibra</div>
+          <div class="gis-hud-row">
+            <span>Longitud Total:</span>
+            <strong id="gisHudDistance" style="color: #22d3ee;">1.47 km</strong>
+          </div>
+          <div class="gis-hud-row">
+            <span>Cajas NAP:</span>
+            <strong id="gisHudNaps" style="color: #34d399;">4 NAPs (64p)</strong>
+          </div>
+          <div class="gis-hud-row">
+            <span>Mufas FOSC:</span>
+            <strong id="gisHudMufas" style="color: #f59e0b;">1 Mufa</strong>
+          </div>
+          <div class="gis-hud-row">
+            <span>Potencia Rx:</span>
+            <strong id="gisHudPower" style="color: #2dd4bf;">-19.4 dBm</strong>
+          </div>
+          <div class="gis-hud-row">
+            <span>Factibilidad:</span>
+            <strong style="color: #34d399;">✅ 100% Factible</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Notification Toast -->
   <div id="toast-notification">
@@ -4203,14 +4405,230 @@
           kmz3DGroup.add(label);
         });
 
-        scene.add(kmz3DGroup);
-
-        // Enfocar la cámara 3D suavemente en el trazado
-        window.focusKMZNetwork();
-        showToast("🗺️ Red KMZ proyectada en la Constelación 3D");
+        // El trazado se proyecta exclusivamente en el visor de mapa aparte (Leaflet/OSM/Satélite)
+        if (kmz3DGroup && scene) {
+          scene.remove(kmz3DGroup);
+        }
+        window.lastParsedKMZ = data;
+        showToast("🗺️ Red cartográfica lista para visualización en mapa aparte");
       };
 
             window.focusKMZNetwork = function() {
+        window.openGISMapModal(window.lastParsedKMZ, (window.lastParsedKMZ && window.lastParsedKMZ.locationName) || "Ubicación Analizada");
+      };
+
+      
+      // ==========================================================
+      // VISOR CARTOGRÁFICO GIS EN MAPA APARTE (LEAFLET + TILES + POPUPS)
+      // ==========================================================
+      let leafletMap = null;
+      let leafletTileLayer = null;
+      let isSatelliteActive = false;
+      let leafletGeoJsonLayer = null;
+      let currentGisData = null;
+
+      const darkTileUrl = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+      const satTileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+
+      // Función principal para abrir el mapa aparte
+      window.openGISMapModal = function(data = null, locationName = "Ubicación Analizada") {
+        const modal = document.getElementById("gisMapModal");
+        if (!modal) return;
+
+        modal.style.display = "flex";
+        lucide.createIcons();
+
+        // Usar datos provistos o los últimos memorizados
+        currentGisData = data || window.lastParsedKMZ || {
+          locationName: locationName,
+          lat: 4.6560,
+          lon: -74.0595,
+          naps: [
+            { name: "NAP-01 (16p)", lat: 4.6568, lon: -74.0600 },
+            { name: "NAP-02 (16p)", lat: 4.6574, lon: -74.0590 },
+            { name: "NAP-03 (16p)", lat: 4.6566, lon: -74.0577 },
+            { name: "NAP-04 (16p)", lat: 4.6554, lon: -74.0567 }
+          ],
+          mufas: [{ name: "Mufa FOSC Principal", lat: 4.6552, lon: -74.0610 }],
+          allPoints: [
+            { name: "Central OLT", lat: 4.6542, lon: -74.0625 },
+            { name: "Mufa FOSC", lat: 4.6552, lon: -74.0610 },
+            { name: "NAP-01", lat: 4.6568, lon: -74.0600 },
+            { name: "NAP-02", lat: 4.6574, lon: -74.0590 },
+            { name: "NAP-03", lat: 4.6566, lon: -74.0577 },
+            { name: "NAP-04", lat: 4.6554, lon: -74.0567 }
+          ]
+        };
+
+        const locBadge = document.getElementById("gisModalLocationBadge");
+        if (locBadge) locBadge.textContent = `📍 ${currentGisData.locationName || locationName}`;
+
+        const centerLat = currentGisData.lat || (currentGisData.naps && currentGisData.naps[0] ? currentGisData.naps[0].lat : 4.6560);
+        const centerLon = currentGisData.lon || (currentGisData.naps && currentGisData.naps[0] ? currentGisData.naps[0].lon : -74.0595);
+
+        // Actualizar HUD
+        const distElem = document.getElementById("gisHudDistance");
+        const napsElem = document.getElementById("gisHudNaps");
+        const mufasElem = document.getElementById("gisHudMufas");
+        if (distElem) distElem.textContent = currentGisData.totalKm ? `${currentGisData.totalKm} km` : "1.47 km";
+        if (napsElem) napsElem.textContent = `${(currentGisData.naps || []).length} NAPs (${((currentGisData.naps || []).length || 4) * 16}p)`;
+        if (mufasElem) mufasElem.textContent = `${(currentGisData.mufas || []).length} Mufas`;
+
+        setTimeout(() => {
+          if (!leafletMap && window.L) {
+            leafletMap = L.map("gisLeafletMap", {
+              zoomControl: true,
+              attributionControl: false
+            }).setView([centerLat, centerLon], 16);
+
+            leafletTileLayer = L.tileLayer(darkTileUrl, {
+              maxZoom: 19,
+              subdomains: 'abcd'
+            }).addTo(leafletMap);
+          } else if (leafletMap) {
+            leafletMap.invalidateSize();
+            leafletMap.setView([centerLat, centerLon], 16);
+          }
+
+          if (leafletMap) {
+            renderGisElementsOnMap(currentGisData);
+          }
+        }, 100);
+
+        showToast("🗺️ Visor Cartográfico abierto en ventana aparte");
+      };
+
+      window.closeGISMapModal = function() {
+        const modal = document.getElementById("gisMapModal");
+        if (modal) modal.style.display = "none";
+      };
+
+      window.toggleGisTilesLayer = function() {
+        if (!leafletMap || !leafletTileLayer) return;
+        isSatelliteActive = !isSatelliteActive;
+        const label = document.getElementById("gisTileLabel");
+
+        leafletMap.removeLayer(leafletTileLayer);
+        if (isSatelliteActive) {
+          leafletTileLayer = L.tileLayer(satTileUrl, { maxZoom: 19 }).addTo(leafletMap);
+          if (label) label.textContent = "Calles Dark";
+        } else {
+          leafletTileLayer = L.tileLayer(darkTileUrl, { maxZoom: 19, subdomains: 'abcd' }).addTo(leafletMap);
+          if (label) label.textContent = "Satélite";
+        }
+      };
+
+      function renderGisElementsOnMap(data) {
+        if (!leafletMap || !window.L) return;
+
+        if (leafletGeoJsonLayer) {
+          leafletMap.removeLayer(leafletGeoJsonLayer);
+        }
+        leafletGeoJsonLayer = L.layerGroup().addTo(leafletMap);
+
+        const naps = data.naps || [];
+        const mufas = data.mufas || [];
+        const allPoints = data.allPoints || [...naps, ...mufas];
+
+        // 1. Trazado de Cable de Fibra Óptica (Polyline brillante)
+        const lineCoords = [];
+        if (data.rawLines && data.rawLines.length > 0) {
+          data.rawLines.forEach(line => {
+            const pts = line.map(c => [c.lat, c.lon]);
+            const poly = L.polyline(pts, {
+              color: '#22d3ee',
+              weight: 5,
+              opacity: 0.95,
+              dashArray: '8, 6',
+              lineCap: 'round'
+            }).addTo(leafletGeoJsonLayer);
+          });
+        } else if (allPoints.length >= 2) {
+          allPoints.forEach(p => lineCoords.push([p.lat, p.lon]));
+          const poly = L.polyline(lineCoords, {
+            color: '#22d3ee',
+            weight: 5,
+            opacity: 0.95,
+            dashArray: '8, 6',
+            lineCap: 'round'
+          }).addTo(leafletGeoJsonLayer);
+          poly.bindPopup(`<b>Trazado de Fibra Óptica Troncal AHOM</b><br>Longitud: ${data.totalKm || "1.47"} km`);
+        }
+
+        // 2. Iconos personalizados para NAPs
+        const napIcon = L.divIcon({
+          className: 'custom-map-icon',
+          html: `<div style="background:#10b981; border:2px solid #ffffff; width:16px; height:16px; border-radius:50%; box-shadow:0 0 10px #10b981;"></div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8]
+        });
+
+        naps.forEach((n, idx) => {
+          const marker = L.marker([n.lat, n.lon], { icon: napIcon }).addTo(leafletGeoJsonLayer);
+          marker.bindPopup(`
+            <div style="font-family:sans-serif; min-width:180px;">
+              <strong style="color:#34d399; font-size:13px;">📍 ${n.name || `Caja NAP ${idx+1}`}</strong><br>
+              <span style="font-size:11px; color:#cbd5e1;">Capacidad: 16 Puertos GPON</span><br>
+              <span style="font-size:11px; color:#cbd5e1;">Potencia Óptica: -19.${2 + idx} dBm</span><br>
+              <span style="font-size:10px; color:#94a3b8;">Coords: (${n.lat.toFixed(5)}, ${n.lon.toFixed(5)})</span>
+            </div>
+          `);
+        });
+
+        // 3. Icono para Mufas FOSC
+        const mufaIcon = L.divIcon({
+          className: 'custom-map-icon',
+          html: `<div style="background:#f59e0b; border:2px solid #ffffff; width:18px; height:18px; border-radius:4px; box-shadow:0 0 10px #f59e0b;"></div>`,
+          iconSize: [18, 18],
+          iconAnchor: [9, 9]
+        });
+
+        mufas.forEach((m, idx) => {
+          const marker = L.marker([m.lat, m.lon], { icon: mufaIcon }).addTo(leafletGeoJsonLayer);
+          marker.bindPopup(`
+            <div style="font-family:sans-serif;">
+              <strong style="color:#fbbf24;">🔧 ${m.name || `Mufa FOSC 400`}</strong><br>
+              <span style="font-size:11px; color:#cbd5e1;">Punto de Empalme por Fusión</span><br>
+              <span style="font-size:10px; color:#94a3b8;">Coords: (${m.lat.toFixed(5)}, ${m.lon.toFixed(5)})</span>
+            </div>
+          `);
+        });
+
+        // Ajustar zoom a los límites
+        if (allPoints.length > 0) {
+          const bounds = L.latLngBounds(allPoints.map(p => [p.lat, p.lon]));
+          leafletMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 17 });
+        }
+      }
+
+      // Función para abrir mapa en una NUEVA VENTANA / PESTAÑA independiente del navegador
+      window.openGISStandaloneWindow = function() {
+        const data = currentGisData || window.lastParsedKMZ;
+        const loc = (data && data.locationName) ? data.locationName : "Ubicacion_Fibra_AHOM";
+        const lat = (data && data.lat) ? data.lat : 4.6560;
+        const lon = (data && data.lon) ? data.lon : -74.0595;
+        const jsonStr = encodeURIComponent(JSON.stringify(data || {}));
+
+        const popupUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
+        window.open(popupUrl, "_blank", "width=1000,height=700,menubar=no,toolbar=no,location=yes,status=no");
+        showToast("🚀 Mapa abierto en ventana independiente");
+      };
+
+      window.downloadCurrentKMZ = function() {
+        if (currentGisData && typeof window.generateAndDownloadKMZ === "function") {
+          window.generateAndDownloadKMZ(
+            currentGisData.locationName || "Plano_Red_Fibra",
+            currentGisData.lat || 4.6560,
+            currentGisData.lon || -74.0595
+          );
+        } else if (typeof window.generateAndDownloadKMZ === "function") {
+          window.generateAndDownloadKMZ("Plano_Red_Fibra_AHOM", 4.6560, -74.0595);
+        }
+      };
+
+
+      // Compatibilidad con código previo
+      window.oldFocusKMZNetwork = function() {
         // A. Si aún no existe el grupo 3D o está vacío, proyectar datos
         if (!kmz3DGroup || kmz3DGroup.children.length === 0) {
           if (window.lastParsedKMZ && typeof window.plotKMZIn3DScene === "function") {
@@ -4533,7 +4951,7 @@
           `📍 **Coordenadas de Referencia:** \`(${lat.toFixed(5)}, ${lon.toFixed(5)})\`
 
 ` +
-          `He proyectado el trazado de fibra en la **Constelación 3D** y generado el plano cartográfico descargable en formato **.KMZ**:
+          `He generado el trazado cartográfico de fibra óptica en un **Mapa Aparte** con capas satélite y telemetría geoespacial y generado el plano cartográfico descargable en formato **.KMZ**:
 
 ` +
           `<div class="kmz-action-card">
@@ -4563,7 +4981,7 @@
                 📥 Descargar Plano KMZ (${safeLoc.slice(0, 18)}.kmz)
               </button>
               <button type="button" class="kmz-action-btn secondary" onclick="window.focusKMZNetwork()">
-                🎯 Ver Trazado en 3D
+                🗺️ Ver Trazado en Mapa Aparte
               </button>
               <a class="kmz-action-btn secondary" href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">
                 🗺️ Abrir en Google Maps
@@ -4778,7 +5196,7 @@
                   📥 Descargar KMZ Re-estructurado con Estilos
                 </button>
                 <button type="button" class="kmz-action-btn secondary" onclick="window.focusKMZNetwork()">
-                  🎯 Enfocar Red en 3D
+                  🗺️ Abrir Red en Mapa Aparte
                 </button>
               </div>
             </div>
