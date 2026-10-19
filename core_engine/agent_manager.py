@@ -205,6 +205,20 @@ class AgentManager:
                 "emblem": "🤝"
             }
 
+        # 1.5. Cartografía GIS, Lectura/Generación de KMZ/KML, Coordenadas y Factibilidad Geoespacial
+        if any(w in msg_lower for w in [
+            "kmz", "kml", "gis", "cartograf", "ubicacion", "ubicación", "coordenada", "coordenadas",
+            "plano", "trazado", "mufa", "caja nap", "nap", "distancia al nap", "factibilidad tecnica",
+            "factibilidad técnica", "factibilidad", "generar kmz", "genera un kmz", "descargar kmz", "postes", "metraje"
+        ]):
+            return {
+                "intent": "gis",
+                "dept_key": "ingenieria_gis",
+                "node_id": "c_gis",
+                "dept_name": "Ingeniería GIS & Cartografía",
+                "emblem": "🗺️"
+            }
+
         # 2. Marco Legal, Normativa CRC, Derecho de Petición, Tutelas, Ley 1755, Cláusula de Permanencia
         if any(w in msg_lower for w in [
             "derecho de peticion", "derecho de petición", "tutela", "sic", "superintendencia", "legal", "juridic", 

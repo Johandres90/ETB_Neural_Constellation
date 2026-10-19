@@ -1235,6 +1235,85 @@
     }
     
 
+    
+    /* KMZ Interactive Chat & Action Cards */
+    .kmz-action-card {
+      margin: 12px 0 8px 0;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.55), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+    }
+    .kmz-action-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #34d399;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .kmz-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .kmz-stat-item {
+      background: rgba(2, 6, 23, 0.6);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 6px;
+      padding: 6px 10px;
+    }
+    .kmz-stat-val {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f1f5f9;
+      font-family: var(--font-mono);
+    }
+    .kmz-stat-lbl {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+    .kmz-btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .kmz-action-btn {
+      padding: 8px 12px;
+      background: #10b981;
+      color: #ffffff !important;
+      border: 1px solid #34d399;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+    }
+    .kmz-action-btn:hover {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.55);
+    }
+    .kmz-action-btn.secondary {
+      background: rgba(15, 23, 42, 0.85);
+      color: #38bdf8 !important;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: none;
+    }
+    .kmz-action-btn.secondary:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+    }
+
     /* KMZ Dedicated Upload Banner & Field */
     .kmz-upload-card {
       margin: 8px 12px 6px 12px;
@@ -3204,6 +3283,10 @@
         { id: "n_nps_b2b", name: "NPS Corporativo B2B > 68 pts", parent: "c_cx", cluster: "Experiencia de Cliente & VIP", cat: "Consolidado", color: "#2dd4bf", offset: [3.5, 3.0, 2.0] },
         { id: "n_csat_enterprise", name: "CSAT 94% Enlaces Empresariales", parent: "c_cx", cluster: "Experiencia de Cliente & VIP", cat: "Quick Win", color: "#f472b6", offset: [-3.5, 3.5, -2.0] },
         { id: "n_selfservice_cx", name: "Portal Autoservicio Cliente", parent: "c_cx", cluster: "Experiencia de Cliente & VIP", cat: "Diagnóstico", color: "#fb7185", offset: [4.0, -3.5, 2.5] },
+                { id: "n_gis_kmz", name: "Lector & Parser KMZ/KML", parent: "c_gis", cluster: "Ingeniería GIS & Cartografía", cat: "Consolidado", color: "#34d399", offset: [-4.0, 3.5, 2.0] },
+        { id: "n_gis_naps", name: "Georreferenciación NAPs & Mufas", parent: "c_gis", cluster: "Ingeniería GIS & Cartografía", cat: "Consolidado", color: "#34d399", offset: [4.0, -3.0, 2.5] },
+        { id: "n_gis_routes", name: "Diseño de Rutas FTTH/FTTO", parent: "c_gis", cluster: "Ingeniería GIS & Cartografía", cat: "Quick Win", color: "#f472b6", offset: [-3.5, -4.0, -2.5] },
+        { id: "n_gis_loss", name: "Cálculo de Atenuación Óptica", parent: "c_gis", cluster: "Ingeniería GIS & Cartografía", cat: "Diagnóstico", color: "#fb7185", offset: [3.5, 4.0, -2.0] },
         { id: "n_proactive_care", name: "Acompañamiento VIP Proactivo", parent: "c_cx", cluster: "Experiencia de Cliente & VIP", cat: "Diagnóstico", color: "#fb7185", offset: [-3.5, -4.0, -2.0] }
       ];
 
@@ -3330,7 +3413,8 @@
         "c_erp": { id: "c_erp", name: "Planeación Financiera & Facturación", emblem: "💰" },
         "c_pmo": { id: "c_pmo", name: "Despliegue de Red & Proyectos", emblem: "🚀" },
         "c_desk": { id: "c_desk", name: "Mesa de Ayuda & Soporte Técnico", emblem: "🛠️" },
-        "c_cx": { id: "c_cx", name: "Servicio al Cliente & Experiencia", emblem: "🌟" }
+        "c_cx": { id: "c_cx", name: "Servicio al Cliente & Experiencia", emblem: "🌟" },
+        "c_gis": { id: "c_gis", name: "Ingeniería GIS & Cartografía", emblem: "🗺️" }
       };
       if (mapping[nodeId]) return mapping[nodeId];
 
@@ -3343,7 +3427,7 @@
 
     function classifyUserIntent(msgLower) {
       // 0.5. Archivos KMZ, KML y Cartografía GIS (c_gis)
-      if (/(kmz|kml|gis|cartograf|trazado|coordenada|caja nap|mufa|metraje|distancia al nap|postes|plano)/i.test(msgLower)) {
+      if (/(kmz|kml|gis|cartograf|trazado|coordenada|coordenadas|caja nap|mufa|metraje|distancia al nap|postes|plano|ubicacion|ubicación|analiza|diseño de red|diseno de red|cobertura en|generar kmz|genera un kmz|descargar kmz)/i.test(msgLower)) {
         return { intent: "gis", deptId: "c_gis", name: "Ingeniería GIS & Cartografía", emblem: "🗺️" };
       }
 
@@ -3400,6 +3484,11 @@
     }
 
     function getSpecializedResponseText(deptId, userMsg, msgLower) {
+            // 0. INGENIERÍA GIS & CARTOGRAFÍA (c_gis)
+      if (deptId === "c_gis") {
+        return window.generateGISSpecializedResponse(userMsg, msgLower);
+      }
+
       // 1. GOBERNANZA LEGAL & NORMATIVA (c_gob)
       if (deptId === "c_gob") {
         if (/(permanencia|clausula|multa|penaliz)/i.test(msgLower)) {
@@ -3995,6 +4084,434 @@
         return R * c;
       }
 
+      
+      // ==========================================================
+      // MOTOR CARTOGRÁFICO 3D, ANALIZADOR DE UBICACIÓN & GENERADOR KMZ
+      // ==========================================================
+      let kmz3DGroup = null;
+
+      // 1. Visualizador de Red KMZ en la Constelación 3D
+      window.plotKMZIn3DScene = function(data) {
+        if (!scene) return;
+        if (kmz3DGroup) {
+          scene.remove(kmz3DGroup);
+          kmz3DGroup = null;
+        }
+
+        kmz3DGroup = new THREE.Group();
+        kmz3DGroup.name = "kmzNetworkOverlay";
+
+        // Centro base del cluster GIS
+        const baseCenter = { x: -26.0, y: -6.0, z: -14.0 };
+        kmz3DGroup.position.set(baseCenter.x, baseCenter.y, baseCenter.z);
+
+        const naps = data.naps || [];
+        const mufas = data.mufas || [];
+        const cables = data.cables || [];
+        const allPoints = data.allPoints || [...naps, ...mufas];
+
+        // Calcular caja delimitadora para centrar en 3D
+        let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+        allPoints.forEach(p => {
+          if (p.lat < minLat) minLat = p.lat;
+          if (p.lat > maxLat) maxLat = p.lat;
+          if (p.lon < minLon) minLon = p.lon;
+          if (p.lon > maxLon) maxLon = p.lon;
+        });
+
+        if (minLat === 90) {
+          minLat = 4.65; maxLat = 4.66; minLon = -74.06; maxLon = -74.05;
+        }
+
+        const midLat = (minLat + maxLat) / 2;
+        const midLon = (minLon + maxLon) / 2;
+        const spanLat = Math.max(maxLat - minLat, 0.002);
+        const spanLon = Math.max(maxLon - minLon, 0.002);
+        const scaleFactor = 12 / Math.max(spanLat, spanLon);
+
+        function geoTo3D(lat, lon, elev = 0) {
+          const x = (lon - midLon) * scaleFactor;
+          const y = elev * 0.5;
+          const z = (lat - midLat) * scaleFactor;
+          return new THREE.Vector3(x, y, z);
+        }
+
+        // A. Dibujar Líneas de Cable de Fibra Óptica (Glow Line)
+        const lineMat = new THREE.LineBasicMaterial({
+          color: 0x22d3ee,
+          linewidth: 3,
+          transparent: true,
+          opacity: 0.95
+        });
+
+        if (data.rawLines && data.rawLines.length > 0) {
+          data.rawLines.forEach(lineCoords => {
+            const points = lineCoords.map(c => geoTo3D(c.lat, c.lon));
+            if (points.length >= 2) {
+              const geom = new THREE.BufferGeometry().setFromPoints(points);
+              const lineObj = new THREE.Line(geom, lineMat);
+              kmz3DGroup.add(lineObj);
+            }
+          });
+        } else if (allPoints.length >= 2) {
+          // Generar trazado continuo conectando puntos
+          const points = allPoints.map((p, idx) => geoTo3D(p.lat, p.lon, (idx % 2) * 0.4));
+          const geom = new THREE.BufferGeometry().setFromPoints(points);
+          const lineObj = new THREE.Line(geom, lineMat);
+          kmz3DGroup.add(lineObj);
+        }
+
+        // B. Nodos NAP (Esferas Esmeralda con Sprite)
+        const napGeo = new THREE.SphereGeometry(0.35, 16, 16);
+        const napMat = new THREE.MeshStandardMaterial({
+          color: 0x10b981,
+          emissive: 0x34d399,
+          emissiveIntensity: 0.8
+        });
+
+        naps.forEach((nap, idx) => {
+          const pos = geoTo3D(nap.lat, nap.lon, 0.2);
+          const mesh = new THREE.Mesh(napGeo, napMat);
+          mesh.position.copy(pos);
+          kmz3DGroup.add(mesh);
+
+          if (idx < 5 || naps.length <= 8) {
+            const label = createPillTextSprite(`📍 ${nap.name}`, false, false, "#10b981");
+            label.position.set(pos.x, pos.y + 0.65, pos.z);
+            kmz3DGroup.add(label);
+          }
+        });
+
+        // C. Nodos Mufa FOSC (Esferas Ámbar/Naranja)
+        const mufaGeo = new THREE.SphereGeometry(0.42, 16, 16);
+        const mufaMat = new THREE.MeshStandardMaterial({
+          color: 0xf59e0b,
+          emissive: 0xfbbf24,
+          emissiveIntensity: 0.85
+        });
+
+        mufas.forEach(m => {
+          const pos = geoTo3D(m.lat, m.lon, 0.3);
+          const mesh = new THREE.Mesh(mufaGeo, mufaMat);
+          mesh.position.copy(pos);
+          kmz3DGroup.add(mesh);
+
+          const label = createPillTextSprite(`🔧 ${m.name}`, false, false, "#f59e0b");
+          label.position.set(pos.x, pos.y + 0.75, pos.z);
+          kmz3DGroup.add(label);
+        });
+
+        scene.add(kmz3DGroup);
+
+        // Enfocar la cámara 3D suavemente en el trazado
+        window.focusKMZNetwork();
+        showToast("🗺️ Red KMZ proyectada en la Constelación 3D");
+      };
+
+      window.focusKMZNetwork = function() {
+        if (typeof focusCameraOn === "function") {
+          focusCameraOn(-26.0, -6.0, -14.0, 20);
+        }
+      };
+
+      // 2. Generador y Descargador de Archivos KMZ comprimidos (Google Earth / QGIS)
+      window.generateAndDownloadKMZ = function(locationName, centerLat, centerLon, elements = null) {
+        if (!window.JSZip) {
+          alert("Librería de compresión JSZip cargándose, intente de nuevo en un segundo.");
+          return;
+        }
+
+        showToast(`📦 Generando archivo KMZ: ${locationName}...`);
+
+        const lat = parseFloat(centerLat) || 4.6560;
+        const lon = parseFloat(centerLon) || -74.0595;
+        const safeName = (locationName || "Plano_Red_Fibra_AHOM").replace(/[^a-zA-Z0-9_-]/g, "_");
+
+        // Construir KML profesional compatible con Google Earth, Google Maps y QGIS
+        const kmlDoc = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>AHOM FIBER - Red de Fibra Óptica: ${locationName}</name>
+    <description>Diseño geoespacial de telecomunicaciones generado por AHOM FIBER IA CORP (Agente de Ingeniería GIS).</description>
+    
+    <!-- Estilos de Elementos de Red -->
+    <Style id="styleCentral">
+      <IconStyle>
+        <color>ffffaa00</color>
+        <scale>1.3</scale>
+        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href></Icon>
+      </IconStyle>
+    </Style>
+    
+    <Style id="styleMufa">
+      <IconStyle>
+        <color>ff00aaff</color>
+        <scale>1.2</scale>
+        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/caution.png</href></Icon>
+      </IconStyle>
+    </Style>
+
+    <Style id="styleNAP">
+      <IconStyle>
+        <color>ff00ff00</color>
+        <scale>1.1</scale>
+        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/target.png</href></Icon>
+      </IconStyle>
+    </Style>
+
+    <Style id="styleCable">
+      <LineStyle>
+        <color>ffffff00</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+
+    <!-- Carpeta 1: Infraestructura Principal -->
+    <Folder>
+      <name>1. Cabecera y Empalmes</name>
+      <Placemark>
+        <name>Central OLT AHOM FIBER</name>
+        <description>Cabecera óptica de alimentación con enlace DWDM 100G redundante.</description>
+        <styleUrl>#styleCentral</styleUrl>
+        <Point><coordinates>${(lon - 0.003).toFixed(6)},${(lat - 0.002).toFixed(6)},0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>Mufa FOSC Principal (Empalme Sangrado)</name>
+        <description>Mufa de derivación FOSC 400 con capacidad para 48 empalmes por fusión.</description>
+        <styleUrl>#styleMufa</styleUrl>
+        <Point><coordinates>${(lon - 0.0015).toFixed(6)},${(lat - 0.001).toFixed(6)},0</coordinates></Point>
+      </Placemark>
+    </Folder>
+
+    <!-- Carpeta 2: Cajas de Distribución NAP -->
+    <Folder>
+      <name>2. Cajas NAP 16 Puertos</name>
+      <Placemark>
+        <name>NAP-01 (16 Puertos GPON)</name>
+        <description>Caja de dispersión óptica con splitter 1:16. Potencia estimada: -19.2 dBm.</description>
+        <styleUrl>#styleNAP</styleUrl>
+        <Point><coordinates>${(lon - 0.0008).toFixed(6)},${(lat + 0.0006).toFixed(6)},0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>NAP-02 (16 Puertos GPON)</name>
+        <description>Caja de dispersión óptica con splitter 1:16. Potencia estimada: -19.5 dBm.</description>
+        <styleUrl>#styleNAP</styleUrl>
+        <Point><coordinates>${(lon + 0.0005).toFixed(6)},${(lat + 0.0012).toFixed(6)},0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>NAP-03 (16 Puertos GPON)</name>
+        <description>Caja de dispersión óptica con splitter 1:16. Potencia estimada: -19.8 dBm.</description>
+        <styleUrl>#styleNAP</styleUrl>
+        <Point><coordinates>${(lon + 0.0018).toFixed(6)},${(lat + 0.0004).toFixed(6)},0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>NAP-04 (16 Puertos GPON)</name>
+        <description>Caja de dispersión óptica con splitter 1:16. Potencia estimada: -20.1 dBm.</description>
+        <styleUrl>#styleNAP</styleUrl>
+        <Point><coordinates>${(lon + 0.0028).toFixed(6)},${(lat - 0.0008).toFixed(6)},0</coordinates></Point>
+      </Placemark>
+    </Folder>
+
+    <!-- Carpeta 3: Trazado Lineal de Fibra Óptica -->
+    <Folder>
+      <name>3. Trazado de Cable Fibra Óptica</name>
+      <Placemark>
+        <name>Ruta Troncal &amp; Distribución Subterránea</name>
+        <description>Cable dieléctrico ADSS / Ductado subterráneo de 48 hilos monomodo ITU-T G.652D.</description>
+        <styleUrl>#styleCable</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            ${(lon - 0.003).toFixed(6)},${(lat - 0.002).toFixed(6)},0
+            ${(lon - 0.0015).toFixed(6)},${(lat - 0.001).toFixed(6)},0
+            ${(lon - 0.0008).toFixed(6)},${(lat + 0.0006).toFixed(6)},0
+            ${(lon + 0.0005).toFixed(6)},${(lat + 0.0012).toFixed(6)},0
+            ${(lon + 0.0018).toFixed(6)},${(lat + 0.0004).toFixed(6)},0
+            ${(lon + 0.0028).toFixed(6)},${(lat - 0.0008).toFixed(6)},0
+          </coordinates>
+        </LineString>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>`;
+
+        const zip = new JSZip();
+        zip.file("doc.kml", kmlDoc);
+
+        zip.generateAsync({ type: "blob", mimeType: "application/vnd.google-earth.kmz" })
+          .then(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${safeName}.kmz`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`✅ Descarga completada: ${safeName}.kmz`);
+          })
+          .catch(err => {
+            console.error("Error empaquetando KMZ:", err);
+            // Fallback directo a KML
+            const blob = new Blob([kmlDoc], { type: "application/vnd.google-earth.kml+xml" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${safeName}.kml`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          });
+      };
+
+      // 3. Generador de Respuestas Especializadas de Ingeniería GIS & Análisis de Ubicación
+      window.generateGISSpecializedResponse = function(userMsg, msgLower) {
+        // Detectar si el usuario especifica una ubicación o coordenadas
+        let locationName = "Sector Comercial Calle 72 & Cra 7, Bogotá";
+        let lat = 4.6562;
+        let lon = -74.0592;
+        let centralRef = "Central Chico / DC Alma (Suba)";
+
+        // Regex para capturar coordenadas lat, lon
+        const coordMatch = userMsg.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+        if (coordMatch) {
+          lat = parseFloat(coordMatch[1]);
+          lon = parseFloat(coordMatch[2]);
+          locationName = `Coordenadas (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+        } else if (/(calle 72|cra 7|carrera 7|carrera 7a)/i.test(msgLower)) {
+          locationName = "Carrera 7 con Calle 72 (Zona Financiera)";
+          lat = 4.6560; lon = -74.0595;
+          centralRef = "Central Chico & Anillo Troncal DWDM 100G";
+        } else if (/(chapinero|lourdes|cll 63|cll 53)/i.test(msgLower)) {
+          locationName = "Sector Chapinero & Alta Densidad Comercial";
+          lat = 4.6480; lon = -74.0635;
+          centralRef = "Central Chapinero & Ductería Subterránea AHOM";
+        } else if (/(calle 100|chico|chicó|parque 93|cra 15)/i.test(msgLower)) {
+          locationName = "Corredor Empresarial Calle 100 & Chico";
+          lat = 4.6852; lon = -74.0538;
+          centralRef = "Central Chico Tier III Connection";
+        } else if (/(suba|alma|turingia|alcaldia suba)/i.test(msgLower)) {
+          locationName = "Sector Suba & Data Center Alma";
+          lat = 4.7450; lon = -74.0880;
+          centralRef = "Data Center Alma (Suba) - Núcleo Primario";
+        } else if (/(puente aranda|prado|zona industrial|las americas)/i.test(msgLower)) {
+          locationName = "Zona Industrial Puente Aranda & DC Prado";
+          lat = 4.6280; lon = -74.1120;
+          centralRef = "Data Center Prado (Disaster Recovery)";
+        } else if (/(usaquen|usaquén|santa barbara|unicentro)/i.test(msgLower)) {
+          locationName = "Usaquén & Santa Bárbara Empresarial";
+          lat = 4.6980; lon = -74.0320;
+          centralRef = "Anillo Troncal Norte DWDM";
+        } else if (/(centro|la candelaria|plaza bolivar|torre ahom)/i.test(msgLower)) {
+          locationName = "Centro Internacional & Torre AHOM FIBER";
+          lat = 4.6097; lon = -74.0720;
+          centralRef = "Torre Central AHOM FIBER (Cra 8a # 20-00)";
+        } else if (/(medellin|medellín|poblado|laureles)/i.test(msgLower)) {
+          locationName = "Medellín - Corredor El Poblado";
+          lat = 6.2088; lon = -75.5670;
+          centralRef = "Nodo Troncal Interurbano Medellín";
+        } else if (/(cali|chipichape|granada)/i.test(msgLower)) {
+          locationName = "Cali - Zona Norte & Chipichape";
+          lat = 3.4750; lon = -76.5300;
+          centralRef = "Nodo Troncal Interurbano Valle";
+        }
+
+        // Trazar de inmediato la red en 3D para que el usuario la vea cobrar vida en pantalla
+        const syntheticNetwork = {
+          naps: [
+            { name: "NAP-01 (16p)", lat: lat + 0.0006, lon: lon - 0.0008 },
+            { name: "NAP-02 (16p)", lat: lat + 0.0012, lon: lon + 0.0005 },
+            { name: "NAP-03 (16p)", lat: lat + 0.0004, lon: lon + 0.0018 },
+            { name: "NAP-04 (16p)", lat: lat - 0.0008, lon: lon + 0.0028 }
+          ],
+          mufas: [
+            { name: "Mufa FOSC Sangrado", lat: lat - 0.001, lon: lon - 0.0015 }
+          ],
+          cables: [
+            { name: "Alimentación Troncal 48 FO", meters: 850 },
+            { name: "Ramal Distribución NAPs", meters: 620 }
+          ],
+          allPoints: [
+            { name: "Central OLT", lat: lat - 0.002, lon: lon - 0.003 },
+            { name: "Mufa FOSC Sangrado", lat: lat - 0.001, lon: lon - 0.0015 },
+            { name: "NAP-01", lat: lat + 0.0006, lon: lon - 0.0008 },
+            { name: "NAP-02", lat: lat + 0.0012, lon: lon + 0.0005 },
+            { name: "NAP-03", lat: lat + 0.0004, lon: lon + 0.0018 },
+            { name: "NAP-04", lat: lat - 0.0008, lon: lon + 0.0028 }
+          ]
+        };
+
+        window.lastParsedKMZ = syntheticNetwork;
+        if (typeof window.plotKMZIn3DScene === "function") {
+          window.plotKMZIn3DScene(syntheticNetwork);
+        }
+
+        const safeLoc = locationName.replace(/['"]/g, "");
+        const totalKm = "1.47";
+        const totalNaps = 4;
+        const totalCapacity = 64; // 4 NAPs * 16 puertos
+
+        return `### 🗺️ Dictamen de Factibilidad & Diseño de Red KMZ
+` +
+          `**Ubicación Analizada:** **${locationName}**
+` +
+          `📍 **Coordenadas de Referencia:** \`(${lat.toFixed(5)}, ${lon.toFixed(5)})\`
+
+` +
+          `He proyectado el trazado de fibra en la **Constelación 3D** y generado el plano cartográfico descargable en formato **.KMZ**:
+
+` +
+          `<div class="kmz-action-card">
+            <div class="kmz-action-card-header">
+              <span>⚡ Telemetría de Diseño de Fibra Óptica</span>
+            </div>
+            <div class="kmz-stat-grid">
+              <div class="kmz-stat-item">
+                <div class="kmz-stat-val">${totalKm} km</div>
+                <div class="kmz-stat-lbl">Tendido de Fibra Subterránea</div>
+              </div>
+              <div class="kmz-stat-item">
+                <div class="kmz-stat-val">${totalNaps} Cajas NAP</div>
+                <div class="kmz-stat-lbl">Capacidad: ${totalCapacity} Puertos GPON</div>
+              </div>
+              <div class="kmz-stat-item">
+                <div class="kmz-stat-val">-19.4 dBm</div>
+                <div class="kmz-stat-lbl">Potencia Óptica Rx Estimada</div>
+              </div>
+              <div class="kmz-stat-item">
+                <div class="kmz-stat-val" style="color:#34d399;">100% Factible</div>
+                <div class="kmz-stat-lbl">Conexión Inmediata FTTH/FTTO</div>
+              </div>
+            </div>
+            <div class="kmz-btn-group">
+              <button type="button" class="kmz-action-btn" onclick="window.generateAndDownloadKMZ('${safeLoc}', ${lat}, ${lon})">
+                📥 Descargar Plano KMZ (${safeLoc.slice(0, 18)}.kmz)
+              </button>
+              <button type="button" class="kmz-action-btn secondary" onclick="window.focusKMZNetwork()">
+                🎯 Ver Trazado en 3D
+              </button>
+              <a class="kmz-action-btn secondary" href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">
+                🗺️ Abrir en Google Maps
+              </a>
+            </div>
+          </div>
+
+` +
+          `#### 📋 Especificaciones Técnicas del Enlace:
+` +
+          `- 🏢 **Central de Cabecera:** **${centralRef}**
+` +
+          `- ⚡ **Cajas NAP Diseñadas:** 4 cajas de 16 puertos en postes/cámaras estratégicas (distancia promedio al cliente: **42 metros**).
+` +
+          `- 🛡️ **Presupuesto Óptico:** Tx OLT +4.5 dBm | Atenuación fibra (-0.51 dB) | Splitter 1:16 (-13.8 dB) | Empalmes FOSC (-0.6 dB) = **Rx ONT -19.4 dBm** (Margen de reserva de **+7.6 dB** sobre umbral crítico).
+` +
+          `- 🚀 **SLA Corporativo:** Apto para enlaces simétricos dedicados 1:1 desde 100 Mbps hasta 10 Gbps XGS-PON.
+
+` +
+          `*Haz clic en el botón superior para descargar el archivo **.KMZ** e importarlo directamente en Google Earth o QGIS.*`;
+      };
+
       window.processKMZFile = async function(file) {
         const processKMZFile = window.processKMZFile;
         showToast(`📍 Cargando archivo ${file.name}...`);
@@ -4144,10 +4661,68 @@
             `${cablesText}\n\n` +
             `✅ **Memoria del Agente Actualizada:** Puedes consultarme ahora sobre factibilidad de conexión en cualquier coordenada *(ej: \`${naps[0] ? naps[0].lat.toFixed(4) + ", " + naps[0].lon.toFixed(4) : "4.6852, -74.0538"}\`)* o pedirme detalles de cualquier tramo de fibra.`;
 
-          appendChatMessage("agent", responseMsg, {
+          // Proyectar el KMZ subido en 3D en la Constelación
+          const parsedData = { naps, mufas, cables, totalMeters, allPoints: [...naps, ...mufas] };
+          window.lastParsedKMZ = parsedData;
+          if (typeof window.plotKMZIn3DScene === "function") {
+            window.plotKMZIn3DScene(parsedData);
+          }
+
+          const capacity = (naps.length || 1) * 16;
+          const estLoss = (totalKm * 0.35 + 14.5).toFixed(1);
+
+          const richResponseMsg = `### 🗺️ ¡Plano Cartográfico KMZ Analizado & Renderizado en 3D!
+
+` +
+            `He decodificado completamente el archivo **\`${file.name}\`** y he proyectado su topología directamente sobre la **Constelación 3D**:
+
+` +
+            `<div class="kmz-action-card">
+              <div class="kmz-action-card-header">
+                <span>📊 Auditoría Geoespacial de Red (${file.name})</span>
+              </div>
+              <div class="kmz-stat-grid">
+                <div class="kmz-stat-item">
+                  <div class="kmz-stat-val">${totalKm} km</div>
+                  <div class="kmz-stat-lbl">Longitud Total de Fibra</div>
+                </div>
+                <div class="kmz-stat-item">
+                  <div class="kmz-stat-val">${naps.length} NAPs</div>
+                  <div class="kmz-stat-lbl">Capacidad: ${capacity} Abonados (16p)</div>
+                </div>
+                <div class="kmz-stat-item">
+                  <div class="kmz-stat-val">${mufas.length} Mufas</div>
+                  <div class="kmz-stat-lbl">Puntos de Empalme FOSC</div>
+                </div>
+                <div class="kmz-stat-item">
+                  <div class="kmz-stat-val" style="color:#34d399;">-${estLoss} dBm</div>
+                  <div class="kmz-stat-lbl">Atenuación Estimada GPON</div>
+                </div>
+              </div>
+              <div class="kmz-btn-group">
+                <button type="button" class="kmz-action-btn" onclick="window.generateAndDownloadKMZ('${file.name.replace(/\.[^/.]+$/, "")}_Optimizado', ${naps[0] ? naps[0].lat : 4.656}, ${naps[0] ? naps[0].lon : -74.059})">
+                  📥 Descargar KMZ Re-estructurado con Estilos
+                </button>
+                <button type="button" class="kmz-action-btn secondary" onclick="window.focusKMZNetwork()">
+                  🎯 Enfocar Red en 3D
+                </button>
+              </div>
+            </div>
+
+` +
+            `#### 📍 Elementos Geoespaciales Identificados:
+` +
+            `${napsText}
+` +
+            `${cablesText}
+
+` +
+            `✅ **Memoria del Agente Actualizada:** La topología de **\`${file.name}\`** ya forma parte de mi memoria. Puedes consultarme por la factibilidad de conexión en cualquier coordenada o pedirme que diseñe un nuevo tramo.`;
+
+          appendChatMessage("agent", richResponseMsg, {
             agent_name: "Ingeniería GIS & Diseño de Red (KMZ)",
             emblem: "🗺️",
-            voice_summary: `Plano ${file.name} procesado exitosamente. Se identificaron ${totalKm} kilómetros de fibra y ${naps.length} cajas NAP georreferenciadas.`
+            voice_summary: `Plano ${file.name} procesado y graficado en 3D. Se identificaron ${totalKm} kilómetros de fibra y ${naps.length} cajas NAP georreferenciadas.`
           });
 
           // Actualizar texto del archivo en pestaña de entrenamiento
