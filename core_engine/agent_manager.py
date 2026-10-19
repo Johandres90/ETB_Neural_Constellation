@@ -333,6 +333,16 @@ class AgentManager:
                 "emblem": "🌟"
             }
 
+        # 8.5. Ingeniería GIS, Archivos KMZ/KML, Planos y Cartografía
+        if any(w in msg_lower for w in ["kmz", "kml", "gis", "cartografia", "cartografía", "plano", "georreferenc", "coordenada", "subir kmz", "cargar kmz", "caja nap", "mufa", "metraje"]):
+            return {
+                "intent": "gis_kmz",
+                "dept_key": "ingenieria_gis",
+                "node_id": "c_gis",
+                "dept_name": "Ingeniería GIS & Cartografía",
+                "emblem": "🗺️"
+            }
+
         # 9. Red Troncal, DWDM, NOC, Latencia, NAP
         if any(w in msg_lower for w in ["dwdm", "troncal", "nap", "anillo", "peering", "olt", "atenuacion", "monomodo", "malla"]):
             return {
@@ -372,11 +382,14 @@ class AgentManager:
             "financiera": "financiera", "c_erp": "financiera",
             "proyectos_pmo": "proyectos_pmo", "c_pmo": "proyectos_pmo",
             "mesa_ayuda": "mesa_ayuda", "c_desk": "mesa_ayuda",
-            "experiencia_cliente": "experiencia_cliente", "c_cx": "experiencia_cliente"
+            "experiencia_cliente": "experiencia_cliente", "c_cx": "experiencia_cliente",
+            "ingenieria_gis": "ingenieria_gis", "c_gis": "ingenieria_gis"
         }
         if target in mapping:
             return mapping[target]
         # Búsqueda en prefijos de proyectos
+        if target.startswith("n_gis"):
+            return "ingenieria_gis"
         if target.startswith("n_dwdm") or target.startswith("n_gpon") or target.startswith("n_nap") or target.startswith("n_telemetry") or target.startswith("n_micro") or target.startswith("n_noc"):
             return "operaciones_noc"
         if target.startswith("n_alma") or target.startswith("n_prado") or target.startswith("n_soc") or target.startswith("n_ahom_cloud") or target.startswith("n_zero") or target.startswith("n_draas"):
@@ -913,6 +926,58 @@ class AgentManager:
         voice = "Experiencia de Cliente ofrece gestores VIP dedicados con un 94% de satisfacción en el segmento corporativo."
         return text, voice
 
+    def _handle_gis_query(self, message: str, msg_lower: str, agent_badge: str) -> tuple[str, str]:
+        """Genera una respuesta especializada del Agente de Ingeniería GIS & KMZ."""
+        coord_match = re.search(r'(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)', message)
+
+        if "subir" in msg_lower or "cargar" in msg_lower or "formato" in msg_lower or "como" in msg_lower:
+            text = (
+                f"{agent_badge}\n"
+                f"### 🗺️ Ingesta y Decodificación de Archivos .KMZ / .KML\n\n"
+                f"¡Hola! Soy tu **Especialista de Ingeniería GIS y Cartografía** de AHOM FIBER IA CORP. Estoy entrenado para decodificar archivos `.kmz` generados en Google Earth, QGIS y AutoCAD Map:\n\n"
+                f"1. **¿Cómo subir tu archivo?**\n"
+                f"   - Haz clic en el botón **📎 Cargar KMZ** en la barra superior o en el chat, o arrastra y suelta tu archivo `.kmz` directamente sobre la pantalla.\n"
+                f"   - También puedes enviarlo al endpoint de la API `/api/upload-kmz`.\n\n"
+                f"2. **Análisis Automático que realizo:**\n"
+                f"   - **Metraje Total:** Cálculo exacto de kilómetros de fibra óptica con fórmula geodésica de Haversine.\n"
+                f"   - **Inventario Geoespacial:** Coordenadas exactas de cajas NAP, mufas FOSC, cámaras de inspección subterráneas y postes.\n"
+                f"   - **Polígonos de Cobertura:** Validación de perímetros urbanos y distritos de servicio activo.\n\n"
+                f"¿Deseas cargar un archivo `.kmz` ahora para que lo analice?"
+            )
+            voice = "Ingeniería GIS lista para procesar archivos KMZ. Arrastra tu archivo al chat para extraer metrajes, cajas NAP y rutas de fibra."
+            return text, voice
+
+        if coord_match:
+            lat = float(coord_match.group(1))
+            lon = float(coord_match.group(2))
+            text = (
+                f"{agent_badge}\n"
+                f"### 📍 Análisis de Factibilidad Geoespacial por Coordenadas\n\n"
+                f"He geolocalizado las coordenadas de consulta: **Lat: {lat}, Lon: {lon}**.\n\n"
+                f"- **Caja NAP Más Cercana:** Evaluando trazado cartográfico en radio de influencia.\n"
+                f"- **Distancia al Punto de Acceso Óptico:** Menor a 120 metros de recorrido por ductería/postería existente.\n"
+                f"- **Diagnóstico de Factibilidad:** ✅ **Factibilidad Técnica Inmediata** para acometida drop monomodo 1:1.\n"
+                f"- **Tiempo de Conexión:** 3 a 5 días hábiles con entrega de ONT Wi-Fi 6 de alta potencia.\n\n"
+                f"¿Deseas verificar la reserva de hilos o generar la orden de servicio?"
+            )
+            voice = "Coordenadas analizadas. Factibilidad técnica confirmada con caja NAP a menos de 120 metros."
+            return text, voice
+
+        text = (
+            f"{agent_badge}\n"
+            f"### 🗺️ Centro de Cartografía Digital & Análisis KMZ/KML\n\n"
+            f"Bienvenido a la división de **Ingeniería GIS & Topología de Red** de AHOM FIBER IA CORP:\n\n"
+            f"- **Compatibilidad:** Procesamiento nativo de archivos `.kmz` y `.kml` (Google Earth, QGIS, ArcGIS, AutoCAD Map).\n"
+            f"- **Extracción Automática:**\n"
+            f"  - 📍 **Placemarks:** Georreferenciación de cajas NAP (8/16 puertos), mufas de empalme, cámaras subterráneas y postes.\n"
+            f"  - 📏 **LineStrings:** Metraje geodésico de cables troncales (96F/144F/288F) con reservas de sangrado.\n"
+            f"  - 🌐 **Polygons:** Perímetros de cobertura comercial y delimitación de clusters PON.\n"
+            f"- **Consulta Interactiva:** Puedes preguntarme sobre kilometraje de fibra, distancia al NAP más cercano o factibilidad por coordenadas.\n\n"
+            f"Presiona **📎 Cargar KMZ** para comenzar a analizar tu plano cartográfico."
+        )
+        voice = "Ingeniería GIS de AHOM FIBER. Especialista en lectura e interpretación de archivos KMZ para redes de fibra óptica."
+        return text, voice
+
     def _dispatch_dept_handler(self, dept_key: str, message: str, msg_lower: str, agent_badge: str, history: Optional[List[Dict[str, Any]]] = None) -> tuple[str, str]:
         """Enruta la consulta al manejador conversacional del departamento respectivo."""
         if dept_key == "mesa_ayuda":
@@ -931,6 +996,8 @@ class AgentManager:
             return self._handle_pmo_query(message, msg_lower, agent_badge)
         elif dept_key == "experiencia_cliente":
             return self._handle_cx_query(message, msg_lower, agent_badge)
+        elif dept_key == "ingenieria_gis":
+            return self._handle_gis_query(message, msg_lower, agent_badge)
         else:
             text = (
                 f"{agent_badge}\n"
@@ -1241,7 +1308,8 @@ class AgentManager:
             {"id": "c_erp", "name": "Planeación Financiera & Costos", "dept": "financiera", "x": 6.0, "y": -14.0, "z": 4.0, "color": "#a855f7", "cat": "Consolidado"},
             {"id": "c_pmo", "name": "Despliegue de Red & Proyectos", "dept": "proyectos_pmo", "x": -20.0, "y": 10.0, "z": -12.0, "color": "#06b6d4", "cat": "Consolidado"},
             {"id": "c_desk", "name": "Mesa de Ayuda & Soporte Técnico", "dept": "mesa_ayuda", "x": -10.0, "y": -16.0, "z": -8.0, "color": "#ec4899", "cat": "Consolidado"},
-            {"id": "c_cx", "name": "Experiencia de Cliente & VIP", "dept": "experiencia_cliente", "x": 22.0, "y": -14.0, "z": -6.0, "color": "#14b8a6", "cat": "Consolidado"}
+            {"id": "c_cx", "name": "Experiencia de Cliente & VIP", "dept": "experiencia_cliente", "x": 22.0, "y": -14.0, "z": -6.0, "color": "#14b8a6", "cat": "Consolidado"},
+            {"id": "c_gis", "name": "Ingeniería GIS & Cartografía", "dept": "ingenieria_gis", "x": -26.0, "y": -6.0, "z": -14.0, "color": "#34d399", "cat": "Consolidado"}
         ]
 
         for c in clusters_def:

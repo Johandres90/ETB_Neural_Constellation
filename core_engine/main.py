@@ -6,8 +6,9 @@ Endpoints para chat interactivo, entrenamiento en caliente y despacho de la jera
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from core_engine.kmz_parser import parse_kmz_or_kml_bytes, generate_kmz_knowledge_markdown
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
@@ -107,6 +108,41 @@ def train_endpoint(payload: TrainRequest):
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error durante el entrenamiento: {str(e)}")
+
+
+@app.post("/api/upload-kmz")
+async def upload_kmz_endpoint(file: UploadFile = File(...)):
+    """
+    Recibe un archivo .kmz o .kml subido por el usuario,
+    lo parsea extrayendo rutas de fibra, NAPs, mufas y coordenadas,
+    y entrena en caliente al Agente de Ingeniería GIS.
+    """
+    try:
+        content_bytes = await file.read()
+        filename = file.filename or "red_fibra.kmz"
+        
+        parsed_data = parse_kmz_or_kml_bytes(content_bytes, filename=filename)
+        md_report = generate_kmz_knowledge_markdown(parsed_data)
+        
+        # Entrenar en caliente al agente de ingenieria_gis
+        train_result = agent_manager.train_agent(
+            agent_id="ingenieria_gis",
+            content=md_report,
+            topic=f"Mapa GIS: {parsed_data.get('document_name', filename)}"
+        )
+        
+        return {
+            "status": "success",
+            "message": f"Archivo '{filename}' procesado e integrado exitosamente en el Agente de Ingeniería GIS.",
+            "metrics": parsed_data.get("metrics"),
+            "bounding_box": parsed_data.get("bounding_box"),
+            "document_name": parsed_data.get("document_name"),
+            "file_type": parsed_data.get("file_type"),
+            "elements_sample": parsed_data.get("elements"),
+            "training": train_result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error procesando archivo KMZ/KML: {str(e)}")
 
 
 # Servir interfaz web desde el directorio frontend
