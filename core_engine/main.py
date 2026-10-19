@@ -1,5 +1,5 @@
 """
-Main FastAPI Server - TelcoNet Neural Constellation
+Main FastAPI Server - AHOM FIBER IA CORP Neural Constellation
 Endpoints para chat interactivo, entrenamiento en caliente y despacho de la jerarquía 3D.
 """
 
@@ -16,9 +16,9 @@ from core_engine.agent_manager import AgentManager
 
 # Inicialización de la aplicación FastAPI
 app = FastAPI(
-    title="TelcoNet Neural Constellation Backend",
-    description="Motor de agentes corporativos jerárquicos y entrenamiento modular para TelcoNet",
-    version="2.6.0"
+    title="AHOM FIBER IA CORP Neural Constellation Backend",
+    description="Motor de agentes corporativos jerárquicos y entrenamiento modular para AHOM FIBER IA CORP",
+    version="3.0.0"
 )
 
 # Habilitar CORS para permitir consumo desde Three.js en cualquier puerto local
@@ -52,8 +52,8 @@ def health_check():
     """Estado de salud del backend y telemetría de agentes."""
     return {
         "status": "healthy",
-        "system": "TelcoNet Neural Constellation Core Engine",
-        "version": "2.6.0",
+        "system": "AHOM FIBER IA CORP Neural Constellation Core Engine",
+        "version": "3.0.0",
         "total_agents": len(agent_manager.agents),
         "knowledge_base_path": str(agent_manager.kb_root)
     }
@@ -70,7 +70,7 @@ def get_agents():
 
 @app.get("/api/hierarchy")
 def get_hierarchy():
-    """Retorna el grafo jerárquico tridimensional de nodos y sinapsis de TelcoNet para Three.js."""
+    """Retorna el grafo jerárquico tridimensional de nodos y sinapsis de AHOM FIBER IA CORP para Three.js."""
     return agent_manager.get_hierarchy()
 
 

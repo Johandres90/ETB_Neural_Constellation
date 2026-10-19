@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: telconet-neural-constellation
+    name: ahom-fiber-ia-corp
     env: python
     region: oregon
     plan: free

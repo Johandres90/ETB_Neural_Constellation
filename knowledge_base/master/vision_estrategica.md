@@ -1,12 +1,12 @@
-# Base de Conocimiento - Presidencia / Agente Máster TelcoNet
+# Base de Conocimiento - Presidencia / Agente Máster AHOM FIBER IA CORP
 
-## Visión Corporativa TelcoNet 2026
-TelcoNet (Empresa de Telecomunicaciones y Conectividad Digital) consolida su liderazgo como el operador de telecomunicaciones de fibra óptica más confiable y de mayor calidad en Colombia. Con más de 140 años de historia conectando a Bogotá y el país, TelcoNet integra tecnología de vanguardia, soberanía digital y compromiso social.
+## Visión Corporativa AHOM FIBER IA CORP 2026
+AHOM FIBER IA CORP (Telecomunicaciones & Conectividad Digital) consolida su liderazgo como el operador de telecomunicaciones de fibra óptica más confiable y de mayor calidad en Colombia. Con más de 140 años de historia conectando a Bogotá y el país, AHOM FIBER IA CORP integra tecnología de vanguardia, soberanía digital y compromiso social.
 
 ## Pilares Estratégicos
 1. **Infraestructura de Fibra Óptica 100% Pura (FTTH/FTTO):** Anillos metropolitanos redundantes con capacidad Terabit y velocidad simétrica real.
 2. **Soberanía y Seguridad de Datos:** Data Centers propios Tier III y Tier IV (Alma y Prado), certificados ICREA, albergando las operaciones críticas del distrito y corporaciones líderes.
 3. **Diferenciación Competitiva:**
-   - **Claro:** Opera tecnología HFC híbrida con limitación asimétrica de subida; TelcoNet ofrece fibra simétrica pura y baja latencia.
-   - **Tigo:** Reducida capilaridad en el centro del país; TelcoNet domina con la red más densa de Bogotá.
-   - **Movistar:** Políticas comerciales con letra chica y tiempos de soporte diferidos; TelcoNet cuenta con SLAs corporativos garantizados del 99.98%.
+   - **Claro:** Opera tecnología HFC híbrida con limitación asimétrica de subida; AHOM FIBER IA CORP ofrece fibra simétrica pura y baja latencia.
+   - **Tigo:** Reducida capilaridad en el centro del país; AHOM FIBER IA CORP domina con la red más densa de Bogotá.
+   - **Movistar:** Políticas comerciales con letra chica y tiempos de soporte diferidos; AHOM FIBER IA CORP cuenta con SLAs corporativos garantizados del 99.98%.

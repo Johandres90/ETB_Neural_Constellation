@@ -6,4 +6,4 @@
 - **SLA Operativo:** 99.98% de disponibilidad en enlaces dedicados empresariales.
 - **MTTR (Tiempo Medio de Recuperación):** Menor a 120 minutos ante contingencias físicas.
 - **Monitoreo:** Centro de Operaciones 24/7/365 con telemetría en tiempo real sobre atenuación óptica (< -24 dBm de umbral operativo) y latencia nacional (< 5ms en Bogotá hacia NAP Colombia).
-- **Ventaja frente a Claro:** La red HFC de Claro sufre de 'ruido por retorno' e interferencias electromagnéticas en cables coaxiales; la fibra monomodo de TelcoNet es inmune al ruido y ofrece estabilidad continua.
+- **Ventaja frente a Claro:** La red HFC de Claro sufre de 'ruido por retorno' e interferencias electromagnéticas en cables coaxiales; la fibra monomodo de AHOM FIBER IA CORP es inmune al ruido y ofrece estabilidad continua.

@@ -1,4 +1,4 @@
-# Base de Conocimiento - Mesa de Ayuda & Soporte Técnico (TelcoNet)
+# Base de Conocimiento - Mesa de Ayuda & Soporte Técnico (AHOM FIBER IA CORP)
 
 ## 1. Canales de Atención y Contacto 24/7/365
 
@@ -6,14 +6,14 @@
 - **Línea Telefónica Directa Bogotá:** **(601) 377-7777** (Opción 2: Clientes Corporativos / Empresas).
 - **Línea Gratuita Nacional:** **01 8000 112 170** (Atención técnica disponible 24 horas).
 - **WhatsApp Corporativo Oficial:** **+57 305 777 7777** (Gestión ágil de tickets e incidencias técnicas con agente de soporte).
-- **Portal Web de Autoservicio / Service Desk:** **https://mi.telconet.com/empresas** o mesa de ayuda ITIL corporativa.
-- **Correo de Escalamiento Especializado:** `soporte.empresas@telconet.com`.
+- **Portal Web de Autoservicio / Service Desk:** **https://portal.ahomfiber.com** o mesa de ayuda ITIL corporativa.
+- **Correo de Escalamiento Especializado:** `soporte@ahomfiber.com`.
 
 ---
 
 ## 2. Niveles de Servicio (SLA) y Tiempos de Respuesta
 
-| Métrica ITIL | Compromiso SLA TelcoNet Corporativo | Estándar Hogar / Pyme |
+| Métrica ITIL | Compromiso SLA AHOM FIBER IA CORP Corporativo | Estándar Hogar / Pyme |
 | :--- | :--- | :--- |
 | **Tiempo de Primera Respuesta (FRT):** | **< 3 minutos** (vía telefónica o chat) | < 10 minutos |
 | **Diagnóstico Remoto ONT/CPE:** | **< 15 minutos** (Vía telemetría y OLT) | < 30 minutos |

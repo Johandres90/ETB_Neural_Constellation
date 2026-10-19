@@ -1,4 +1,4 @@
-# Base de Conocimiento - Despliegue de Red & Proyectos (PMO TelcoNet)
+# Base de Conocimiento - Despliegue de Red & Proyectos (PMO AHOM FIBER IA CORP)
 
 ## 1. Tiempos de Entrega y Gestión de Proyectos
 - **Instalación Estándar de Fibra Óptica Empresarial:** De **3 a 5 días hábiles** desde la aprobación de la orden de servicio en zonas con cobertura de caja de dispersión (NAP) activa.
