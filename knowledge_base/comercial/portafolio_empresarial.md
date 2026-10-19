@@ -1,4 +1,4 @@
-# Base de Conocimiento - Soluciones Corporativas & B2B (ETB)
+# Base de Conocimiento - Soluciones Corporativas & B2B (TelcoNet)
 
 ## 1. Tarifas Comerciales y Costos de Instalación de Fibra Óptica
 
@@ -28,6 +28,6 @@
 ---
 
 ## 2. Diferenciales Técnicos frente a Claro, Tigo y Movistar
-- **Frente a Claro:** Claro entrega fibra híbrida coaxial (HFC) con canales compartidos y asimetría (ej. 300 Mbps bajada / 30 Mbps subida); ETB entrega **Fibra Óptica 100% Pura (FTTH/GPON y Dedicado)** con subida idéntica a la bajada (Simetría 1:1 real).
-- **Frente a Tigo:** ETB es dueña de más de 4.000 km de ductería subterránea propia en Bogotá y Sabana, garantizando tiempos de instalación y reparación hasta un 40% más rápidos sin depender de terceros.
+- **Frente a Claro:** Claro entrega fibra híbrida coaxial (HFC) con canales compartidos y asimetría (ej. 300 Mbps bajada / 30 Mbps subida); TelcoNet entrega **Fibra Óptica 100% Pura (FTTH/GPON y Dedicado)** con subida idéntica a la bajada (Simetría 1:1 real).
+- **Frente a Tigo:** TelcoNet es dueña de más de 4.000 km de ductería subterránea propia en Bogotá y Sabana, garantizando tiempos de instalación y reparación hasta un 40% más rápidos sin depender de terceros.
 - **Frente a Movistar:** Facturación 100% en pesos colombianos (COP), centros de datos locales propios en Bogotá y ciberseguridad gestionada SOC sin costos sorpresa en dólares.

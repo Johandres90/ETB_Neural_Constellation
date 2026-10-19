@@ -1,5 +1,5 @@
 """
-Main FastAPI Server - ETB Neural Constellation
+Main FastAPI Server - TelcoNet Neural Constellation
 Endpoints para chat interactivo, entrenamiento en caliente y despacho de la jerarquía 3D.
 """
 
@@ -16,8 +16,8 @@ from core_engine.agent_manager import AgentManager
 
 # Inicialización de la aplicación FastAPI
 app = FastAPI(
-    title="ETB Neural Constellation Backend",
-    description="Motor de agentes corporativos jerárquicos y entrenamiento modular para ETB",
+    title="TelcoNet Neural Constellation Backend",
+    description="Motor de agentes corporativos jerárquicos y entrenamiento modular para TelcoNet",
     version="2.6.0"
 )
 
@@ -52,7 +52,7 @@ def health_check():
     """Estado de salud del backend y telemetría de agentes."""
     return {
         "status": "healthy",
-        "system": "ETB Neural Constellation Core Engine",
+        "system": "TelcoNet Neural Constellation Core Engine",
         "version": "2.6.0",
         "total_agents": len(agent_manager.agents),
         "knowledge_base_path": str(agent_manager.kb_root)
@@ -70,7 +70,7 @@ def get_agents():
 
 @app.get("/api/hierarchy")
 def get_hierarchy():
-    """Retorna el grafo jerárquico tridimensional de nodos y sinapsis de ETB para Three.js."""
+    """Retorna el grafo jerárquico tridimensional de nodos y sinapsis de TelcoNet para Three.js."""
     return agent_manager.get_hierarchy()
 
 

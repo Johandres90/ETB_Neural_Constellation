@@ -1,4 +1,4 @@
-# Base de Conocimiento - Red Troncal & Fibra Óptica (NOC ETB)
+# Base de Conocimiento - Red Troncal & Fibra Óptica (NOC TelcoNet)
 
 ## 1. Infraestructura de Red y Malla Metropolitana
 - **Red Troncal Anillos DWDM 100G:** Malla óptica metropolitana de 100 Gbps con topología en anillo autorrecuperable; en caso de corte físico de una ruta subterránea, el tráfico conmuta a la ruta de respaldo en menos de **50 milisegundos**.

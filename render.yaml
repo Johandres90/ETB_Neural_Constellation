@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: etb-neural-constellation
+    name: telconet-neural-constellation
     env: python
     region: oregon
     plan: free

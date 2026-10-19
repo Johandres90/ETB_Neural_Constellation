@@ -1,6 +1,6 @@
-# 🌐 NEXO ETB — Constelación Neuronal 3D del Portafolio Corporativo
+# 🌐 NEXO TelcoNet — Constelación Neuronal 3D del Portafolio Corporativo
 
-Plataforma corporativa de visualización tridimensional e inteligencia artificial conversacional para la infraestructura, servicios y gobernanza de **ETB (Empresa de Telecomunicaciones de Bogotá)**.
+Plataforma corporativa de visualización tridimensional e inteligencia artificial conversacional para la infraestructura, servicios y gobernanza de **TelcoNet (Empresa de Telecomunicaciones y Conectividad Digital)**.
 
 ---
 
@@ -14,23 +14,32 @@ Plataforma corporativa de visualización tridimensional e inteligencia artificia
 
 ---
 
-## 📱 Acceso desde Cualquier Dispositivo
+## 📱 Despliegue y Acceso Multi-Plataforma
 
 ### 1. Despliegue en GitHub Pages (Web Inmediata)
 Este repositorio incluye un flujo de trabajo automatizado de **GitHub Actions** (`.github/workflows/deploy.yml`):
 1. Ve a **Settings** > **Pages** en tu repositorio de GitHub.
-2. En **Build and deployment > Source**, selecciona **GitHub Actions** (o **Deploy from a branch > master > / (root)**).
+2. En **Build and deployment > Source**, selecciona **GitHub Actions** (o **Deploy from a branch > master/main > / (root)**).
 3. Tu aplicación quedará disponible en:
    ```
-   https://johandres90.github.io/ETB_Neural_Constellation/
+   https://<tu-usuario>.github.io/TelcoNet_Neural_Constellation/
    ```
 
-### 2. Conexión del Backend en la Nube (Render / Railway / Docker)
+### 2. Despliegue en Vercel
+El proyecto incluye configuración nativa en `vercel.json`:
+1. Importa tu repositorio en [Vercel](https://vercel.com).
+2. Deja los ajustes predeterminados (Static Project).
+3. Despliega con 1 solo clic. También puedes usar Vercel CLI:
+   ```bash
+   vercel --prod
+   ```
+
+### 3. Conexión del Backend en la Nube (Render / Railway / Docker)
 Para habilitar el motor completo de IA en la nube accesible desde cualquier celular o PC fuera de tu red:
-- **Render.com:** Conecta este repositorio en Render como **Web Service** (detecta automáticamente `render.yaml` y `Procfile`). Te otorgará una URL pública con HTTPS gratuito (ej: `https://etb-neural-constellation.onrender.com`).
+- **Render.com:** Conecta este repositorio en Render como **Web Service** (detecta automáticamente `render.yaml` y `Procfile`). Te otorgará una URL pública con HTTPS gratuito (ej: `https://telconet-neural-constellation.onrender.com`).
 - En la interfaz web, presiona el botón **☁️ Nube** en la barra superior y escribe tu URL de Render para sincronizar tu teléfono con tu backend.
 
-### 3. Ejecución en Red Local (Mismo Wi-Fi)
+### 4. Ejecución en Red Local (Mismo Wi-Fi)
 Para abrir la constelación desde tu celular o tablet conectado al mismo Wi-Fi de tu computador:
 1. Averigua la IP local de tu computador (ejecuta `ipconfig` en Windows, ej: `192.168.1.50`).
 2. Inicia el backend escuchando en todas las interfaces:
@@ -49,8 +58,8 @@ Para abrir la constelación desde tu celular o tablet conectado al mismo Wi-Fi d
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/Johandres90/ETB_Neural_Constellation.git
-cd ETB_Neural_Constellation
+git clone https://github.com/Johandres90/TelcoNet_Neural_Constellation.git
+cd TelcoNet_Neural_Constellation
 
 # 2. Crear y activar entorno virtual
 python -m venv venv
@@ -71,7 +80,7 @@ Abre en tu navegador: [http://localhost:8000](http://localhost:8000).
 ## 📂 Estructura del Proyecto
 
 ```
-ETB_Neural_Constellation/
+TelcoNet_Neural_Constellation/
 ├── core_engine/                # Backend FastAPI & Lógica de Agentes
 │   ├── main.py                 # Endpoints REST y servidor de archivos estáticos
 │   ├── agent_manager.py        # Orquestador jerárquico de IA y RAG
@@ -83,12 +92,13 @@ ETB_Neural_Constellation/
 ├── Dockerfile                  # Contenedor para despliegues universales
 ├── Procfile                    # Comando de inicio para Railway/Render
 ├── render.yaml                 # Configuración de infraestructura Render
+├── vercel.json                 # Configuración de despliegue para Vercel
 ├── requirements.txt            # Dependencias Python
-└── index.html                  # Punto de entrada raíz para GitHub Pages
+└── index.html                  # Punto de entrada raíz para GitHub Pages y Vercel
 ```
 
 ---
 
 ## 📄 Licencia y Autoría
-Desarrollado para el ecosistema corporativo e institucional de ETB.
-Repositorio oficial: [Johandres90/ETB_Neural_Constellation](https://github.com/Johandres90/ETB_Neural_Constellation).
+Desarrollado para el ecosistema corporativo e institucional de **TelcoNet**.
+Repositorio oficial: [Johandres90/TelcoNet_Neural_Constellation](https://github.com/Johandres90/TelcoNet_Neural_Constellation).

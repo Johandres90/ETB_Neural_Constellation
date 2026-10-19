@@ -1,5 +1,5 @@
 """
-Agent Manager - ETB Neural Constellation
+Agent Manager - TelcoNet Neural Constellation
 Gestión de agentes departamentales, federación de conocimiento global y orquestación ejecutiva.
 """
 
@@ -120,7 +120,7 @@ class AgentManager:
         Recibe nuevo contenido de entrenamiento en caliente, lo guarda en un archivo .md y actualiza la memoria.
         """
         if agent_id not in self.agents:
-            raise ValueError(f"Agente '{agent_id}' no reconocido en la constelación ETB.")
+            raise ValueError(f"Agente '{agent_id}' no reconocido en la constelación TelcoNet.")
 
         dept_dir = self.kb_root / agent_id
         dept_dir.mkdir(parents=True, exist_ok=True)
@@ -201,7 +201,7 @@ class AgentManager:
                 "intent": "satisfaction_close",
                 "dept_key": "master",
                 "node_id": "master",
-                "dept_name": "NEXO ETB CORE",
+                "dept_name": "NEXO TelcoNet CORE",
                 "emblem": "🤝"
             }
 
@@ -274,7 +274,7 @@ class AgentManager:
 
         # 6. Comparativa frente a Claro, Tigo, Movistar
         is_telco_claro = ("claro" in msg_lower and not any(p in msg_lower for p in ["todo claro", "muy claro", "quedo claro", "quedó claro", "esta claro", "está claro", "más claro", "mas claro", "tan claro"]))
-        if is_telco_claro or any(w in msg_lower for w in ["tigo", "movistar", "competencia", "comparar", "vs", "frente a", "diferencia", "por que etb", "mejor que"]):
+        if is_telco_claro or any(w in msg_lower for w in ["tigo", "movistar", "competencia", "comparar", "vs", "frente a", "diferencia", "por que telconet", "mejor que"]):
             return {
                 "intent": "competitor",
                 "dept_key": "comercial",
@@ -349,7 +349,7 @@ class AgentManager:
                 "intent": "greeting",
                 "dept_key": "master",
                 "node_id": "master",
-                "dept_name": "NEXO ETB CORE",
+                "dept_name": "NEXO TelcoNet CORE",
                 "emblem": "👑"
             }
 
@@ -357,7 +357,7 @@ class AgentManager:
             "intent": "general",
             "dept_key": "master",
             "node_id": "master",
-            "dept_name": "NEXO ETB CORE",
+            "dept_name": "NEXO TelcoNet CORE",
             "emblem": "👑"
         }
 
@@ -379,7 +379,7 @@ class AgentManager:
         # Búsqueda en prefijos de proyectos
         if target.startswith("n_dwdm") or target.startswith("n_gpon") or target.startswith("n_nap") or target.startswith("n_telemetry") or target.startswith("n_micro") or target.startswith("n_noc"):
             return "operaciones_noc"
-        if target.startswith("n_alma") or target.startswith("n_prado") or target.startswith("n_soc") or target.startswith("n_etb_cloud") or target.startswith("n_zero") or target.startswith("n_draas"):
+        if target.startswith("n_alma") or target.startswith("n_prado") or target.startswith("n_soc") or target.startswith("n_telconet_cloud") or target.startswith("n_zero") or target.startswith("n_draas"):
             return "tecnologia"
         if target.startswith("n_ftth_ded") or target.startswith("n_p2p") or target.startswith("n_sip") or target.startswith("n_sdwan") or target.startswith("n_smart") or target.startswith("n_pymes"):
             return "comercial"
@@ -455,7 +455,7 @@ class AgentManager:
         if is_closing_sentiment and not has_new_action:
             text = (
                 f"{prefix}"
-                f"### 🤝 ¡Sesión Finalizada con Éxito en NEXO ETB!\n\n"
+                f"### 🤝 ¡Sesión Finalizada con Éxito en NEXO TelcoNet!\n\n"
                 f"¡Ha sido un verdadero placer asistirte hoy!\n\n"
                 f"Tu caso queda debidamente registrado y bajo seguimiento prioritario en nuestra central de operaciones. Te mantendremos informado por SMS y WhatsApp ante cualquier novedad del servicio.\n\n"
                 f"- 📞 **Soporte Técnico Especializado 24/7:** PBX **(601) 377-7777** (Opción 2 Empresas) | WhatsApp Oficial: **+57 305 777 7777**.\n\n"
@@ -478,7 +478,7 @@ class AgentManager:
             text = (
                 f"{prefix}"
                 f"Listo, acabo de realizar la lectura de telemetría óptica directa en tu puerto OLT de cabecera:\n\n"
-                f"- **Potencia Óptica de Recepción (Rx):** `-27.8 dBm` *(Estado: Crítico por atenuación severa; el umbral estándar en fibra ETB debe estar entre -18 dBm y -24 dBm)*.\n"
+                f"- **Potencia Óptica de Recepción (Rx):** `-27.8 dBm` *(Estado: Crítico por atenuación severa; el umbral estándar en fibra TelcoNet debe estar entre -18 dBm y -24 dBm)*.\n"
                 f"- **Potencia de Transmisión (Tx):** `+2.1 dBm` *(Rango normal)*.\n"
                 f"- **Voltaje ONT:** `3.3V` *(Alimentación eléctrica estable)*.\n\n"
                 f"Con este nivel de `-27.8 dBm` confirmamos técnicamente que el módem recibe poca intensidad del haz láser, lo que provoca la luz LOS roja o pérdida total de navegación. El inconveniente se encuentra en la fibra exterior (posible doblez forzado en fachada o atenuador descalibrado en la mufa de distribución).\n\n"
@@ -518,7 +518,7 @@ class AgentManager:
         if any(w in msg_lower for w in ["cuanto demora", "cuanto tardan", "cuanto se demoran", "cuando llega", "a que hora", "tiempo de llegada", "cuando viene", "cuanto tiempo", "demora el tecnico", "tarda el tecnico"]):
             text = (
                 f"{prefix}"
-                f"Para incidencias de pérdida óptica o luz LOS roja en enlaces empresariales ETB, nuestro compromiso de atención en sitio (SLA) es de **menos de 4 horas**.\n\n"
+                f"Para incidencias de pérdida óptica o luz LOS roja en enlaces empresariales TelcoNet, nuestro compromiso de atención en sitio (SLA) es de **menos de 4 horas**.\n\n"
                 f"La orden ya se encuentra asignada a la cuadrilla móvil N2 de tu zona. En cuanto el técnico inicie su desplazamiento recibirás un SMS y un mensaje por WhatsApp con los datos del técnico y el tiempo estimado de arribo.\n\n"
                 f"¿Deseas registrar alguna observación especial para la cuadrilla, como el horario de recepción o autorización en portería?"
             )
@@ -529,7 +529,7 @@ class AgentManager:
         if any(w in msg_lower for w in ["costo de la visita", "tiene costo", "cobran la visita", "valor de la visita", "precio de la visita", "cobran por venir"]):
             text = (
                 f"{prefix}"
-                f"La visita técnica de diagnóstico, calibración de señal óptica y reparación de la red exterior **no tiene ningún costo adicional** para tu contrato empresarial ETB.\n\n"
+                f"La visita técnica de diagnóstico, calibración de señal óptica y reparación de la red exterior **no tiene ningún costo adicional** para tu contrato empresarial TelcoNet.\n\n"
                 f"Está 100% cubierta dentro de las garantías de mantenimiento y SLA de tu servicio de fibra óptica.\n\n"
                 f"¿Deseas que verifiquemos algún otro aspecto del servicio o estás satisfecho con la atención?"
             )
@@ -540,7 +540,7 @@ class AgentManager:
         if any(w in msg_lower for w in ["contrato", "cuenta", "linea", "telefono", "ticket", "radicado"]) or re.search(r'\b\d{5,12}\b', message):
             contract_match = re.search(r'\b\d{5,12}\b', message)
             contract_num = contract_match.group(0) if contract_match else "53696969"
-            ticket_id = f"ETB-INC-{contract_num[-6:]}"
+            ticket_id = f"TelcoNet-INC-{contract_num[-6:]}"
 
             text = (
                 f"{prefix}"
@@ -561,8 +561,8 @@ class AgentManager:
                 f"{prefix}"
                 f"¡Excelente noticia que la luz **PON verde** haya regresado! Esto confirma que el enlace físico de fibra óptica y la potencia láser desde nuestra central ya están sincronizados correctamente.\n\n"
                 f"La lentitud temporal suele deberse a saturación de tablas DNS o asignación en la frecuencia 2.4 GHz. Aplica estos pasos de optimización inmediata:\n\n"
-                f"1. **Conexión a la Banda ETB_5G (Prioritaria):**\n"
-                f"   - Conéctate a la red inalámbrica `ETB_5G` en tu celular o computador. La banda 5 GHz evita interferencias de canales y entrega el 100% de tu velocidad contratada.\n"
+                f"1. **Conexión a la Banda TelcoNet_5G (Prioritaria):**\n"
+                f"   - Conéctate a la red inalámbrica `TelcoNet_5G` en tu celular o computador. La banda 5 GHz evita interferencias de canales y entrega el 100% de tu velocidad contratada.\n"
                 f"2. **Renovación de Conexión y Sesión DHCP:**\n"
                 f"   - En tu dispositivo, entra a configuración Wi-Fi, selecciona **'Olvidar Red'** y vuelve a ingresar la contraseña para que el módem asigne una dirección IP limpia.\n"
                 f"3. **Configuración de Servidores DNS de Alta Eficiencia:**\n"
@@ -587,7 +587,7 @@ class AgentManager:
                 f"   - Si el cable interno está intacto, el evento se origina en la mufa de distribución externa en vía pública.\n\n"
                 f"3. **Despacho Inmediato de Cuadrilla Técnica Nivel 2:**\n"
                 f"   - Procedo a aperturar el ticket de soporte técnico prioritario.\n"
-                f"   - Por favor indícame tu **número de contrato, cuenta o teléfono registrado en ETB** para agendar la cuadrilla de campo (tiempo de atención SLA < 4 horas en enlaces corporativos)."
+                f"   - Por favor indícame tu **número de contrato, cuenta o teléfono registrado en TelcoNet** para agendar la cuadrilla de campo (tiempo de atención SLA < 4 horas en enlaces corporativos)."
             )
             voice = "La luz LOS en rojo confirma pérdida de señal óptica física. Verifica que el cable amarillo no esté doblado y facilítame tu número de contrato para despachar cuadrilla técnica."
             return text, voice
@@ -598,7 +598,7 @@ class AgentManager:
                 f"{prefix}"
                 f"¡Excelente! La **luz PON en verde fijo** confirma que el enlace de fibra óptica y la potencia láser desde nuestra central están en niveles óptimos (-18 dBm a -24 dBm). La fibra no está cortada.\n\n"
                 f"Dado que la señal de fibra está activa, el inconveniente radica en la red local Wi-Fi o asignación DHCP/DNS:\n\n"
-                f"1. **Conexión a la Banda 5G:** Conéctate a la red `ETB_5G` si estás a menos de 8 metros del módem (ofrece la máxima velocidad simétrica y menor congestión).\n"
+                f"1. **Conexión a la Banda 5G:** Conéctate a la red `TelcoNet_5G` si estás a menos de 8 metros del módem (ofrece la máxima velocidad simétrica y menor congestión).\n"
                 f"2. **Olvidar y Reconectar Red:** En tu celular o PC, entra a configuración Wi-Fi, selecciona **'Olvidar Red'** y vuelve a ingresar la contraseña para renovar la dirección IP asignada por el router.\n"
                 f"3. **Configuración de DNS:** Prueba asignando en el adaptador los servidores DNS `1.1.1.1` (Cloudflare) y `8.8.8.8` (Google).\n"
                 f"4. **Prueba por Cable:** Conecta un cable de red directo al puerto LAN 1 de la ONT para validar si navegas con normalidad.\n\n"
@@ -613,24 +613,24 @@ class AgentManager:
                 f"{prefix}"
                 f"Entendido. Ya que el ciclo de reinicio de 30 segundos no restableció la conexión, procederemos a realizar un refresco de sesión PPPoE y resincronización de puerto directo en la OLT de la central telefónica:\n\n"
                 f"1. Validaremos la tabla de rutas y la potencia óptica remota (dBm) de tu ONT.\n"
-                f"2. Por favor facilítame tu **número de contrato o número de línea telefónica ETB** para ingresar a la consola de gestión de tu servicio.\n"
+                f"2. Por favor facilítame tu **número de contrato o número de línea telefónica TelcoNet** para ingresar a la consola de gestión de tu servicio.\n"
                 f"3. Si el enlace no sincroniza tras el reseteo de puerto, despachamos soporte en sitio de forma inmediata."
             )
-            voice = "Procederé con el reseteo remoto de puerto en la central OLT. Por favor indícame tu número de contrato o línea ETB."
+            voice = "Procederé con el reseteo remoto de puerto en la central OLT. Por favor indícame tu número de contrato o línea TelcoNet."
             return text, voice
 
         # 13. Fallas de Wi-Fi, red inalámbrica o señal débil (Consulta Inicial)
         if any(w in msg_lower for w in ["wifi", "wi-fi", "inalambric", "clave", "antena", "alcance", "cobertura", "intermitencia"]):
             text = (
                 f"{prefix}"
-                f"¡Hola! Comprendo la molestia que causa una interrupción en el servicio. Como especialista técnico de ETB, te guiaré paso a paso para diagnosticarlo y restablecer tu conexión de inmediato:\n\n"
+                f"¡Hola! Comprendo la molestia que causa una interrupción en el servicio. Como especialista técnico de TelcoNet, te guiaré paso a paso para diagnosticarlo y restablecer tu conexión de inmediato:\n\n"
                 f"1. **Inspección de Luces en el Módem / ONT:**\n"
                 f"   - **Luz PON (Verde fija):** Indica que la fibra óptica física está sincronizada con nuestra central.\n"
                 f"   - **Luz LOS (Apagada en estado normal):** Si la luz **LOS está encendida en ROJO o titilando**, hay una pérdida física de señal óptica (cable desconectado, doblado o corte exterior).\n\n"
                 f"2. **Ciclo de Energía del Módem (Power Cycle 30s):**\n"
                 f"   - Desconecta el adaptador negro de energía durante **30 segundos** y vuelve a conectarlo para liberar memoria interna y refrescar canales.\n\n"
-                f"3. **Conexión a la Banda ETB_5G:**\n"
-                f"   - Conéctate a la red `ETB_5G` si estás cerca del módem para obtener la máxima velocidad sin interferencias.\n\n"
+                f"3. **Conexión a la Banda TelcoNet_5G:**\n"
+                f"   - Conéctate a la red `TelcoNet_5G` si estás cerca del módem para obtener la máxima velocidad sin interferencias.\n\n"
                 f"Cuéntame: **¿en qué estado ves la luz PON y la luz LOS en el módem en este momento?**"
             )
             voice = "Para solucionar fallas en tu Wi-Fi, primero reinicia tu módem desconectándolo por 30 segundos, verifica las luces PON y LOS y conéctate a la red 5G."
@@ -643,23 +643,23 @@ class AgentManager:
                 f"Para verificar que estés recibiendo el 100% de tu velocidad simétrica contratada, realiza esta prueba técnica controlada:\n\n"
                 f"1. **Conexión Directa:** Conecta un PC mediante cable de red Gigabit al puerto LAN 1 de la ONT.\n"
                 f"2. **Cierre de Aplicaciones:** Cierra descargas en segundo plano, streaming 4K o sincronizaciones en la nube.\n"
-                f"3. **Servidor de Prueba:** Ingresa a `speedtest.net` y selecciona manualmente el servidor **\"ETB - Bogotá\"**.\n"
-                f"4. **Validación:** En fibra ETB la velocidad de subida debe ser igual a la de bajada con ping < 3.5 ms.\n\n"
+                f"3. **Servidor de Prueba:** Ingresa a `speedtest.net` y selecciona manualmente el servidor **\"TelcoNet - Bogotá\"**.\n"
+                f"4. **Validación:** En fibra TelcoNet la velocidad de subida debe ser igual a la de bajada con ping < 3.5 ms.\n\n"
                 f"¿Qué resultado de bajada y subida te arrojó el test de velocidad?"
             )
-            voice = "Para medir tu velocidad real, conecta un cable de red directo al módem, cierra descargas y haz el test apuntando al servidor ETB Bogotá."
+            voice = "Para medir tu velocidad real, conecta un cable de red directo al módem, cierra descargas y haz el test apuntando al servidor TelcoNet Central."
             return text, voice
 
         # 15. Configuración de Router, Contraseña Wi-Fi o IP Fija
         if any(w in msg_lower for w in ["contraseña", "clave", "cambiar", "ip fija", "dns", "puerto", "bridge", "dmz", "acceder"]):
             text = (
                 f"{prefix}"
-                f"Te indico cómo administrar los parámetros de tu equipo ETB:\n\n"
-                f"1. **Acceso a la Consola Web del Router:** Abre tu navegador y digita `http://192.168.1.1` (usuario: `admin` / clave en la etiqueta posterior del equipo o en el portal Mi ETB).\n"
+                f"Te indico cómo administrar los parámetros de tu equipo TelcoNet:\n\n"
+                f"1. **Acceso a la Consola Web del Router:** Abre tu navegador y digita `http://192.168.1.1` (usuario: `admin` / clave en la etiqueta posterior del equipo o en el portal Mi TelcoNet).\n"
                 f"2. **Cambio de Contraseña Wi-Fi:** Ve a la pestaña **Wireless / WLAN** -> Selecciona **WPA2-PSK / WPA3** -> Ingresa tu nueva contraseña.\n"
                 f"3. **IP Fija y Mapeo de Puertos:** Para servidores locales o PBX, asignamos IPs públicas fijas con enrutamiento 1:1 sin costo adicional."
             )
-            voice = "Puedes cambiar tu clave Wi-Fi accediendo a la dirección 192.168.1.1 o a través del portal Mi ETB Empresas."
+            voice = "Puedes cambiar tu clave Wi-Fi accediendo a la dirección 192.168.1.1 o a través del portal Mi TelcoNet Empresas."
             return text, voice
 
         # 16. Respuesta contextual fluida para cualquier otro mensaje durante la conversación activa
@@ -670,13 +670,13 @@ class AgentManager:
                 f"El caso permanece abierto bajo seguimiento de Mesa de Ayuda. Desde aquí puedo realizar mediciones de potencia óptica (dBm), ejecutar barridos OTDR de distancia, consultar el estado de desplazamiento de la cuadrilla o añadir notas técnicas a tu orden.\n\n"
                 f"¿Deseas que verifiquemos los niveles de potencia óptica, ejecutemos una prueba adicional o tienes alguna otra consulta?"
             )
-            voice = "Seguimiento activo en Mesa de Ayuda ETB. ¿Deseas verificar la potencia óptica o ejecutar alguna prueba adicional?"
+            voice = "Seguimiento activo en Mesa de Ayuda TelcoNet. ¿Deseas verificar la potencia óptica o ejecutar alguna prueba adicional?"
             return text, voice
 
         # 17. Respuesta general inicial de soporte técnico
         text = (
             f"{prefix}"
-            f"¡Hola! Soy tu especialista de soporte técnico en ETB. Estoy aquí para resolver cualquier duda o incidencia operativa en tus enlaces de fibra óptica, telefonía o centros de datos:\n\n"
+            f"¡Hola! Soy tu especialista de soporte técnico en TelcoNet. Estoy aquí para resolver cualquier duda o incidencia operativa en tus enlaces de fibra óptica, telefonía o centros de datos:\n\n"
             f"- 🛠️ **Diagnóstico Remoto:** Monitoreo en tiempo real de potencia óptica (dBm), estado de interfaces y reinicio de perfil OLT.\n"
             f"- 📞 **PBX Bogotá:** **(601) 377-7777** (Opción 2 Empresas)\n"
             f"- 📞 **Línea Nacional:** **01 8000 112 170** (Atención 24/7/365)\n"
@@ -684,7 +684,7 @@ class AgentManager:
             f"- ⚡ **Compromiso SLA:** Tiempo de primera respuesta menor a **3 minutos** y solución en campo menor a **4 horas** en enlaces dedicados.\n\n"
             f"¿Qué síntoma o requerimiento técnico deseas que revisemos?"
         )
-        voice = "Mesa de Ayuda ETB disponible 24/7. ¿En qué problema técnico o requerimiento de configuración te podemos asistir?"
+        voice = "Mesa de Ayuda TelcoNet disponible 24/7. ¿En qué problema técnico o requerimiento de configuración te podemos asistir?"
         return text, voice
 
     def _handle_legal_query(self, message: str, msg_lower: str, agent_badge: str) -> tuple[str, str]:
@@ -694,7 +694,7 @@ class AgentManager:
             text = (
                 f"{agent_badge}\n"
                 f"### ⚖️ Dictamen Jurídico: Régimen de Permanencia Mínima (Resolución CRC 5111 de 2017)\n\n"
-                f"¡Hola! Desde la Secretaría General y Asesoría Jurídica de ETB, te explico con total transparencia las condiciones legales aplicables en Colombia:\n\n"
+                f"¡Hola! Desde la Secretaría General y Asesoría Jurídica de TelcoNet, te explico con total transparencia las condiciones legales aplicables en Colombia:\n\n"
                 f"1. **Validez Legal de la Permanencia Mínima:**\n"
                 f"   - Conforme a la **Resolución CRC 5111 de 2017**, las cláusulas de permanencia mínima solo son válidas si fueron pactadas expresamente al inicio del contrato y el operador otorgó un **descuento sustancial o subsidio en los costos de instalación o equipos**.\n"
                 f"   - El contrato debe incluir una carátula o anexo donde se detalle el valor total de la instalación y el descuento otorgado.\n\n"
@@ -715,7 +715,7 @@ class AgentManager:
                 f"### ⚖️ Procedimiento Legal para Cancelación de Servicios de Telecomunicaciones\n\n"
                 f"¡Hola! Te indico el procedimiento legal y tus derechos garantizados por la regulación colombiana:\n\n"
                 f"1. **Plazo de Solicitud:** Puedes solicitar la terminación del contrato en cualquier momento, con al menos **3 días hábiles de anticipación** a la fecha de corte de tu periodo de facturación.\n"
-                f"2. **Canales Habilitados:** Tienes derecho a presentar tu solicitud por **cualquier canal oficial de atención** (línea telefónica, portal web Mi ETB, PQR escrita o puntos presenciales), sin que te sean exigidos requisitos o documentos no contemplados por la ley.\n"
+                f"2. **Canales Habilitados:** Tienes derecho a presentar tu solicitud por **cualquier canal oficial de atención** (línea telefónica, portal web Mi TelcoNet, PQR escrita o puntos presenciales), sin que te sean exigidos requisitos o documentos no contemplados por la ley.\n"
                 f"3. **Devolución de Equipos:** Al terminar el contrato, se debe permitir la entrega de los equipos entregados en comodato (ONT/Router) sin cobros adicionales.\n"
                 f"4. **Expedición de Paz y Salvo:** El operador debe emitir el estado de cuenta y paz y salvo una vez liquidada la última factura correspondiente a los servicios efectivamente prestados."
             )
@@ -726,13 +726,13 @@ class AgentManager:
         if any(w in msg_lower for w in ["derecho de peticion", "derecho de petición", "peticion", "petición", "pqr", "reclamo", "queja", "tutela", "radicar", "como poner", "interponer", "radicacion", "radicación"]):
             text = (
                 f"{agent_badge}\n"
-                f"### ⚖️ Procedimiento Oficial para Radicar un Derecho de Petición o PQR en ETB\n\n"
-                f"Como Dirección Jurídica y Normativa de ETB, te indico el procedimiento legal y canales oficiales para radicar tu Derecho de Petición o PQR conforme a la **Ley 1755 de 2015** y la **Resolución CRC 5111 de 2017**:\n\n"
+                f"### ⚖️ Procedimiento Oficial para Radicar un Derecho de Petición o PQR en TelcoNet\n\n"
+                f"Como Dirección Jurídica y Normativa de TelcoNet, te indico el procedimiento legal y canales oficiales para radicar tu Derecho de Petición o PQR conforme a la **Ley 1755 de 2015** y la **Resolución CRC 5111 de 2017**:\n\n"
                 f"1. **Canales Oficiales Habilitados:**\n"
-                f"   - 🌐 **Portal Web Oficial (Inmediato):** Ingresa a [etb.com/pqr](https://etb.com) o a través del Portal Mi ETB en la sección *'Peticiones, Quejas y Reclamos'*. El sistema te genera un número CUN (Código Único Numérico) al instante para seguimiento.\n"
-                f"   - 📞 **Línea Telefónica Gratuita:** Comunícate al **178** (desde línea fija ETB), al **(601) 377-7777** en Bogotá, o a la línea nacional **01 8000 111 112**.\n"
-                f"   - 🏢 **Puntos Presenciales / Centros de Experiencia:** Radicación física directa en cualquiera de los Centros de Atención ETB en Bogotá y Cundinamarca.\n"
-                f"   - ✉️ **Ventanilla Única de Correspondencia:** Envío de comunicación escrita dirigida a la Secretaría General de ETB.\n\n"
+                f"   - 🌐 **Portal Web Oficial (Inmediato):** Ingresa a [telconet.com/pqr](https://telconet.com) o a través del Portal Mi TelcoNet en la sección *'Peticiones, Quejas y Reclamos'*. El sistema te genera un número CUN (Código Único Numérico) al instante para seguimiento.\n"
+                f"   - 📞 **Línea Telefónica Gratuita:** Comunícate al **178** (desde línea fija TelcoNet), al **(601) 377-7777** en Bogotá, o a la línea nacional **01 8000 111 112**.\n"
+                f"   - 🏢 **Puntos Presenciales / Centros de Experiencia:** Radicación física directa en cualquiera de los Centros de Atención TelcoNet en Bogotá y Cundinamarca.\n"
+                f"   - ✉️ **Ventanilla Única de Correspondencia:** Envío de comunicación escrita dirigida a la Secretaría General de TelcoNet.\n\n"
                 f"2. **Requisitos de la Solicitud:**\n"
                 f"   - Nombres, apellidos y número de documento (Cédula de Ciudadanía, Extranjería o NIT de la empresa).\n"
                 f"   - Número de cuenta, contrato o línea de servicio asociada.\n"
@@ -740,11 +740,11 @@ class AgentManager:
                 f"   - Dirección física o correo electrónico donde autorizas recibir la notificación.\n\n"
                 f"3. **Términos Legales y Garantías:**\n"
                 f"   - **Plazo de Respuesta:** Máximo **15 días hábiles** contados a partir del día siguiente a la radicación.\n"
-                f"   - **Silencio Administrativo Positivo (SAP):** Si ETB no responde en los 15 días hábiles, la petición se entenderá resuelta a tu favor por mandato de ley.\n"
+                f"   - **Silencio Administrativo Positivo (SAP):** Si TelcoNet no responde en los 15 días hábiles, la petición se entenderá resuelta a tu favor por mandato de ley.\n"
                 f"   - **Recursos de Ley:** Si la respuesta no satisface tus pretensiones, dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio de Apelación ante la Superintendencia de Industria y Comercio (SIC)**.\n\n"
                 f"¿Deseas que te oriente en la redacción de tus pretensiones o tienes alguna duda adicional sobre los canales?"
             )
-            voice = "Para radicar un derecho de petición en ETB puedes ingresar a etb.com/pqr, llamar al 178 o radicarlo en nuestros centros de atención. Debes incluir tu cédula, número de contrato y hechos claros. El término legal de respuesta es de máximo 15 días hábiles conforme a la ley."
+            voice = "Para radicar un derecho de petición en TelcoNet puedes ingresar a telconet.com/pqr, llamar al 178 o radicarlo en nuestros centros de atención. Debes incluir tu cédula, número de contrato y hechos claros. El término legal de respuesta es de máximo 15 días hábiles conforme a la ley."
             return text, voice
 
         # 4. Habeas Data y Protección de Datos Personales (Ley 1581)
@@ -753,11 +753,11 @@ class AgentManager:
                 f"{agent_badge}\n"
                 f"### ⚖️ Habeas Data y Tratamiento de Datos Personales (Ley 1581 de 2012)\n\n"
                 f"¡Hola! Como Secretaría General, te informamos sobre el tratamiento seguro y custodia de tu información:\n\n"
-                f"1. **Soberanía y Custodia Nacional:** ETB almacena y procesa todas las bases de datos en sus Centros de Datos Tier III propios en Bogotá (Alma y Prado), sin transferencias no autorizadas a jurisdicciones extranjeras.\n"
+                f"1. **Soberanía y Custodia Nacional:** TelcoNet almacena y procesa todas las bases de datos en sus Centros de Datos Tier III propios en Bogotá (Alma y Prado), sin transferencias no autorizadas a jurisdicciones extranjeras.\n"
                 f"2. **Derechos del Titular:** En cualquier momento puedes ejercer tus derechos de **Conocer, Actualizar, Rectificar y Solicitar la Supresión** de tus datos personales, así como revocar la autorización de contacto comercial.\n"
-                f"3. **Canal de Radicación:** Envía tu solicitud a través del correo del Oficial de Protección de Datos o mediante radicado PQR en `etb.com/protecciondedatos` con tiempo de respuesta de 10 a 15 días hábiles."
+                f"3. **Canal de Radicación:** Envía tu solicitud a través del correo del Oficial de Protección de Datos o mediante radicado PQR en `telconet.com/protecciondedatos` con tiempo de respuesta de 10 a 15 días hábiles."
             )
-            voice = "ETB custodia los datos personales en centros de datos propios bajo la Ley 1581 de 2012 garantizando derechos de rectificación y supresión."
+            voice = "TelcoNet custodia los datos personales en centros de datos propios bajo la Ley 1581 de 2012 garantizando derechos de rectificación y supresión."
             return text, voice
 
         # 5. Contratación Pública y SECOP II
@@ -765,25 +765,25 @@ class AgentManager:
             text = (
                 f"{agent_badge}\n"
                 f"### ⚖️ Capacidad Jurídica y Contratación Pública en SECOP II\n\n"
-                f"¡Hola! ETB es una empresa oficial con capacidad jurídica plena para celebrar contratos con entidades estatales:\n\n"
+                f"¡Hola! TelcoNet es una empresa oficial con capacidad jurídica plena para celebrar contratos con entidades estatales:\n\n"
                 f"- **Registro Único de Proponentes (RUP):** RUP activo y certificado con los más altos índices de capacidad financiera y organizacional.\n"
                 f"- **Plataforma SECOP II:** Proveedor habilitado en el catálogo de acuerdos marco de precios de Colombia Compra Eficiente para conectividad, nube y data centers.\n"
                 f"- **Estructuración Contractual:** Capacidad de formalización directa o mediante Consorcios y Uniones Temporales bajo Ley 80 de 1993 y Ley 1150 de 2007."
             )
-            voice = "ETB está plenamente habilitada en SECOP 2 y acuerdos marco de Colombia Compra Eficiente para contratación con el Estado."
+            voice = "TelcoNet está plenamente habilitada en SECOP 2 y acuerdos marco de Colombia Compra Eficiente para contratación con el Estado."
             return text, voice
 
         # 6. Respuesta general legal
         text = (
             f"{agent_badge}\n"
-            f"### ⚖️ Asesoría Jurídica y Gobernanza Corporativa ETB\n\n"
-            f"¡Hola! Te asisto desde la Dirección Jurídica y Normativa de ETB. Garantizamos el estricto cumplimiento de la regulación colombiana:\n\n"
+            f"### ⚖️ Asesoría Jurídica y Gobernanza Corporativa TelcoNet\n\n"
+            f"¡Hola! Te asisto desde la Dirección Jurídica y Normativa de TelcoNet. Garantizamos el estricto cumplimiento de la regulación colombiana:\n\n"
             f"- 📜 **Régimen de Usuarios CRC (Res. 5111/5050):** Transparencia contractual sin cláusulas abusivas.\n"
             f"- 🔒 **Ley 1581 de 2012 (Habeas Data):** Máxima seguridad y custodia de datos corporativos.\n"
             f"- 🏛️ **Contratación Pública:** SECOP II y Acuerdos Marco Colombia Compra Eficiente.\n\n"
             f"¿Qué consulta normativa o contractual deseas que revisemos?"
         )
-        voice = "Asesoría Legal ETB en cumplimiento de las resoluciones CRC, Ley 1581 y contratación pública. ¿En qué tema jurídico te orientamos?"
+        voice = "Asesoría Legal TelcoNet en cumplimiento de las resoluciones CRC, Ley 1581 y contratación pública. ¿En qué tema jurídico te orientamos?"
         return text, voice
 
     def _handle_commercial_query(self, message: str, msg_lower: str, agent_badge: str) -> tuple[str, str]:
@@ -791,7 +791,7 @@ class AgentManager:
         if any(w in msg_lower for w in ["costo", "precio", "cuanto vale", "cuanto cuesta", "tarifa", "instalacion", "valor", "planes"]):
             text = (
                 f"{agent_badge}\n"
-                f"### 💼 Portafolio y Tarifas Comerciales de Fibra Óptica ETB\n\n"
+                f"### 💼 Portafolio y Tarifas Comerciales de Fibra Óptica TelcoNet\n\n"
                 f"¡Hola! Con gusto te detallo los costos y planes disponibles para tu empresa u oficina:\n\n"
                 f"**1. Costos de Instalación y Acometida:**\n"
                 f"- **Con Permanencia (12 o 24 meses):** **$0 COP (Instalación Gratuita)**. Incluye acometida de fibra hasta tu predio, equipo módem/ONT y router Wi-Fi 6 de alta potencia.\n"
@@ -813,23 +813,23 @@ class AgentManager:
         if any(w in msg_lower for w in ["claro", "tigo", "movistar", "competencia", "comparar", "vs", "diferencia"]):
             text = (
                 f"{agent_badge}\n"
-                f"### 🛡️ Cuadro Comparativo: Ventajas de ETB frente a la Competencia\n\n"
-                f"¡Hola! Te comparto las razones por las cuales las empresas eligen la red de fibra pura de ETB:\n\n"
-                f"| Criterio | ETB Fibra Óptica | Claro (América Móvil) | Tigo (Millicom) | Movistar (Telefónica) |\n"
+                f"### 🛡️ Cuadro Comparativo: Ventajas de TelcoNet frente a la Competencia\n\n"
+                f"¡Hola! Te comparto las razones por las cuales las empresas eligen la red de fibra pura de TelcoNet:\n\n"
+                f"| Criterio | TelcoNet Fibra Óptica | Claro (América Móvil) | Tigo (Millicom) | Movistar (Telefónica) |\n"
                 f"| :--- | :--- | :--- | :--- | :--- |\n"
                 f"| **Medio Físico** | **100% Fibra Pura Monomodo** | Coaxial HFC híbrido | Mixto HFC/Fibra | Fibra compartida |\n"
                 f"| **Simetría** | **1:1 Real (Misma subida y bajada)** | Asimétrico (10:1) | Asimétrico | Parcialmente simétrico |\n"
                 f"| **Ductería** | **4.000+ km propios en Bogotá** | Dependiente de postes | Sin ductería propia | Red compartida |\n"
                 f"| **Data Centers** | **Tier III Propios (Alma / Prado)** | Nube foránea | Nube pública | Nube pública |\n"
                 f"| **Facturación** | **100% Pesos (COP) Fija** | Ajustes variables | Tarifas variables | Tarifas variables |\n\n"
-                f"¿Deseas que analicemos el ahorro de costos migrando tu infraestructura actual a ETB?"
+                f"¿Deseas que analicemos el ahorro de costos migrando tu infraestructura actual a TelcoNet?"
             )
-            voice = "ETB se diferencia por ofrecer fibra 100% simétrica y pura, ductería subterránea propia y Centros de Datos Tier 3 en Colombia."
+            voice = "TelcoNet se diferencia por ofrecer fibra 100% simétrica y pura, ductería subterránea propia y Centros de Datos Tier 3 en Colombia."
             return text, voice
 
         text = (
             f"{agent_badge}\n"
-            f"### 💼 Soluciones Corporativas & B2B ETB\n\n"
+            f"### 💼 Soluciones Corporativas & B2B TelcoNet\n\n"
             f"¡Hola! Como tu asesor comercial corporativo, te ofrezco soluciones integrales de conectividad, cloud y ciberseguridad a la medida de tu organización:\n\n"
             f"- 🚀 **Fibra Simétrica 1:1 Pymes y Grandes Empresas**\n"
             f"- 🔒 **Internet Dedicado con IP Pública Fija y SLA 99.98%**\n"
@@ -837,7 +837,7 @@ class AgentManager:
             f"- 🌐 **SD-WAN Multi-Sede y Enlaces Punto a Punto**\n\n"
             f"¿Qué servicio o cotización deseas evaluar hoy?"
         )
-        voice = "Área Comercial ETB lista para asesorarte en conectividad simétrica, enlaces dedicados y servicios cloud."
+        voice = "Área Comercial TelcoNet lista para asesorarte en conectividad simétrica, enlaces dedicados y servicios cloud."
         return text, voice
 
     def _handle_tech_query(self, message: str, msg_lower: str, agent_badge: str) -> tuple[str, str]:
@@ -845,19 +845,19 @@ class AgentManager:
         text = (
             f"{agent_badge}\n"
             f"### 🏢 Data Centers Tier III, Nube Soberana y Ciberseguridad SOC\n\n"
-            f"¡Hola! Te atiendo desde la Dirección de Tecnología e Infraestructura Cloud de ETB:\n\n"
+            f"¡Hola! Te atiendo desde la Dirección de Tecnología e Infraestructura Cloud de TelcoNet:\n\n"
             f"1. **Data Center Alma (Suba):**\n"
             f"   - 2.500 m² de infraestructura de misión crítica certificada **Tier III Design & Facility** y certificación **ICREA Nivel V**.\n"
             f"   - Redundancia eléctrica 2N, climatización de precisión en pasillos fríos contenidos y PUE < 1.45.\n"
             f"2. **Data Center Prado (Puente Aranda):**\n"
             f"   - Sitio georedundante para planes de recuperación ante desastres (DRP), interconectado con DC Alma mediante anillos de fibra oscura redundantes a 100 Gbps.\n"
-            f"3. **ETB Cloud Soberana:**\n"
+            f"3. **TelcoNet Cloud Soberana:**\n"
             f"   - Máquinas virtuales e instancias de almacenamiento facturadas 100% en Pesos (COP) desde **$95.000 COP / mes**, sin costos ocultos de transferencia ni riesgo cambiario.\n"
             f"4. **SOC & Anti-DDoS Gestionado 24/7:**\n"
             f"   - Mitigación en tiempo real de ataques volumétricos hasta 100 Gbps en Capas 3, 4 y 7 con reglas WAF personalizadas.\n\n"
             f"¿Deseas cotizar co-location, servidores dedicados o esquemas de respaldo en la nube?"
         )
-        voice = "ETB opera Data Centers Tier 3 propios en Alma y Prado, con nube soberana facturada en pesos y protección Anti-DDoS hasta 100 Gigabits."
+        voice = "TelcoNet opera Data Centers Tier 3 propios en Alma y Prado, con nube soberana facturada en pesos y protección Anti-DDoS hasta 100 Gigabits."
         return text, voice
 
     def _handle_noc_query(self, message: str, msg_lower: str, agent_badge: str) -> tuple[str, str]:
@@ -865,13 +865,13 @@ class AgentManager:
         text = (
             f"{agent_badge}\n"
             f"### 🌐 Centro de Operaciones de Red (NOC) & Infraestructura DWDM 100G\n\n"
-            f"¡Hola! Te asiste el equipo del NOC de ETB. Supervisamos la columna vertebral de telecomunicaciones de la capital:\n\n"
+            f"¡Hola! Te asiste el equipo del NOC de TelcoNet. Supervisamos la columna vertebral de telecomunicaciones de la capital:\n\n"
             f"- **Anillos Troncales DWDM:** Red metropolitana mallada a 100 Gbps con conmutación automática de protección en menos de 50 milisegundos.\n"
             f"- **Latencias Ultrabajas:** Menor a **3.2 ms** hacia el NAP Colombia en Bogotá y menor a 12 ms hacia los principales nodos del país.\n"
             f"- **Telemetría y OTDR 24/7:** Monitoreo en tiempo real de la atenuación óptica en dBm y detección inmediata de micro-curvaturas en fibra.\n"
             f"- **Disponibilidad:** SLA global del **99.985%** con redundancia física por ductería subterránea propia."
         )
-        voice = "El NOC de ETB supervisa la red DWDM 100G con latencias menores a 3.2 milisegundos y conmutación automática de respaldo."
+        voice = "El NOC de TelcoNet supervisa la red DWDM 100G con latencias menores a 3.2 milisegundos y conmutación automática de respaldo."
         return text, voice
 
     def _handle_finance_query(self, message: str, msg_lower: str, agent_badge: str) -> tuple[str, str]:
@@ -879,7 +879,7 @@ class AgentManager:
         text = (
             f"{agent_badge}\n"
             f"### 💰 Planeación Financiera, Modelos TCO y Ahorro Corporativo\n\n"
-            f"¡Hola! Desde el área de Planeación Financiera y Costos de ETB, optimizamos tu presupuesto de TI:\n\n"
+            f"¡Hola! Desde el área de Planeación Financiera y Costos de TelcoNet, optimizamos tu presupuesto de TI:\n\n"
             f"1. **Cero Exposición al Dólar:** Todos los contratos de conectividad, cloud y telefonía se facturan en **Pesos Colombianos (COP)** fijos, protegiendo tu flujo de caja frente a la devaluación.\n"
             f"2. **Ahorro en TCO (Costo Total de Propiedad):** Reducción de entre **22% y 28%** en comparación con proveedores que tercerizan ductería o dependen de nubes extranjeras.\n"
             f"3. **Modelos OPEX Flexibles:** Sin inversión de capital inicial (CAPEX) en equipamiento ONT o routers Wi-Fi 6 de grado empresarial."
@@ -892,7 +892,7 @@ class AgentManager:
         text = (
             f"{agent_badge}\n"
             f"### 🚀 Oficina de Proyectos (PMO) y Tiempos de Despliegue de Fibra\n\n"
-            f"¡Hola! Te informo sobre los plazos y metodologías de entrega de infraestructura de ETB:\n\n"
+            f"¡Hola! Te informo sobre los plazos y metodologías de entrega de infraestructura de TelcoNet:\n\n"
             f"1. **Instalación Estándar de Fibra Óptica:** De **3 a 5 días hábiles** desde la aprobación de la orden de servicio.\n"
             f"2. **Proyectos Especiales y Enlaces Dedicados:** De **10 a 20 días hábiles**, incluyendo canalización subterránea, permisos del IDU y tendido de cable.\n"
             f"3. **Certificación de Calidad:** Cada hilo de fibra se entrega con informe reflectométrico **OTDR calibrado**, garantizando niveles de atenuación conformes a norma ITU-T G.652D."
@@ -904,7 +904,7 @@ class AgentManager:
         """Genera una respuesta de Experiencia de Cliente y Acompañamiento VIP."""
         text = (
             f"{agent_badge}\n"
-            f"### 🌟 Experiencia de Cliente & Acompañamiento VIP ETB\n\n"
+            f"### 🌟 Experiencia de Cliente & Acompañamiento VIP TelcoNet\n\n"
             f"¡Hola! Desde el área de Experiencia de Cliente, garantizamos un trato preferencial para tu empresa:\n\n"
             f"- **Gestor VIP Asignado:** Un ejecutivo comercial y un ingeniero de postventa dedicados exclusivamente a tu cuenta.\n"
             f"- **Métricas de Satisfacción:** Índice CSAT superior al **94%** y NPS corporativo de **68 puntos**.\n"
@@ -935,9 +935,9 @@ class AgentManager:
             text = (
                 f"{agent_badge}\n"
                 f"¡Hola! Atiendo tu consulta: *\"{message}\"*\n\n"
-                f"En ETB disponemos de la red de fibra óptica 100% pura y centros de datos certificados para apoyar la operación de tu negocio."
+                f"En TelcoNet disponemos de la red de fibra óptica 100% pura y centros de datos certificados para apoyar la operación de tu negocio."
             )
-            voice = "Solución corporativa procesada por NEXO ETB."
+            voice = "Solución corporativa procesada por NEXO TelcoNet."
             return text, voice
 
     def query_agent(self, target: str, message: str, sender: str = "user", history: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
@@ -975,7 +975,7 @@ class AgentManager:
         if intent == "satisfaction_close":
             text = (
                 f"{agent_badge}"
-                f"### 🤝 ¡Ha sido un placer asistirte en NEXO ETB!\n\n"
+                f"### 🤝 ¡Ha sido un placer asistirte en NEXO TelcoNet!\n\n"
                 f"Me alegra haberte podido ayudar a resolver tu solicitud y gestionar tu requerimiento con total agilidad y transparencia.\n\n"
                 f"- 🌟 **Atención Permanente:** Los 50 nodos y 8 departamentos de nuestra constelación están siempre activos para ti y tu empresa.\n"
                 f"- 📞 **Canales de Asistencia 24/7:** PBX **(601) 377-7777** | WhatsApp Oficial **+57 305 777 7777**.\n\n"
@@ -991,7 +991,7 @@ class AgentManager:
                 "emblem": agent["emblem"],
                 "is_transfer": False,
                 "response": text,
-                "voice_summary": "Ha sido un placer asistirte. Sesión finalizada con éxito en NEXO ETB. ¡Que tengas un excelente día!",
+                "voice_summary": "Ha sido un placer asistirte. Sesión finalizada con éxito en NEXO TelcoNet. ¡Que tengas un excelente día!",
                 "timestamp": datetime.now().isoformat(),
                 "source_meta": source_meta,
                 "suggested_action": None,
@@ -1000,7 +1000,7 @@ class AgentManager:
             }
 
         # ==========================================================
-        # 1. CASO MASTER (NEXO ETB CORE - FEDERACIÓN TOTAL)
+        # 1. CASO MASTER (NEXO TelcoNet CORE - FEDERACIÓN TOTAL)
         # ==========================================================
         if target_dept == "master":
             if intent == "commercial":
@@ -1094,19 +1094,19 @@ class AgentManager:
             else:
                 response_sections.append(
                     f"{agent_badge}"
-                    f"Bienvenido al Centro de Comando de **NEXO ETB**. Orquesto la red corporativa de 8 departamentos y 50 nodos de infraestructura en tiempo real.\n\n"
+                    f"Bienvenido al Centro de Comando de **NEXO TelcoNet**. Orquesto la red corporativa de 8 departamentos y 50 nodos de infraestructura en tiempo real.\n\n"
                     f"**¿En qué te puedo asesorar hoy?**\n"
                     f"- 💰 *\"¿Cuánto cuesta la instalación de fibra óptica y qué planes hay?\"*\n"
                     f"- 🛠️ *\"Tengo fallas en mi wifi, ¿qué debo hacer paso a paso?\"*\n"
                     f"- ⚖️ *\"¿Cuáles son mis derechos si cancelo antes de la permanencia mínima?\"*\n"
                     f"- 🏢 *\"¿Qué certificaciones tienen los Data Centers Alma y Prado?\"*\n"
-                    f"- 🛡️ *\"¿Cuáles son las ventajas de ETB frente a Claro, Tigo y Movistar?\"*"
+                    f"- 🛡️ *\"¿Cuáles son las ventajas de TelcoNet frente a Claro, Tigo y Movistar?\"*"
                 )
-                voice_summary = "Bienvenido a NEXO ETB. Pregúntame sobre precios de fibra, soporte técnico, centros de datos o temas legales y normativos."
+                voice_summary = "Bienvenido a NEXO TelcoNet. Pregúntame sobre precios de fibra, soporte técnico, centros de datos o temas legales y normativos."
 
             source_meta = {
-                "filename": "Corpus Federado Departamental ETB",
-                "excerpt": "Información consolidada y federada de los 8 departamentos estratégicos de ETB."
+                "filename": "Corpus Federado Departamental TelcoNet",
+                "excerpt": "Información consolidada y federada de los 8 departamentos estratégicos de TelcoNet."
             }
 
         # ==========================================================
@@ -1186,7 +1186,7 @@ class AgentManager:
             "transfer_intro": transfer_intro if "transfer_intro" in locals() else None,
             "welcome_message": welcome_message if "welcome_message" in locals() else None,
             "response": "\n\n".join(response_sections),
-            "voice_summary": voice_summary or "Solución corporativa procesada por NEXO ETB.",
+            "voice_summary": voice_summary or "Solución corporativa procesada por NEXO TelcoNet.",
             "timestamp": datetime.now().isoformat(),
             "source_meta": source_meta,
             "suggested_action": suggested_action,
@@ -1206,8 +1206,8 @@ class AgentManager:
 
     def get_hierarchy(self) -> Dict[str, Any]:
         """
-        Retorna la estructura jerárquica con 47 nodos corporativos de ETB organizada
-        estratégicamente en 8 dominios departamentales y el Núcleo Central NEXO ETB.
+        Retorna la estructura jerárquica con 47 nodos corporativos de TelcoNet organizada
+        estratégicamente en 8 dominios departamentales y el Núcleo Central NEXO TelcoNet.
         """
         nodes = []
         links = []
@@ -1215,10 +1215,10 @@ class AgentManager:
         # 1. NÚCLEO CENTRAL (Presidencia Ejecutiva & Dirección General)
         nodes.append({
             "id": "master",
-            "name": "NEXO ETB CORE",
+            "name": "NEXO TelcoNet CORE",
             "title": "Presidencia Ejecutiva & Dirección General de Soluciones",
             "department": "Presidencia Ejecutiva",
-            "role": "Núcleo Central de Federación y Estrategia Corporativa ETB",
+            "role": "Núcleo Central de Federación y Estrategia Corporativa TelcoNet",
             "color": "#22d3ee",
             "emblem": "👑",
             "type": "master",
@@ -1232,7 +1232,7 @@ class AgentManager:
             "files_count": len(self.knowledge_cache.get("master", {}).get("files", []))
         })
 
-        # 2. DOMINIOS Y CLUSTERS (8 Departamentos Estratégicos ETB)
+        # 2. DOMINIOS Y CLUSTERS (8 Departamentos Estratégicos TelcoNet)
         clusters_def = [
             {"id": "c_noc", "name": "Red Troncal & Fibra Óptica", "dept": "operaciones_noc", "x": -8.0, "y": 18.0, "z": -6.0, "color": "#10b981", "cat": "Consolidado"},
             {"id": "c_cib", "name": "Data Centers & Nube Híbrida", "dept": "tecnologia", "x": 24.0, "y": -3.0, "z": 6.0, "color": "#818cf8", "cat": "Consolidado"},
@@ -1271,7 +1271,7 @@ class AgentManager:
                 "pulse_speed": 1.2
             })
 
-        # 3. NODOS REALES DE INFRAESTRUCTURA, SERVICIOS Y PROYECTOS ETB (Total 47 Nodos)
+        # 3. NODOS REALES DE INFRAESTRUCTURA, SERVICIOS Y PROYECTOS TELCONET (Total 47 Nodos)
         projects_def = [
             # 1. Red Troncal & Fibra Óptica (NOC)
             {"id": "n_dwdm", "name": "Anillo DWDM Bogotá 100G", "parent": "c_noc", "cluster": "Red Troncal & Fibra Óptica", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-4.5, -3.0, 3.0]},
@@ -1285,7 +1285,7 @@ class AgentManager:
             {"id": "n_alma", "name": "Data Center Alma Tier III", "parent": "c_cib", "cluster": "Data Centers & Nube Híbrida", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-4.5, 3.5, 2.5]},
             {"id": "n_prado", "name": "Data Center Prado DRP", "parent": "c_cib", "cluster": "Data Centers & Nube Híbrida", "cat": "Consolidado", "color": "#2dd4bf", "offset": [4.5, 5.0, -2.0]},
             {"id": "n_soc_ddos", "name": "SOC & Anti-DDoS L3-L7 100G", "parent": "c_cib", "cluster": "Data Centers & Nube Híbrida", "cat": "Quick Win", "color": "#f472b6", "offset": [6.0, -3.5, 3.5]},
-            {"id": "n_etb_cloud", "name": "Nube Soberana ETB Cloud", "parent": "c_cib", "cluster": "Data Centers & Nube Híbrida", "cat": "Quick Win", "color": "#f472b6", "offset": [-5.0, -5.0, 3.0]},
+            {"id": "n_telconet_cloud", "name": "Nube Soberana TelcoNet Cloud", "parent": "c_cib", "cluster": "Data Centers & Nube Híbrida", "cat": "Quick Win", "color": "#f472b6", "offset": [-5.0, -5.0, 3.0]},
             {"id": "n_zero_trust", "name": "Arquitectura Zero-Trust", "parent": "c_cib", "cluster": "Data Centers & Nube Híbrida", "cat": "Diagnóstico", "color": "#fb7185", "offset": [6.5, 2.5, -3.5]},
             {"id": "n_draas_backup", "name": "DRaaS & Backup Soberano", "parent": "c_cib", "cluster": "Data Centers & Nube Híbrida", "cat": "Diagnóstico", "color": "#fb7185", "offset": [2.0, -7.0, -2.5]},
 
@@ -1379,7 +1379,7 @@ class AgentManager:
             ("n_alma", "n_prado", "#2dd4bf"),
             ("n_ftth_ded", "n_gpon_mesh", "#2dd4bf"),
             ("n_soc_ddos", "n_noc_l3", "#f472b6"),
-            ("n_sdwan", "n_etb_cloud", "#f472b6")
+            ("n_sdwan", "n_telconet_cloud", "#f472b6")
         ]
 
         for s, t, col in inter_mesh:
@@ -1397,7 +1397,7 @@ class AgentManager:
         consol_count = sum(1 for n in nodes if n.get("status_cat") == "Consolidado")
 
         return {
-            "constellation_name": "NEXO ETB",
+            "constellation_name": "NEXO TelcoNet",
             "version": "3.2.0-Enterprise",
             "total_nodes": len(nodes),
             "total_links": len(links),

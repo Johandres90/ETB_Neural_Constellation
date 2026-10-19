@@ -1,4 +1,4 @@
-# Base de Conocimiento - Experiencia de Cliente & VIP (ETB)
+# Base de Conocimiento - Experiencia de Cliente & VIP (TelcoNet)
 
 ## 1. Modelo de Acompañamiento VIP Corporativo
 - **Gestor de Cuenta Dedicado:** Cada cliente corporativo cuenta con un Ejecutivo de Cuenta y un Ingeniero de Postventa asignado con nombre, teléfono celular y correo directo para atención preferencial.

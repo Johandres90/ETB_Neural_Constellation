@@ -1,4 +1,4 @@
-# Base de Conocimiento - Data Centers & Nube Híbrida (ETB)
+# Base de Conocimiento - Data Centers & Nube Híbrida (TelcoNet)
 
 ## 1. Centros de Datos Propios en Colombia (Tier III & ICREA Nivel V)
 
@@ -12,8 +12,8 @@
 
 ---
 
-## 2. ETB Cloud & Facturación Soberana en Pesos (COP)
-- **Ventaja de Costo y Facturación:** A diferencia de nubes públicas internacionales (AWS, Microsoft Azure, Google Cloud) que cobran en dólares (USD) y trasladan el riesgo cambiario al cliente, **ETB Cloud factura 100% en Pesos Colombianos (COP)** a tarifa fija sin sorpresas por transferencia de datos de salida (*egress data*).
+## 2. TelcoNet Cloud & Facturación Soberana en Pesos (COP)
+- **Ventaja de Costo y Facturación:** A diferencia de nubes públicas internacionales (AWS, Microsoft Azure, Google Cloud) que cobran en dólares (USD) y trasladan el riesgo cambiario al cliente, **TelcoNet Cloud factura 100% en Pesos Colombianos (COP)** a tarifa fija sin sorpresas por transferencia de datos de salida (*egress data*).
 - **Servicios:** Máquinas virtuales (IaaS), almacenamiento en bloque y objeto S3 compatible, Backup administrado y Kubernetes gestionado.
 - **Tarifas Estimadas:** Instancias de cómputo corporativas desde **$95.000 COP / mes** y almacenamiento soberano desde **$85 COP / GB / mes**.
 
