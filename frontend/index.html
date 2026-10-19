@@ -4427,8 +4427,17 @@
       let leafletGeoJsonLayer = null;
       let currentGisData = null;
 
-      const darkTileUrl = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+      // Capas cartográficas 100% LIBRES y GRATUITAS (SIN necesidad de API Key ni marcas de agua)
+      // 1. Esri Dark Canvas (Elegante tema oscuro corporativo con nombres de calles)
+      const esriDarkBaseUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+      const esriDarkLabelsUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
+      // 2. Esri World Imagery (Fotografía Satelital de Alta Resolución)
       const satTileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+      // 3. OpenStreetMap Estándar
+      const osmTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+      let currentTileMode = "dark"; // "dark", "satellite", "streets"
+      let leafletLabelsLayer = null;
 
       // Función principal para abrir el mapa aparte
       window.openGISMapModal = function(data = null, locationName = "Ubicación Analizada") {
@@ -4481,10 +4490,9 @@
               attributionControl: false
             }).setView([centerLat, centerLon], 16);
 
-            leafletTileLayer = L.tileLayer(darkTileUrl, {
-              maxZoom: 19,
-              subdomains: 'abcd'
-            }).addTo(leafletMap);
+            // Capa oscura base libre de marcas de agua
+            leafletTileLayer = L.tileLayer(esriDarkBaseUrl, { maxZoom: 16 }).addTo(leafletMap);
+            leafletLabelsLayer = L.tileLayer(esriDarkLabelsUrl, { maxZoom: 16 }).addTo(leafletMap);
           } else if (leafletMap) {
             leafletMap.invalidateSize();
             leafletMap.setView([centerLat, centerLon], 16);
@@ -4505,16 +4513,31 @@
 
       window.toggleGisTilesLayer = function() {
         if (!leafletMap || !leafletTileLayer) return;
-        isSatelliteActive = !isSatelliteActive;
         const label = document.getElementById("gisTileLabel");
 
-        leafletMap.removeLayer(leafletTileLayer);
-        if (isSatelliteActive) {
+        // Remover capas previas
+        if (leafletTileLayer) leafletMap.removeLayer(leafletTileLayer);
+        if (leafletLabelsLayer) leafletMap.removeLayer(leafletLabelsLayer);
+
+        if (currentTileMode === "dark") {
+          // Cambiar a Satélite
+          currentTileMode = "satellite";
           leafletTileLayer = L.tileLayer(satTileUrl, { maxZoom: 19 }).addTo(leafletMap);
-          if (label) label.textContent = "Calles Dark";
+          if (label) label.textContent = "Calles OSM";
+          showToast("🛰️ Capa Satelital activada (Sin API Key)");
+        } else if (currentTileMode === "satellite") {
+          // Cambiar a OpenStreetMap Calles
+          currentTileMode = "streets";
+          leafletTileLayer = L.tileLayer(osmTileUrl, { maxZoom: 19 }).addTo(leafletMap);
+          if (label) label.textContent = "Modo Oscuro";
+          showToast("🗺️ Mapa Callejero OpenStreetMap activado");
         } else {
-          leafletTileLayer = L.tileLayer(darkTileUrl, { maxZoom: 19, subdomains: 'abcd' }).addTo(leafletMap);
+          // Volver a Modo Oscuro
+          currentTileMode = "dark";
+          leafletTileLayer = L.tileLayer(esriDarkBaseUrl, { maxZoom: 16 }).addTo(leafletMap);
+          leafletLabelsLayer = L.tileLayer(esriDarkLabelsUrl, { maxZoom: 16 }).addTo(leafletMap);
           if (label) label.textContent = "Satélite";
+          showToast("🌃 Modo Oscuro activado (Sin API Key)");
         }
       };
 
