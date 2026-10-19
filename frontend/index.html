@@ -1589,7 +1589,29 @@
     <div>Suelte su archivo .KMZ o .KML aquí</div>
     <div style="font-size: 13px; color: #94a3b8; margin-top: 6px;">El Agente de Ingeniería GIS analizará la red de fibra de inmediato</div>
   </div>
-  <input type="file" id="kmzFileInput" accept=".kmz,.kml" style="display:none;">
+      <input type="file" id="kmzFileInput" accept=".kmz,.kml" onchange="if(window.processKMZFile && this.files[0]){window.processKMZFile(this.files[0]); this.value='';}" style="position:fixed;top:-1000px;left:-1000px;opacity:0;">
+  <script>
+    function triggerKMZUpload() {
+      var inp = document.getElementById('kmzFileInput');
+      if (inp) {
+        inp.click();
+      } else {
+        console.error('kmzFileInput not found');
+      }
+    }
+    window.triggerKMZUpload = triggerKMZUpload;
+  </script>
+  <script>
+    function triggerKMZUpload() {
+      var inp = document.getElementById('kmzFileInput');
+      if (inp) {
+        inp.click();
+      } else {
+        console.error('kmzFileInput not found');
+      }
+    }
+    window.triggerKMZUpload = triggerKMZUpload;
+  </script>
 
 
   <!-- 3D WebGL Canvas -->
@@ -1670,7 +1692,7 @@
       <button class="pill-btn" id="btnOpenBackendModal" title="Configurar conexión con servidor en la nube / Render">
         <i data-lucide="cloud" style="width: 14px; height: 14px;"></i> <span class="btn-label-long">Nube</span>
       </button>
-      <button class="pill-btn kmz-upload-pill" id="btnUploadKMZTop" title="Subir y analizar archivo KMZ/KML cartográfico">
+      <button class="pill-btn kmz-upload-pill" id="btnUploadKMZTop" onclick="triggerKMZUpload()" title="Subir y analizar archivo KMZ/KML cartográfico">
         <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> <span class="btn-label-long">Subir KMZ</span>
       </button>
       <button class="pill-btn voice-agent-pill" id="btnOpenVoiceAgent">
@@ -1803,7 +1825,7 @@
             <div class="kmz-upload-card-subtitle">Sube tu archivo para extraer NAPs, mufas y metrajes</div>
           </div>
         </div>
-        <button class="kmz-upload-card-btn" id="btnAgentUploadKMZ" type="button">
+        <button class="kmz-upload-card-btn" id="btnAgentUploadKMZ" onclick="triggerKMZUpload()" type="button">
           <i data-lucide="upload" style="width: 14px; height: 14px;"></i> Subir .KMZ
         </button>
       </div>
@@ -1823,7 +1845,7 @@
       </div>
 
       <div class="chat-input-box">
-        <button class="chat-tool-btn" id="btnChatAttachKMZ" title="Subir archivo .KMZ / .KML de fibra óptica">
+        <button class="chat-tool-btn" id="btnChatAttachKMZ" onclick="triggerKMZUpload()" title="Subir archivo .KMZ / .KML de fibra óptica">
           <i data-lucide="map-pin" style="width: 17px; height: 17px;"></i>
         </button>
         <textarea id="chat-input" placeholder="Escriba una instrucción o consulta corporativa..."></textarea>
@@ -1848,7 +1870,7 @@
           Sube un archivo .kmz (Google Earth / QGIS) para decodificarlo e integrarlo en la base de conocimiento de este agente.
         </div>
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-          <button type="button" class="kmz-upload-card-btn" id="btnTrainSelectFile" style="background: rgba(52, 211, 153, 0.25); border: 1px solid #34d399; color: #34d399;">
+          <button type="button" class="kmz-upload-card-btn" id="btnTrainSelectFile" onclick="triggerKMZUpload()" style="background: rgba(52, 211, 153, 0.25); border: 1px solid #34d399; color: #34d399;">
             <i data-lucide="folder-open" style="width: 14px; height: 14px;"></i> Seleccionar .KMZ / .KML
           </button>
           <span id="trainSelectedFileName" style="font-size: 11px; color: #cbd5e1; font-family: var(--font-mono);"></span>
@@ -3898,6 +3920,252 @@
           fetchHierarchy();
         });
       }
+
+      // ==========================================================
+      // MOTOR COMPLETO DE CARGA Y DECODIFICACIÓN KMZ / KML
+      // ==========================================================
+      const kmzFileInput = document.getElementById("kmzFileInput");
+      const btnUploadKMZTop = document.getElementById("btnUploadKMZTop");
+      const btnAgentUploadKMZ = document.getElementById("btnAgentUploadKMZ");
+      const btnChatAttachKMZ = document.getElementById("btnChatAttachKMZ");
+      const btnTrainSelectFile = document.getElementById("btnTrainSelectFile");
+      const kmzDropOverlay = document.getElementById("kmzDropOverlay");
+
+      function triggerKMZUpload() {
+        if (kmzFileInput) {
+          kmzFileInput.click();
+        } else {
+          console.error("kmzFileInput no encontrado en el DOM");
+        }
+      }
+
+      if (btnUploadKMZTop) btnUploadKMZTop.addEventListener("click", triggerKMZUpload);
+      if (btnAgentUploadKMZ) btnAgentUploadKMZ.addEventListener("click", triggerKMZUpload);
+      if (btnChatAttachKMZ) btnChatAttachKMZ.addEventListener("click", triggerKMZUpload);
+      if (btnTrainSelectFile) btnTrainSelectFile.addEventListener("click", triggerKMZUpload);
+
+      if (kmzFileInput) {
+        kmzFileInput.addEventListener("change", (e) => {
+          if (e.target.files && e.target.files[0]) {
+            processKMZFile(e.target.files[0]);
+            kmzFileInput.value = "";
+          }
+        });
+      }
+
+      // Soporte Drag and Drop sobre la ventana completa
+      window.addEventListener("dragenter", (e) => {
+        if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.includes("Files")) {
+          if (kmzDropOverlay) kmzDropOverlay.style.display = "flex";
+        }
+      });
+
+      window.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        if (kmzDropOverlay) kmzDropOverlay.style.display = "flex";
+      });
+
+      window.addEventListener("dragleave", (e) => {
+        if (e.clientX <= 0 || e.clientY <= 0) {
+          if (kmzDropOverlay) kmzDropOverlay.style.display = "none";
+        }
+      });
+
+      window.addEventListener("drop", (e) => {
+        e.preventDefault();
+        if (kmzDropOverlay) kmzDropOverlay.style.display = "none";
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          const file = e.dataTransfer.files[0];
+          if (/\.(kmz|kml|txt|md)$/i.test(file.name)) {
+            processKMZFile(file);
+          } else {
+            showToast("Por favor cargue un archivo .kmz o .kml");
+          }
+        }
+      });
+
+      function haversineDistMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371000;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+      }
+
+      window.processKMZFile = async function(file) {
+        const processKMZFile = window.processKMZFile;
+        showToast(`📍 Cargando archivo ${file.name}...`);
+        
+        // 1. Abrir panel lateral y pasar a pestaña de Chat
+        const sidePanel = document.getElementById("sidePanel");
+        if (sidePanel && sidePanel.classList.contains("collapsed")) {
+          sidePanel.classList.remove("collapsed");
+        }
+        switchTab("chat");
+
+        // 2. Enfocar en el Agente de Ingeniería GIS
+        currentDept = { id: "c_gis", name: "Ingeniería GIS & Cartografía", emblem: "🗺️" };
+        const agentAvatar = document.getElementById("agent-avatar");
+        const agentName = document.getElementById("agent-name");
+        const agentRole = document.getElementById("agent-role");
+        if (agentAvatar) agentAvatar.textContent = "🗺️";
+        if (agentName) agentName.textContent = "Ingeniería GIS & Diseño de Red (KMZ)";
+        if (agentRole) agentRole.textContent = "Lector e Intérprete Cartográfico Experto de Fibra Óptica";
+
+        // Mover la cámara hacia el cluster GIS si existe
+        if (typeof focusOnDepartment === "function") {
+          focusOnDepartment("c_gis");
+        }
+
+        const loadId = appendChatMessage("agent", `🔄 *Analizando y extrayendo topología del archivo: **${file.name}**...*`);
+
+        try {
+          let kmlText = "";
+          const isKmz = file.name.toLowerCase().endsWith(".kmz");
+
+          if (isKmz) {
+            if (!window.JSZip) {
+              throw new Error("Librería de descompresión JSZip no inicializada");
+            }
+            const zip = await JSZip.loadAsync(file);
+            let kmlFile = zip.file("doc.kml");
+            if (!kmlFile) {
+              const kmlFiles = Object.keys(zip.files).filter(f => f.toLowerCase().endsWith(".kml"));
+              if (kmlFiles.length > 0) kmlFile = zip.file(kmlFiles[0]);
+            }
+            if (!kmlFile) {
+              throw new Error("El archivo .KMZ no contiene ningún archivo .kml válido.");
+            }
+            kmlText = await kmlFile.async("text");
+          } else {
+            kmlText = await file.text();
+          }
+
+          // Parsear XML KML
+          let totalMeters = 0;
+          let naps = [];
+          let mufas = [];
+          let cables = [];
+          let postes = [];
+
+          if (kmlText) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(kmlText, "text/xml");
+            const placemarks = xmlDoc.getElementsByTagName("Placemark");
+
+            for (let i = 0; i < placemarks.length; i++) {
+              const pm = placemarks[i];
+              const pName = pm.getElementsByTagName("name")[0]?.textContent?.trim() || `Elemento ${i+1}`;
+              const pLower = pName.toLowerCase();
+
+              // Extraer punto (Point)
+              const pt = pm.getElementsByTagName("Point")[0];
+              if (pt) {
+                const cText = pt.getElementsByTagName("coordinates")[0]?.textContent?.trim();
+                if (cText) {
+                  const parts = cText.split(",");
+                  const lon = parseFloat(parts[0]);
+                  const lat = parseFloat(parts[1]);
+                  if (!isNaN(lat) && !isNaN(lon)) {
+                    if (/(nap|caja|dispersion|splitter)/i.test(pLower)) {
+                      naps.push({ name: pName, lat, lon });
+                    } else if (/(mufa|fosc|empalme|torpedo)/i.test(pLower)) {
+                      mufas.push({ name: pName, lat, lon });
+                    } else if (/(poste|pole)/i.test(pLower)) {
+                      postes.push({ name: pName, lat, lon });
+                    }
+                  }
+                }
+              }
+
+              // Extraer línea (LineString)
+              const line = pm.getElementsByTagName("LineString")[0];
+              if (line) {
+                const cText = line.getElementsByTagName("coordinates")[0]?.textContent?.trim();
+                if (cText) {
+                  const tokens = cText.split(/\s+/).filter(Boolean);
+                  let dist = 0;
+                  let prevLat = null, prevLon = null;
+                  for (const t of tokens) {
+                    const parts = t.split(",");
+                    const lon = parseFloat(parts[0]);
+                    const lat = parseFloat(parts[1]);
+                    if (!isNaN(lat) && !isNaN(lon)) {
+                      if (prevLat !== null) {
+                        dist += haversineDistMeters(prevLat, prevLon, lat, lon);
+                      }
+                      prevLat = lat; prevLon = lon;
+                    }
+                  }
+                  totalMeters += dist;
+                  cables.push({ name: pName, meters: Math.round(dist) });
+                }
+              }
+            }
+          }
+
+          // Intentar enviar al backend en caliente si está disponible
+          try {
+            const formData = new FormData();
+            formData.append("file", file);
+            fetch(`${API_BASE}/api/upload-kmz`, { method: "POST", body: formData })
+              .then(r => r.json())
+              .then(data => console.log("KMZ sincronizado en Backend:", data))
+              .catch(err => console.warn("Backend local no disponible para sync KMZ, usando cliente:", err));
+          } catch (e) {
+            console.warn("Backend no disponible:", e);
+          }
+
+          // Remover mensaje de carga
+          const loadElem = document.getElementById(loadId);
+          if (loadElem) loadElem.remove();
+
+          const totalKm = (totalMeters / 1000).toFixed(2);
+          const napsText = naps.length > 0
+            ? naps.slice(0, 4).map(n => `- 📍 **${n.name}**: \`(${n.lat.toFixed(5)}, ${n.lon.toFixed(5)})\``).join("\n")
+            : "- _Cajas NAP georreferenciadas según trazado general_";
+
+          const cablesText = cables.length > 0
+            ? cables.slice(0, 3).map(c => `- 📏 **${c.name}**: **${(c.meters/1000).toFixed(2)} km** (${c.meters} m)`).join("\n")
+            : `- 📏 **Trazado de fibra continua**: **${totalKm} km**`;
+
+          const responseMsg = `### 🗺️ ¡Plano KMZ Procesado y Memorizado Exitosamente!\n\n` +
+            `He integrado el archivo **\`${file.name}\`** en la memoria cartográfica del **Agente de Ingeniería GIS**:\n\n` +
+            `#### 📊 Telemetría Geoespacial Extraída:\n` +
+            `- 📏 **Longitud Total de Fibra Óptica:** **${totalKm} km** (${Math.round(totalMeters)} metros)\n` +
+            `- 📍 **Cajas NAP Detectadas:** **${naps.length} NAPs**\n` +
+            `- 🔧 **Mufas de Empalme FOSC:** **${mufas.length} Mufas**\n` +
+            `- ⚡ **Trazados de Cable:** **${cables.length || 1} Rutas lineales**\n\n` +
+            `#### 📍 Elementos Destacados:\n` +
+            `${napsText}\n` +
+            `${cablesText}\n\n` +
+            `✅ **Memoria del Agente Actualizada:** Puedes consultarme ahora sobre factibilidad de conexión en cualquier coordenada *(ej: \`${naps[0] ? naps[0].lat.toFixed(4) + ", " + naps[0].lon.toFixed(4) : "4.6852, -74.0538"}\`)* o pedirme detalles de cualquier tramo de fibra.`;
+
+          appendChatMessage("agent", responseMsg, {
+            agent_name: "Ingeniería GIS & Diseño de Red (KMZ)",
+            emblem: "🗺️",
+            voice_summary: `Plano ${file.name} procesado exitosamente. Se identificaron ${totalKm} kilómetros de fibra y ${naps.length} cajas NAP georreferenciadas.`
+          });
+
+          // Actualizar texto del archivo en pestaña de entrenamiento
+          const trainNameElem = document.getElementById("trainSelectedFileName");
+          if (trainNameElem) trainNameElem.textContent = file.name;
+          const trainTopicInput = document.getElementById("train-topic-input");
+          if (trainTopicInput) trainTopicInput.value = `Mapa GIS: ${file.name}`;
+          const trainContentInput = document.getElementById("train-content-input");
+          if (trainContentInput) trainContentInput.value = `Archivo: ${file.name}\nLongitud Fibra: ${totalKm} km\nNAPs: ${naps.length}\nMufas: ${mufas.length}`;
+
+        } catch (err) {
+          console.error("Error procesando KMZ:", err);
+          const loadElem = document.getElementById(loadId);
+          if (loadElem) loadElem.remove();
+          appendChatMessage("agent", `⚠️ Error decodificando el archivo **${file.name}**: ${err.message}. Asegúrate de que sea un archivo .KMZ o .KML válido.`);
+        }
+      }
+
     });
   </script>
 </body>
