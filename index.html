@@ -1234,6 +1234,77 @@
       pointer-events: none;
     }
     
+
+    /* KMZ Dedicated Upload Banner & Field */
+    .kmz-upload-card {
+      margin: 8px 12px 6px 12px;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.4), rgba(15, 23, 42, 0.9));
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
+    }
+    .kmz-upload-card:hover {
+      border-color: #34d399;
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.25);
+    }
+    .kmz-upload-card-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+    .kmz-upload-icon-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(52, 211, 153, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .kmz-upload-card-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: 0.3px;
+    }
+    .kmz-upload-card-subtitle {
+      font-size: 10.5px;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .kmz-upload-card-btn {
+      padding: 7px 12px;
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+    }
+    .kmz-upload-card-btn:hover {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.6);
+    }
+
     /* Touch control optimization for mobile canvas */
     #webgl-container, #webgl-container canvas {
       touch-action: none !important;
@@ -1721,6 +1792,22 @@
 
     <!-- Tab Chat -->
     <div class="tab-content active" id="tab-chat">
+      <!-- Dedicated File Upload Banner for KMZ/KML -->
+      <div class="kmz-upload-card" id="kmzUploadCard">
+        <div class="kmz-upload-card-left">
+          <div class="kmz-upload-icon-circle">
+            <i data-lucide="map-pin" style="width: 18px; height: 18px; color: #34d399;"></i>
+          </div>
+          <div>
+            <div class="kmz-upload-card-title">Cargar Plano de Red (.KMZ / .KML)</div>
+            <div class="kmz-upload-card-subtitle">Sube tu archivo para extraer NAPs, mufas y metrajes</div>
+          </div>
+        </div>
+        <button class="kmz-upload-card-btn" id="btnAgentUploadKMZ" type="button">
+          <i data-lucide="upload" style="width: 14px; height: 14px;"></i> Subir .KMZ
+        </button>
+      </div>
+
       <div class="chat-messages" id="chat-messages">
         <div class="chat-msg agent">
           <p><strong>[👑 AHOM FIBER CORE]</strong></p>
@@ -1751,6 +1838,21 @@
       <div class="train-card">
         <label>Departamento / Iniciativa</label>
         <input type="text" id="train-dept-display" value="master" readonly>
+      </div>
+      <!-- Explicit File Upload Area for KMZ, KML and Documents -->
+      <div class="train-card" style="border: 1px dashed rgba(52, 211, 153, 0.45); background: rgba(6, 78, 59, 0.15); padding: 12px; border-radius: 8px;">
+        <label style="color: #34d399; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+          <i data-lucide="map-pin" style="width: 16px; height: 16px;"></i> Subir Archivo Cartográfico (.KMZ / .KML)
+        </label>
+        <div style="font-size: 11px; color: #94a3b8; margin: 4px 0 8px 0;">
+          Sube un archivo .kmz (Google Earth / QGIS) para decodificarlo e integrarlo en la base de conocimiento de este agente.
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="kmz-upload-card-btn" id="btnTrainSelectFile" style="background: rgba(52, 211, 153, 0.25); border: 1px solid #34d399; color: #34d399;">
+            <i data-lucide="folder-open" style="width: 14px; height: 14px;"></i> Seleccionar .KMZ / .KML
+          </button>
+          <span id="trainSelectedFileName" style="font-size: 11px; color: #cbd5e1; font-family: var(--font-mono);"></span>
+        </div>
       </div>
       <div class="train-card">
         <label>Tema o Asunto</label>
