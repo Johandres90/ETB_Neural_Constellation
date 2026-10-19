@@ -2508,6 +2508,7 @@
     }
 
     function focusCameraOn(tx, ty, tz, camDist = 26, onComplete = null) {
+    window.focusCameraOn = focusCameraOn;
       const startCam = camera.position.clone();
       const startTarget = controls.target.clone();
       const endTarget = new THREE.Vector3(tx, ty, tz);
@@ -3155,6 +3156,7 @@
     // 8. PANEL & CHAT API INTEGRATIONS
     // ==========================================================
     function togglePanel(forceState = null) {
+    window.togglePanel = togglePanel;
       const panel = document.getElementById("sidePanel");
       const icon = document.getElementById("toggleIcon");
 
@@ -4208,10 +4210,82 @@
         showToast("🗺️ Red KMZ proyectada en la Constelación 3D");
       };
 
-      window.focusKMZNetwork = function() {
-        if (typeof focusCameraOn === "function") {
-          focusCameraOn(-26.0, -6.0, -14.0, 20);
+            window.focusKMZNetwork = function() {
+        // A. Si aún no existe el grupo 3D o está vacío, proyectar datos
+        if (!kmz3DGroup || kmz3DGroup.children.length === 0) {
+          if (window.lastParsedKMZ && typeof window.plotKMZIn3DScene === "function") {
+            window.plotKMZIn3DScene(window.lastParsedKMZ);
+          } else if (typeof window.plotKMZIn3DScene === "function") {
+            // Trazado por defecto en caso de no tener archivo cargado
+            window.plotKMZIn3DScene({
+              naps: [
+                { name: "NAP-01 (16p)", lat: 4.6568, lon: -74.0600 },
+                { name: "NAP-02 (16p)", lat: 4.6574, lon: -74.0590 },
+                { name: "NAP-03 (16p)", lat: 4.6566, lon: -74.0577 },
+                { name: "NAP-04 (16p)", lat: 4.6554, lon: -74.0567 }
+              ],
+              mufas: [{ name: "Mufa FOSC Principal", lat: 4.6552, lon: -74.0610 }],
+              allPoints: [
+                { name: "Central OLT", lat: 4.6542, lon: -74.0625 },
+                { name: "Mufa FOSC", lat: 4.6552, lon: -74.0610 },
+                { name: "NAP-01", lat: 4.6568, lon: -74.0600 },
+                { name: "NAP-02", lat: 4.6574, lon: -74.0590 },
+                { name: "NAP-03", lat: 4.6566, lon: -74.0577 },
+                { name: "NAP-04", lat: 4.6554, lon: -74.0567 }
+              ]
+            });
+          }
         }
+
+        // B. Colapsar el panel lateral para despejar el 100% de la vista 3D
+        if (typeof togglePanel === "function") {
+          togglePanel(true);
+        } else if (window.togglePanel) {
+          window.togglePanel(true);
+        } else {
+          const panel = document.getElementById("sidePanel");
+          if (panel) panel.classList.add("collapsed");
+        }
+
+        // C. Centrar la cámara 3D directamente sobre el cluster GIS y el trazado KMZ
+        const tx = -26.0, ty = -6.0, tz = -14.0;
+        if (typeof focusCameraOn === "function") {
+          focusCameraOn(tx, ty, tz, 16);
+        } else if (window.focusCameraOn) {
+          window.focusCameraOn(tx, ty, tz, 16);
+        } else if (controls && camera) {
+          controls.target.set(tx, ty, tz);
+          camera.position.set(tx + 5, ty + 6, tz + 16);
+          controls.update();
+        }
+
+        // D. Efecto de pulso y destello en los nodos del trazado KMZ
+        if (kmz3DGroup) {
+          const origScale = kmz3DGroup.scale.clone();
+          kmz3DGroup.scale.set(1.4, 1.4, 1.4);
+          setTimeout(() => {
+            if (kmz3DGroup) kmz3DGroup.scale.copy(origScale);
+          }, 350);
+        }
+
+        // E. Mostrar banner flotante para regresar fácilmente al chat
+        let hud = document.getElementById("kmz3DHudBanner");
+        if (!hud) {
+          hud = document.createElement("div");
+          hud.id = "kmz3DHudBanner";
+          hud.style.cssText = "position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(6,78,59,0.92);border:1px solid #34d399;color:#fff;padding:8px 16px;border-radius:30px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:12px;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,0.65);backdrop-filter:blur(10px);transition:all 0.3s ease;";
+          document.body.appendChild(hud);
+        }
+        hud.innerHTML = `
+          <span style="display:flex;align-items:center;gap:6px;">🗺️ <strong>Trazado KMZ Activo en 3D</strong></span>
+          <button type="button" style="background:#10b981;border:none;color:#fff;font-weight:700;padding:5px 12px;border-radius:14px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;" onclick="(typeof togglePanel==='function'?togglePanel(false):window.togglePanel(false));document.getElementById('kmz3DHudBanner').style.display='none';">
+            💬 Volver al Chat
+          </button>
+          <button type="button" style="background:transparent;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;padding:0 4px;" onclick="document.getElementById('kmz3DHudBanner').style.display='none';" title="Cerrar aviso">✕</button>
+        `;
+        hud.style.display = "flex";
+
+        showToast("🎯 Trazado KMZ enfocado en la Constelación 3D");
       };
 
       // 2. Generador y Descargador de Archivos KMZ comprimidos (Google Earth / QGIS)
