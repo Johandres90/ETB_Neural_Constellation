@@ -219,12 +219,22 @@ class AgentManager:
                 "emblem": "🗺️"
             }
 
-        # 2. Marco Legal, Normativa CRC, Derecho de Petición, Tutelas, Ley 1755, Cláusula de Permanencia
+        # 2. Marco Legal, Normativa CRC, MinTIC, ANE, ISO 27001/27011, Norma 47001/42001/37001, SIG, RITEL, RETIE, UIT-T
         if any(w in msg_lower for w in [
             "derecho de peticion", "derecho de petición", "tutela", "sic", "superintendencia", "legal", "juridic", 
             "abogad", "clausula", "permanencia", "cancelar", "cancelacion", "dar de baja", "terminar contrato", 
             "derecho", "regulac", "crc", "5111", "5050", "ley 1581", "ley 1755", "habeas data", "datos personales", 
-            "secop", "licitacion", "pliego", "rup", "colombia compra", "regimen", "silencio administrativo"
+            "secop", "licitacion", "pliego", "rup", "colombia compra", "regimen", "silencio administrativo",
+            "iso 27001", "27001", "iso 27011", "27011", "iso 27701", "27701", "iso 22301", "22301", "sgsi", "anexo a",
+            "47001", "iso 47001", "isa 47001", "iso 42001", "42001", "iso 37001", "37001", "iso 37301", "37301",
+            "iso 9001", "9001", "iso 14001", "14001", "iso 45001", "45001", "sig", "sistema integrado", "hls", "phva",
+            "mintic", "ley 1341", "1341", "ley 1978", "1978", "ley 2108", "2108", "servicio esencial", "decreto 1078",
+            "dur-tic", "ley 1273", "delito informatico", "delitos informaticos", "conpes", "mspi", "colcert", "futic", "rutic",
+            "comparticion", "compartición", "posteria compartida", "ducteria compartida", "neutralidad", "3502",
+            "ane", "cnabf", "resolucion 773", "cem", "campos electromagneticos", "ritel", "retie", "resolucion 4272",
+            "4272", "alturas", "resolucion 0491", "0491", "espacios confinados", "confinados", "0312", "sg-sst",
+            "uit", "itu", "itu-t", "uit-t", "estandares internacionales", "estándares internacionales", "g.652", "g.655", "g.657", "g.984", "g.9807", "g.694", "x.805",
+            "tia-942", "tia 942", "uptime", "tier iii", "tier 3", "gdpr", "nist", "pci-dss"
         ]):
             return {
                 "intent": "legal",
@@ -715,20 +725,157 @@ class AgentManager:
         return text, voice
 
     def _handle_legal_query(self, message: str, msg_lower: str, agent_badge: str) -> tuple[str, str]:
-        """Genera una respuesta jurídica fundamentada y natural del área legal."""
+        """Genera dictámenes jurídicos y regulatorios estructurados como Director Jurídico de Telecomunicaciones, Auditor Líder ISO/UIT y Oficial de Cumplimiento (CCISO)."""
+
+        # -------------------------------------------------------------
+        # BLOQUE 1A: ISO/IEC 27001:2022 & ISO/IEC 27011 (SGSI Telco & DRP)
+        # -------------------------------------------------------------
+        if any(w in msg_lower for w in ["iso 27001", "27001", "iso 27011", "27011", "sgsi", "anexo a", "iso 27701", "27701", "iso 22301", "22301", "drp", "bcms"]):
+            text = (
+                f"{agent_badge}\n"
+                f"### 🛡️ Dictamen de Auditoría: SGSI ISO/IEC 27001:2022 & Directrices Sectoriales ISO/IEC 27011\n\n"
+                f"Desde la **Dirección Jurídica & Oficialía de Cumplimiento (CCISO)** de AHOM FIBER IA CORP, dictaminamos la conformidad de la infraestructura frente a los estándares internacionales de seguridad:\n\n"
+                f"#### 1. Implementación de los 93 Controles del Anexo A (ISO/IEC 27001:2022):\n"
+                f"- **Controles Organizacionales (37 Controles):** Políticas de seguridad, gestión integral de activos, control de acceso basado en roles (RBAC) y auditoría de seguridad a proveedores de hardware óptico y nube.\n"
+                f"- **Controles de Personas (8 Controles):** Acuerdos de estricta confidencialidad (NDA reforzado), verificación de antecedentes del personal de NOC/SOC y entrenamiento continuo contra ingeniería social.\n"
+                f"- **Controles Físicos (14 Controles):** 7 perímetros de seguridad biométrica en los Data Centers Alma y Prado; monitoreo CCTV perimetral 24/7/365 con analítica de intrusión; y blindaje en salas de distribución óptica (ODF) y acometidas de energía.\n"
+                f"- **Controles Tecnológicos (34 Controles):** Autenticación multifactor obligatoria (MFA FIDO2), cifrado de datos en reposo (AES-256) y en tránsito (TLS 1.3 / IPsec), prevención de fuga de información (DLP) y segmentación de red troncal.\n\n"
+                f"#### 2. Especificación Sectorial de Telecomunicaciones (ISO/IEC 27011 / ITU-T X.1051):\n"
+                f"- **Aislamiento de Planos:** Estricta separación criptográfica y lógica entre el Plano de Gestión (OOB), Plano de Control (señalización BGP/OSPF/MPLS) y Plano de Usuario de los abonados.\n"
+                f"- **Monitoreo Proactivo de Fibra:** Detección de atenuación súbita por curvatura o intento de intercepción física mediante reflectometría óptica C-OTDR permanente en enlaces troncales.\n\n"
+                f"#### 3. Privacidad y Continuidad del Negocio (ISO 27701 & ISO 22301:2019):\n"
+                f"- **PIMS (ISO 27701):** Protección de PII de usuarios y no reutilización de registros de tráfico (IP/DNS/timestamps) sin consentimiento expreso.\n"
+                f"- **BCMS (ISO 22301):** Conmutación óptica autónoma sobre anillos protegidos en **< 50 milisegundos** y replicación síncrona metro-mirror con **RPO = 0** y **RTO < 15 minutos**."
+            )
+            voice = "Dictamen de Auditoría ISO 27001 y 27011 emitido. AHOM FIBER IA CORP aplica los 93 controles del Anexo A, aislamiento de planos de control y conmutación automática de fibra en menos de 50 milisegundos."
+            return text, voice
+
+        # -------------------------------------------------------------
+        # BLOQUE 1B: NORMA 47001 / GOBERNANZA IA (ISO 42001), COMPLIANCE (37301) & ANTISOBORNO (37001)
+        # -------------------------------------------------------------
+        if any(w in msg_lower for w in ["47001", "iso 47001", "isa 47001", "iso 42001", "42001", "iso 37001", "37001", "iso 37301", "37301", "antisoborno", "gobernanza ia", "compliance"]):
+            text = (
+                f"{agent_badge}\n"
+                f"### ⚖️ Dictamen Técnico-Jurídico: Articulación de la 'Norma 47001' (ISO/IEC 42001, ISO 37301 e ISO 37001)\n\n"
+                f"Como Director Jurídico y Auditor Líder, aclaro y estructuro la aplicación de la denominación **'Norma 47001'** dentro del marco de gobernanza corporativa e inteligencia artificial de AHOM FIBER IA CORP:\n\n"
+                f"| Pilar de Gobernanza | Norma Internacional | Aplicación en la Red Neuronal y Contratación AHOM |\n"
+                f"| :--- | :--- | :--- |\n"
+                f"| **Gobernanza de IA** | **ISO/IEC 42001:2023** (AIMS) | Rige los agentes inteligentes y modelos de lenguaje de la constelación. Garantiza trazabilidad de decisiones, explicabilidad algorítmica, mitigación de sesgos en el enrutamiento de red y supervisión humana activa (Human-in-the-Loop). |\n"
+                f"| **Cumplimiento Legal** | **ISO 37301:2021** (Compliance) | Sistema integral de cumplimiento normativo que audita permanentemente las obligaciones regulatorias frente a la CRC, MinTIC, ANE, SIC y DIAN, con matriz de riesgo de no conformidad con efectividad probada del 100%. |\n"
+                f"| **Antisoborno & Ética** | **ISO 37001:2016** (Antisoborno) | Políticas de debida diligencia en contratación pública (SECOP II) y privada (B2B), con cero tolerancia a pagos de facilitación, dádivas o conflictos de interés en compras de infraestructura. |\n"
+                f"| **Seguridad Laboral** | **ISO 45001:2018** (SST) | Respaldo a la cuadrilla técnica y linieros en despliegues de planta externa aérea y subterránea. |\n\n"
+                f"#### Conclusión de Auditoría:\n"
+                f"Cualquier requerimiento corporativo o pliego de licitación que refiera a la **'Norma 47001'** queda plenamente cubierto y respaldado mediante la integración certificable de **ISO/IEC 42001** (Gestión de Inteligencia Artificial), **ISO 37301** (Compliance) e **ISO 37001** (Antisoborno)."
+            )
+            voice = "La articulación de la Norma 47001 integra el Sistema de Gestión de Inteligencia Artificial ISO 42001, Compliance ISO 37301 y Antisoborno ISO 37001 con plena validez contractual y regulatoria."
+            return text, voice
+
+        # -------------------------------------------------------------
+        # BLOQUE 1C: ESTRUCTURA DEL SIG (ISO 9001, ISO 14001, ISO 45001 & HLS/PHVA)
+        # -------------------------------------------------------------
+        if any(w in msg_lower for w in ["sig", "sistema integrado", "iso 9001", "9001", "iso 14001", "14001", "iso 45001", "45001", "raee", "iperc", "phva", "hls"]):
+            text = (
+                f"{agent_badge}\n"
+                f"### 📋 Dictamen de Integración: Sistema Integrado de Gestión (SIG — ISO 9001, 14001 y 45001)\n\n"
+                f"AHOM FIBER IA CORP articula su Sistema Integrado de Gestión bajo la **Estructura de Alto Nivel (HLS)** y el ciclo de mejora continua **PHVA (Planear, Hacer, Verificar, Actuar)**:\n\n"
+                f"#### 1. ISO 9001:2015 — Calidad Operativa y Aseguramiento de SLA:\n"
+                f"- Aseguramiento de acuerdos de nivel de servicio (SLA) con disponibilidad contractual garantizada del **99.985%** en enlaces dedicados.\n"
+                f"- Control de indicadores clave: Latencia < 3.5 ms metropolitana, Jitter < 1 ms y Pérdida de Paquetes < 0.01% monitoreados 24/7 por el NOC.\n\n"
+                f"#### 2. ISO 14001:2015 — Gestión Ambiental & Sostenibilidad:\n"
+                f"- **Manejo de RAEE:** Certificación de disposición final y reciclaje de baterías de plomo-ácido (VRLA/Gel), tarjetas electrónicas y retazos de fibra según Decreto 284 de 2018.\n"
+                f"- **Eficiencia Energética:** Razón de uso de potencia **PUE <= 1.30** en los Data Centers Alma y Prado, mediante confinamiento de pasillo frío y energía 100% renovable certificada.\n\n"
+                f"#### 3. ISO 45001:2018 — Seguridad y Salud en el Trabajo en Planta Externa:\n"
+                f"- **Matriz IPERC:** Evaluación rigurosa de peligros y controles de ingeniería en toda la red.\n"
+                f"- **Trabajo en Alturas (Resolución 4272 de 2021):** Procedimientos certificados, uso obligatorio de arnés integral dieléctrico, líneas de vida y permisos diarios de trabajo en postes y torres.\n"
+                f"- **Espacios Confinados (Resolución 0491 de 2020):** Medición de atmósfera obligatoria con detector de 4 gases (O2, CO, H2S, LEL), ventilación mecánica forzada forzosa y vigía en superficie para ingreso a cámaras subterráneas.\n"
+                f"- **Riesgo por Radiación Láser:** Protección ocular con gafas de densidad óptica (OD 5+) contra fuentes de haz invisible Clase 1M y Clase 3B en transpondedores DWDM."
+            )
+            voice = "El Sistema Integrado de Gestión de AHOM FIBER IA CORP articula ISO 9001 en calidad de SLA, ISO 14001 en gestión ambiental y RAEE, e ISO 45001 en seguridad de trabajo en alturas y espacios confinados."
+            return text, voice
+
+        # -------------------------------------------------------------
+        # BLOQUE 2: NORMATIVA MINTIC Y LEYES NACIONALES (LEYES 1341, 1978, 2108, 1581, 1273, CONPES, MSPI)
+        # -------------------------------------------------------------
+        if any(w in msg_lower for w in ["mintic", "ley 1341", "1341", "ley 1978", "1978", "ley 2108", "2108", "servicio esencial", "decreto 1078", "dur-tic", "ley 1273", "delito informatico", "delitos informaticos", "conpes", "mspi", "colcert", "futic", "rutic"]):
+            text = (
+                f"{agent_badge}\n"
+                f"### 🇨🇴 Dictamen Jurídico: Marco Legal Colombiano MinTIC, Leyes TIC y Seguridad Digital\n\n"
+                f"Como Dirección Jurídica de AHOM FIBER IA CORP, exponemos el estricto cumplimiento del marco legal rector de telecomunicaciones en Colombia:\n\n"
+                f"#### 1. Leyes Marco del Sector TIC:\n"
+                f"- **Ley 1341 de 2009:** Operamos bajo el régimen de **Habilitación General** para la provisión de redes y servicios de telecomunicaciones, con inscripción y actualización vigente en el **Registro Único de TIC (RUTIC)** y pago periódico de contraprestaciones al **FUTIC**.\n"
+                f"- **Ley 1978 de 2019 (Modernización TIC):** Sujeción al regulador convergente de la CRC, cumplimiento de compromisos de expansión de infraestructura y neutralidad en el acceso a recursos de red.\n"
+                f"- **Ley 2108 de 2021 (Internet como Servicio Público Esencial):** Garantía legal de continuidad ininterrumpida del servicio, prohibición expresa de suspensión unilateral en estados de excepción y protección de infraestructura como activo crítico del Estado.\n"
+                f"- **Decreto 1078 de 2015 (DUR-TIC):** Compilación normativa reglamentaria del sector TIC plenamente acatada en todas las ofertas comerciales y técnicas.\n\n"
+                f"#### 2. Ciberseguridad, Delitos Informáticos y Modelo MSPI:\n"
+                f"- **Código Penal (Ley 1273 de 2009):** Protocolos activos de defensa contra delitos tipificados en los Arts. 269A (acceso abusivo), 269B (obstaculización ilegítima de redes) y 269C (interceptación ilícita de datos).\n"
+                f"- **Documentos CONPES (3701, 3854 y 3995):** Alineación con las directrices de Ciberdefensa, Seguridad Digital y Confianza Ciudadana en articulación con **ColCERT** y el CSIRT sectorial.\n"
+                f"- **Modelo MSPI del MinTIC:** Certificación de cumplimiento del Modelo de Seguridad y Privacidad de la Información exigido para contratos con entidades públicas en SECOP II."
+            )
+            voice = "Conformidad legal total con el MinTIC. AHOM FIBER IA CORP opera bajo Habilitación General Ley 1341, Ley 1978, Internet esencial Ley 2108 y estándares del Modelo MSPI y CONPES 3995."
+            return text, voice
+
+        # -------------------------------------------------------------
+        # BLOQUE 3: REGULACIÓN TÉCNICA CRC 5050, ANE, RITEL, RETIE & INFRAESTRUCTURA
+        # -------------------------------------------------------------
+        if any(w in msg_lower for w in ["crc 5050", "5050", "comparticion de infraestructura", "compartición", "posteria compartida", "ducteria compartida", "neutralidad", "3502", "ane", "cnabf", "resolucion 773", "cem", "campos electromagneticos", "ritel", "retie", "resolucion 4272", "4272", "alturas", "resolucion 0491", "0491", "espacios confinados", "confinados", "0312", "sg-sst"]):
+            text = (
+                f"{agent_badge}\n"
+                f"### ⚙️ Dictamen Regulatorio: Normativa Técnica CRC, ANE, RITEL, RETIE y Seguridad Operativa\n\n"
+                f"Desde la Oficialía de Cumplimiento Técnico-Legal de AHOM FIBER IA CORP, detallamos los parámetros de conformidad vigentes:\n\n"
+                f"#### 1. Regulación de la CRC (Resolución CRC 5050 de 2016 compilada):\n"
+                f"- **Régimen de Calidad (Título V):** Cumplimiento continuo de los estándares de disponibilidad, latencia y pérdida de paquetes con entrega de reportes periódicos al Sistema de Información del Sector de Telecomunicaciones (SISTEL).\n"
+                f"- **Compartición de Infraestructura Pasiva:** Acuerdos regulatorios estandarizados para uso de ductería subterránea, cámaras de paso y postería compartida con operadores de telecomunicaciones y empresas de energía eléctrica (Enel/Codensa, EPM, Celsia) según resoluciones conjuntas CRC y CREG.\n"
+                f"- **Neutralidad de la Red (Res. CRC 3502 de 2011):** No bloqueo ni discriminación de tráfico de contenidos o aplicaciones lícitas de terceros.\n\n"
+                f"#### 2. Agencia Nacional del Espectro (ANE) & Campos Electromagnéticos:\n"
+                f"- **CNABF:** Respeto irrestricto de las bandas de frecuencias del Cuadro Nacional. Uso de Wi-Fi 6E/7 en banda no licenciada de 6 GHz (5.925 - 7.125 GHz) según parámetros de la ANE.\n"
+                f"- **Resolución ANE 773 de 2023:** Monitoreo y certificación de niveles de exposición a Campos Electromagnéticos (CEM) no ionizantes muy por debajo de los umbrales de seguridad ICNIRP.\n\n"
+                f"#### 3. Reglamentos Técnicos de Infraestructura y Planta Externa:\n"
+                f"- **RITEL:** Infraestructura lista para ingreso a inmuebles de propiedad horizontal con roseta óptica de fibra monomodo en cada unidad.\n"
+                f"- **RETIE:** Aprobación de instalaciones eléctricas, transformadores dedicados y puestas a tierra < 5 ohmios en Data Centers Alma y Prado.\n"
+                f"- **Res. 4272/2021 (Alturas) & Res. 0491/2020 (Confinados):** Procedimientos rigurosos de seguridad con monitoreo de gases y líneas de vida para operarios."
+            )
+            voice = "Conformidad total con la regulación técnica de la CRC, ANE, RITEL y RETIE. Disponemos de acuerdos de compartición de infraestructura pasiva y protocolos certificados de seguridad en alturas y cámaras subterráneas."
+            return text, voice
+
+        # -------------------------------------------------------------
+        # BLOQUE 4: ESTÁNDARES INTERNACIONALES (UIT-T, ANSI/TIA-942, IEEE, GDPR, NIST)
+        # -------------------------------------------------------------
+        if any(w in msg_lower for w in ["uit", "itu", "itu-t", "g.652", "g.655", "g.657", "g.984", "g.9807", "g.694", "x.805", "tia-942", "tia 942", "uptime", "tier iii", "tier 3", "ieee", "ietf", "gdpr", "nist", "pci-dss"]):
+            text = (
+                f"{agent_badge}\n"
+                f"### 🌐 Dictamen de Estándares Internacionales: UIT-T, ANSI/TIA-942 Tier III, IEEE y NIST\n\n"
+                f"Como Auditor Líder Internacional de Telecomunicaciones, certificamos la alineación de la infraestructura de AHOM FIBER IA CORP con los organismos rectores mundiales:\n\n"
+                f"#### 1. Recomendaciones de la Unión Internacional de Telecomunicaciones (UIT-T):\n"
+                f"- **Fibras Ópticas Monomodo:** Cumplimiento de **ITU-T G.652.D** en redes troncales metropolitanas, **ITU-T G.655** en enlaces DWDM de larga distancia, y **ITU-T G.657.A2** con radio de curvatura de 7.5 mm en acometidas de cliente final.\n"
+                f"- **Redes Ópticas Pasivas:** Despliegue sobre estándares **ITU-T G.984 (GPON)** a 2.5G/1.2G y **ITU-T G.9807.1 (XGS-PON)** a 10G simétrico para empresas.\n"
+                f"- **DWDM y Seguridad:** Grilla espectral **ITU-T G.694.1** en banda C con espaciado de 50 GHz / 100 GHz, y arquitectura de seguridad de 8 dimensiones según **ITU-T X.805**.\n\n"
+                f"#### 2. Data Centers & Cableado Estructurado (ANSI/TIA-942 e Uptime Institute):\n"
+                f"- **Certificación Tier III:** Concurrencia mantenible con disponibilidad contractual del **99.982%** (máximo 1.6 horas de indisponibilidad anual permitida). Cualquier componente de potencia o refrigeración se sustituye en caliente sin interrumpir la carga de TI.\n"
+                f"- **ANSI/TIA-568, TIA-758 (Planta Externa OSP) y TIA-606 (Administración de Infraestructura):** Codificación, registro cartográfico y etiquetado normalizado de enlaces.\n\n"
+                f"#### 3. Redes y Ciberseguridad Global (IEEE, IETF, GDPR & NIST):\n"
+                f"- **IEEE 802.3 & 802.1Q:** Conmutación Ethernet óptica a 10G, 40G, 100G y 400G con segmentación VLAN y QoS de clase empresarial.\n"
+                f"- **IETF RFCs:** Enrutamiento BGP-4 (RFC 4271 con RPKI), OSPFv3 (RFC 5340), MPLS (RFC 3031) y transporte seguro TLS 1.3 (RFC 8446).\n"
+                f"- **Privacidad y Ciberseguridad:** Cumplimiento de **GDPR** para multinacionales con transferencia de datos transfronteriza, marco **NIST CSF 2.0** y certificación **PCI-DSS v4.0** para procesamiento de pagos."
+            )
+            voice = "Infraestructura certificada bajo estándares internacionales ITU-T G.652, G.657 y XGS-PON, Centros de Datos Tier 3 según ANSI/TIA-942 y marcos de seguridad global NIST y GDPR."
+            return text, voice
+
+        # -------------------------------------------------------------
+        # CASOS BASE: Permanencia, Cancelación, PQR, Habeas Data, SECOP II
+        # -------------------------------------------------------------
         # 1. Permanencia mínima, penalizaciones, multas
         if any(w in msg_lower for w in ["permanencia", "penaliz", "multa", "clausula", "12 meses", "24 meses", "tiempo minimo", "obligacion"]):
             text = (
                 f"{agent_badge}\n"
                 f"### ⚖️ Dictamen Jurídico: Régimen de Permanencia Mínima (Resolución CRC 5111 de 2017)\n\n"
-                f"¡Hola! Desde la Secretaría General y Asesoría Jurídica de AHOM FIBER IA CORP, te explico con total transparencia las condiciones legales aplicables en Colombia:\n\n"
+                f"Desde la Dirección Jurídica y Regulatoria de AHOM FIBER IA CORP, te explicamos con total transparencia las condiciones legales aplicables en Colombia:\n\n"
                 f"1. **Validez Legal de la Permanencia Mínima:**\n"
                 f"   - Conforme a la **Resolución CRC 5111 de 2017**, las cláusulas de permanencia mínima solo son válidas si fueron pactadas expresamente al inicio del contrato y el operador otorgó un **descuento sustancial o subsidio en los costos de instalación o equipos**.\n"
                 f"   - El contrato debe incluir una carátula o anexo donde se detalle el valor total de la instalación y el descuento otorgado.\n\n"
                 f"2. **Liquidación por Cancelación Anticipada:**\n"
                 f"   - **PROHIBICIÓN LEGAL:** La ley colombiana **prohíbe expresamente** cobrar las mensualidades futuras del servicio que no hayan sido consumidas.\n"
                 f"   - Si cancelas antes de vencer el plazo (12 o 24 meses), el operador únicamente puede cobrar el **saldo prorrateado del descuento de instalación o equipos**, en estricta proporción a los meses restantes.\n"
-                f"   - *Fórmula:* `Cobro = (Valor del descuento / Plazo total en meses) × Meses faltantes`.\n\n"
+                f"   - *Fórmula Legal:* `Cobro = (Valor del descuento / Plazo total en meses) × Meses faltantes`.\n\n"
                 f"3. **Vencimiento de la Permanencia:**\n"
                 f"   - Una vez finalizado el periodo inicial pactado, el contrato pasa a ser indefinido **sin que pueda renovarse automáticamente ninguna cláusula de permanencia**."
             )
@@ -740,10 +887,10 @@ class AgentManager:
             text = (
                 f"{agent_badge}\n"
                 f"### ⚖️ Procedimiento Legal para Cancelación de Servicios de Telecomunicaciones\n\n"
-                f"¡Hola! Te indico el procedimiento legal y tus derechos garantizados por la regulación colombiana:\n\n"
+                f"Te indicamos el procedimiento legal y tus derechos garantizados por la regulación colombiana de la CRC:\n\n"
                 f"1. **Plazo de Solicitud:** Puedes solicitar la terminación del contrato en cualquier momento, con al menos **3 días hábiles de anticipación** a la fecha de corte de tu periodo de facturación.\n"
-                f"2. **Canales Habilitados:** Tienes derecho a presentar tu solicitud por **cualquier canal oficial de atención** (línea telefónica, portal web Portal AHOM, PQR escrita o puntos presenciales), sin que te sean exigidos requisitos o documentos no contemplados por la ley.\n"
-                f"3. **Devolución de Equipos:** Al terminar el contrato, se debe permitir la entrega de los equipos entregados en comodato (ONT/Router) sin cobros adicionales.\n"
+                f"2. **Canales Habilitados:** Tienes derecho a presentar tu solicitud por **cualquier canal oficial de atención** (línea telefónica 178, portal web ahomfiber.com, PQR escrita o puntos presenciales), sin requisitos ni trabas improcedentes.\n"
+                f"3. **Devolución de Equipos:** Al terminar el contrato, se coordina la recogida o entrega de los equipos en comodato (ONT/Router) sin costos adicionales.\n"
                 f"4. **Expedición de Paz y Salvo:** El operador debe emitir el estado de cuenta y paz y salvo una vez liquidada la última factura correspondiente a los servicios efectivamente prestados."
             )
             voice = "Puedes solicitar la cancelación con al menos 3 días hábiles de anticipación a tu fecha de corte por cualquier canal oficial sin trabas adicionales."
@@ -754,24 +901,17 @@ class AgentManager:
             text = (
                 f"{agent_badge}\n"
                 f"### ⚖️ Procedimiento Oficial para Radicar un Derecho de Petición o PQR en AHOM FIBER IA CORP\n\n"
-                f"Como Dirección Jurídica y Normativa de AHOM FIBER IA CORP, te indico el procedimiento legal y canales oficiales para radicar tu Derecho de Petición o PQR conforme a la **Ley 1755 de 2015** y la **Resolución CRC 5111 de 2017**:\n\n"
+                f"Como Dirección Jurídica y Normativa de AHOM FIBER IA CORP, te indicamos el procedimiento conforme a la **Ley 1755 de 2015** y la **Resolución CRC 5111 de 2017**:\n\n"
                 f"1. **Canales Oficiales Habilitados:**\n"
-                f"   - 🌐 **Portal Web Oficial (Inmediato):** Ingresa a [ahomfiber.com/pqr](https://ahomfiber.com) o a través del Portal Portal AHOM en la sección *'Peticiones, Quejas y Reclamos'*. El sistema te genera un número CUN (Código Único Numérico) al instante para seguimiento.\n"
-                f"   - 📞 **Línea Telefónica Gratuita:** Comunícate al **178** (desde línea fija AHOM FIBER), al **(601) 377-7777** en Bogotá, o a la línea nacional **01 8000 111 112**.\n"
-                f"   - 🏢 **Puntos Presenciales / Centros de Experiencia:** Radicación física directa en cualquiera de los Centros de Atención AHOM FIBER en Bogotá y Cundinamarca.\n"
-                f"   - ✉️ **Ventanilla Única de Correspondencia:** Envío de comunicación escrita dirigida a la Secretaría General de AHOM FIBER IA CORP.\n\n"
-                f"2. **Requisitos de la Solicitud:**\n"
-                f"   - Nombres, apellidos y número de documento (Cédula de Ciudadanía, Extranjería o NIT de la empresa).\n"
-                f"   - Número de cuenta, contrato o línea de servicio asociada.\n"
-                f"   - Hechos claros y pretensiones de tu solicitud (reclamación de facturación, inconformidad técnica o administrativa).\n"
-                f"   - Dirección física o correo electrónico donde autorizas recibir la notificación.\n\n"
-                f"3. **Términos Legales y Garantías:**\n"
+                f"   - 🌐 **Portal Web Oficial (Inmediato):** Ingresa a ahomfiber.com/pqr para radicación digital inmediata con asignación de Código Único Numérico (CUN).\n"
+                f"   - 📞 **Línea Telefónica:** Marca al **178** (desde línea fija AHOM FIBER), al **(601) 377-7777** o a la línea nacional **01 8000 111 112**.\n"
+                f"   - 🏢 **Puntos Presenciales:** Radicación física en Centros de Experiencia en Bogotá y Cundinamarca.\n\n"
+                f"2. **Términos Legales y Garantías:**\n"
                 f"   - **Plazo de Respuesta:** Máximo **15 días hábiles** contados a partir del día siguiente a la radicación.\n"
-                f"   - **Silencio Administrativo Positivo (SAP):** Si AHOM FIBER IA CORP no responde en los 15 días hábiles, la petición se entenderá resuelta a tu favor por mandato de ley.\n"
-                f"   - **Recursos de Ley:** Si la respuesta no satisface tus pretensiones, dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio de Apelación ante la Superintendencia de Industria y Comercio (SIC)**.\n\n"
-                f"¿Deseas que te oriente en la redacción de tus pretensiones o tienes alguna duda adicional sobre los canales?"
+                f"   - **Silencio Administrativo Positivo (SAP):** Si la empresa no emite respuesta de fondo en los 15 días hábiles, la petición se entenderá resuelta legalmente a tu favor por mandato de ley.\n"
+                f"   - **Recursos de Ley:** Si la respuesta no satisface tus pretensiones, dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio Apelación ante la Superintendencia de Industria y Comercio (SIC)**."
             )
-            voice = "Para radicar un derecho de petición en AHOM FIBER IA CORP puedes ingresar a ahomfiber.com/pqr, llamar al 178 o radicarlo en nuestros centros de atención. Debes incluir tu cédula, número de contrato y hechos claros. El término legal de respuesta es de máximo 15 días hábiles conforme a la ley."
+            voice = "Para radicar un derecho de petición ingresa a ahomfiber.com/pqr o llama al 178. El término legal de respuesta es de máximo 15 días hábiles con Silencio Administrativo Positivo garantizado."
             return text, voice
 
         # 4. Habeas Data y Protección de Datos Personales (Ley 1581)
@@ -779,12 +919,12 @@ class AgentManager:
             text = (
                 f"{agent_badge}\n"
                 f"### ⚖️ Habeas Data y Tratamiento de Datos Personales (Ley 1581 de 2012)\n\n"
-                f"¡Hola! Como Secretaría General, te informamos sobre el tratamiento seguro y custodia de tu información:\n\n"
-                f"1. **Soberanía y Custodia Nacional:** AHOM FIBER IA CORP almacena y procesa todas las bases de datos en sus Centros de Datos Tier III propios en Bogotá (Alma y Prado), sin transferencias no autorizadas a jurisdicciones extranjeras.\n"
-                f"2. **Derechos del Titular:** En cualquier momento puedes ejercer tus derechos de **Conocer, Actualizar, Rectificar y Solicitar la Supresión** de tus datos personales, así como revocar la autorización de contacto comercial.\n"
-                f"3. **Canal de Radicación:** Envía tu solicitud a través del correo del Oficial de Protección de Datos o mediante radicado PQR en `ahomfiber.com/protecciondedatos` con tiempo de respuesta de 10 a 15 días hábiles."
+                f"Como Oficial de Protección de Datos de AHOM FIBER IA CORP, garantizamos:\n\n"
+                f"1. **Soberanía y Custodia Nacional:** Almacenamiento seguro en Data Centers Tier III en Bogotá (Alma y Prado), sin transferencias no autorizadas al exterior.\n"
+                f"2. **Derechos del Titular:** Puedes solicitar en cualquier momento conocer, actualizar, rectificar y suprimir tus datos personales o revocar autorizaciones comerciales.\n"
+                f"3. **Registro Nacional de Bases de Datos:** Bases de datos debidamente inscritas y actualizadas ante la Superintendencia de Industria y Comercio (SIC)."
             )
-            voice = "AHOM FIBER IA CORP custodia los datos personales en centros de datos propios bajo la Ley 1581 de 2012 garantizando derechos de rectificación y supresión."
+            voice = "AHOM FIBER IA CORP custodia los datos personales en centros de datos propios bajo la Ley 1581 de 2012 garantizando derechos de rectificación y supresión ante la SIC."
             return text, voice
 
         # 5. Contratación Pública y SECOP II
@@ -792,25 +932,27 @@ class AgentManager:
             text = (
                 f"{agent_badge}\n"
                 f"### ⚖️ Capacidad Jurídica y Contratación Pública en SECOP II\n\n"
-                f"¡Hola! AHOM FIBER IA CORP es una empresa oficial con capacidad jurídica plena para celebrar contratos con entidades estatales:\n\n"
-                f"- **Registro Único de Proponentes (RUP):** RUP activo y certificado con los más altos índices de capacidad financiera y organizacional.\n"
-                f"- **Plataforma SECOP II:** Proveedor habilitado en el catálogo de acuerdos marco de precios de Colombia Compra Eficiente para conectividad, nube y data centers.\n"
-                f"- **Estructuración Contractual:** Capacidad de formalización directa o mediante Consorcios y Uniones Temporales bajo Ley 80 de 1993 y Ley 1150 de 2007."
+                f"AHOM FIBER IA CORP cuenta con plena habilitación jurídica para contratar con el Estado colombiano:\n\n"
+                f"- **Registro Único de Proponentes (RUP):** Activo y certificado con los más altos índices de capacidad financiera y organizacional.\n"
+                f"- **Plataforma SECOP II:** Proveedor habilitado en los Acuerdos Marco de Precios de Colombia Compra Eficiente para conectividad corporativa, nube pública/privada y centros de datos.\n"
+                f"- **Modalidades de Contratación:** Capacidad de suscripción directa, licitaciones públicas y consorcios/uniones temporales bajo Ley 80 de 1993 y Ley 1150 de 2007."
             )
             voice = "AHOM FIBER IA CORP está plenamente habilitada en SECOP 2 y acuerdos marco de Colombia Compra Eficiente para contratación con el Estado."
             return text, voice
 
-        # 6. Respuesta general legal
+        # 6. Respuesta General de Gobernanza Legal
         text = (
             f"{agent_badge}\n"
-            f"### ⚖️ Asesoría Jurídica y Gobernanza Corporativa AHOM FIBER IA CORP\n\n"
-            f"¡Hola! Te asisto desde la Dirección Jurídica y Normativa de AHOM FIBER IA CORP. Garantizamos el estricto cumplimiento de la regulación colombiana:\n\n"
-            f"- 📜 **Régimen de Usuarios CRC (Res. 5111/5050):** Transparencia contractual sin cláusulas abusivas.\n"
-            f"- 🔒 **Ley 1581 de 2012 (Habeas Data):** Máxima seguridad y custodia de datos corporativos.\n"
-            f"- 🏛️ **Contratación Pública:** SECOP II y Acuerdos Marco Colombia Compra Eficiente.\n\n"
-            f"¿Qué consulta normativa o contractual deseas que revisemos?"
+            f"### ⚖️ Dirección Jurídica, Auditoría Líder ISO/UIT & Oficial de Cumplimiento (CCISO)\n\n"
+            f"Te asiste el **Director Jurídico de Telecomunicaciones & Oficial de Cumplimiento** de AHOM FIBER IA CORP. Aseguramos la gobernanza integral bajo 5 ejes normativos:\n\n"
+            f"1. 🛡️ **Sistemas de Gestión:** ISO/IEC 27001:2022 (93 controles Anexo A), ISO 27011 (SGSI Telco), ISO 27701 e ISO 22301 (Continuidad de Negocio/DRP).\n"
+            f"2. ⚖️ **Norma \'47001\':** Articulación de ISO/IEC 42001:2023 (Gestión de IA), ISO 37301 (Compliance) e ISO 37001 (Antisoborno).\n"
+            f"3. 📋 **Sistema Integrado de Gestión (SIG):** ISO 9001 (SLA 99.985%), ISO 14001 (Ambiental y RAEE) e ISO 45001 (SST: alturas Res. 4272/2021 y confinados Res. 0491/2020).\n"
+            f"4. 🇨🇴 **Normativa MinTIC, CRC y ANE:** Leyes 1341/1978/2108, Res. CRC 5050/5111, RITEL, RETIE y Ley 1581 de Datos Personales.\n"
+            f"5. 🌐 **Estándares Internacionales:** UIT-T G.652/G.657/GPON/XGS-PON, ANSI/TIA-942 Tier III, IEEE 802.3, GDPR y NIST CSF 2.0.\n\n"
+            f"¿Sobre cuál de estos bloques normativos o directrices de auditoría requieres asesoría o concepto legal?"
         )
-        voice = "Asesoría Legal AHOM FIBER IA CORP en cumplimiento de las resoluciones CRC, Ley 1581 y contratación pública. ¿En qué tema jurídico te orientamos?"
+        voice = "Dirección Jurídica y Oficialía de Cumplimiento AHOM FIBER IA CORP. Asesoramos en normas ISO 27001, gobernanza de IA, regulación MinTIC, CRC 5050 y estándares internacionales UIT-T y TIA 942."
         return text, voice
 
     def _handle_commercial_query(self, message: str, msg_lower: str, agent_badge: str) -> tuple[str, str]:

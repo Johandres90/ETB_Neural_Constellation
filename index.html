@@ -2055,7 +2055,7 @@
         </div>
       </div>
 
-      <div class="chat-chips">
+      <div class="chat-chips" id="chatChipsContainer">
         <div class="chat-chip chip-end" data-prompt="No tengo más consultas, finalizar chat">🛑 Finalizar Chat</div>
         <div class="chat-chip" data-prompt="Dictamen ejecutivo de solución corporativa de fibra simétrica frente a Claro, Tigo y Movistar">⚡ Dictamen vs Competencia</div>
         <div class="chat-chip" data-prompt="Estado de disponibilidad y latencia de los anillos metropolitanos DWDM">🛡️ Anillos NOC 100G</div>
@@ -3585,6 +3585,45 @@
       }
     }
 
+    function updateChatChipsForDepartment(deptId) {
+      const container = document.getElementById("chatChipsContainer");
+      if (!container) return;
+
+      if (deptId === "c_gob" || deptId === "juridica") {
+        container.innerHTML = `
+          <div class="chat-chip chip-end" data-prompt="No tengo más consultas, finalizar chat">🛑 Finalizar Chat</div>
+          <div class="chat-chip" data-prompt="Auditoría y controles aplicables según ISO/IEC 27001:2022 y directrices ISO/IEC 27011 para redes de telecomunicaciones y Data Centers">🛡️ Auditoría ISO 27001 &amp; 27011 (SGSI Telco)</div>
+          <div class="chat-chip" data-prompt="Explica la articulación de la Norma 47001 con el Sistema de Gestión de Inteligencia Artificial ISO/IEC 42001, Compliance ISO 37301 y Antisoborno ISO 37001">⚖️ Norma 47001 / Gobernanza IA (42001) &amp; Compliance</div>
+          <div class="chat-chip" data-prompt="Detalla la implementación del Sistema Integrado de Gestión (SIG): Calidad ISO 9001, Gestión Ambiental ISO 14001 con RAEE y SST ISO 45001 con trabajo en alturas y espacios confinados">📋 Estructura del SIG (ISO 9001, 14001, 45001)</div>
+          <div class="chat-chip" data-prompt="Marco regulatorio colombiano de telecomunicaciones: Leyes 1341/1978/2108, Resoluciones CRC 5050/5111, ANE espectro/CEM, RETIE, RITEL y Ley 1581 Habeas Data">🇨🇴 Normativa MinTIC, CRC 5050, ANE y Ley 1581</div>
+          <div class="chat-chip" data-prompt="Compendio de estándares internacionales de telecomunicaciones: ITU-T G.652/G.657/GPON/DWDM, TIA-942 Tier III, GDPR y NIST Cybersecurity Framework 2.0">🌐 Estándares Internacionales (UIT-T, TIA-942, GDPR, NIST)</div>
+        `;
+      } else if (deptId === "c_gis" || deptId === "ingenieria_gis") {
+        container.innerHTML = `
+          <div class="chat-chip chip-end" data-prompt="No tengo más consultas, finalizar chat">🛑 Finalizar Chat</div>
+          <div class="chat-chip" data-prompt="Necesito un diseño de red de fibra óptica y factibilidad en Ricaurte, Cundinamarca">🗺️ Trazado Ricaurte, Cundinamarca</div>
+          <div class="chat-chip" data-prompt="Diseño de red de fibra óptica en Girardot, Cundinamarca con postes y cámaras">📍 Red en Girardot</div>
+          <div class="chat-chip" data-prompt="Descargar plano KMZ profesional con carpetas de postería y cámaras">📥 Descargar KMZ Profesional</div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="chat-chip chip-end" data-prompt="No tengo más consultas, finalizar chat">🛑 Finalizar Chat</div>
+          <div class="chat-chip" data-prompt="Dictamen ejecutivo de solución corporativa de fibra simétrica frente a Claro, Tigo y Movistar">⚡ Dictamen vs Competencia</div>
+          <div class="chat-chip" data-prompt="Estado de disponibilidad y latencia de los anillos metropolitanos DWDM">🛡️ Anillos NOC 100G</div>
+          <div class="chat-chip" data-prompt="Certificaciones y soberanía de datos en los Data Centers Alma y Prado">🏢 Data Centers Tier III</div>
+        `;
+      }
+
+      // Re-vincular eventos click
+      container.querySelectorAll(".chat-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          document.getElementById("chat-input").value = chip.getAttribute("data-prompt");
+          sendMessage();
+        });
+      });
+    }
+    window.updateChatChipsForDepartment = updateChatChipsForDepartment;
+
     function updatePanelForNode(nodeId) {
       const node = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === nodeId) : null;
       if (!node) return;
@@ -3593,6 +3632,9 @@
       document.getElementById("agent-name").textContent = node.name;
       document.getElementById("agent-role").textContent = `${node.department || 'AHOM FIBER IA CORP'} · ${node.status_cat || 'Activo'}`;
       document.getElementById("train-dept-display").value = node.id;
+
+      const dept = getDepartmentForNodeId(nodeId);
+      updateChatChipsForDepartment(dept.id);
     }
 
     function navigateToNode(nodeId) {
@@ -3644,9 +3686,8 @@
         return { intent: "close", deptId: "master", name: "AHOM FIBER CORE", emblem: "🤝" };
       }
 
-      // 2. Gobernanza Legal, Normativa & Derechos de Petición (c_gob)
-      // Derechos de petición, tutelas, leyes, normas, SIC, CRC van a Jurídica/Legal
-      if (/(derecho de peticion|derecho de petición|tutela|abogad|juridic|legal|ley 1755|ley 1581|ley 80|normativ|norma|decreto|resolucion crc|resolución crc|crc 5111|crc 5050|secop|licitacion|silencio administrativo|habeas data|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula de permanencia)/i.test(msgLower)) {
+      // 2. Gobernanza Legal, Normativa, ISO 27001/27011, Norma 47001/42001/37001, SIG, MinTIC, CRC, ANE, UIT-T (c_gob)
+      if (/(derecho de peticion|derecho de petición|tutela|abogad|juridic|legal|ley 1755|ley 1581|ley 80|normativ|norma|decreto|resolucion crc|resolución crc|crc 5111|crc 5050|secop|licitacion|silencio administrativo|habeas data|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula de permanencia|iso 27001|27001|iso 27011|27011|iso 27701|27701|iso 22301|22301|sgsi|anexo a|47001|iso 47001|isa 47001|iso 42001|42001|iso 37001|37001|iso 37301|37301|antisoborno|gobernanza ia|compliance|iso 9001|9001|iso 14001|14001|iso 45001|45001|sig|sistema integrado|hls|phva|mintic|ley 1341|1341|ley 1978|1978|ley 2108|2108|servicio esencial|decreto 1078|dur-tic|ley 1273|delito informatico|delitos informaticos|conpes|mspi|colcert|futic|rutic|comparticion|compartición|posteria compartida|ducteria compartida|neutralidad|3502|ane|cnabf|resolucion 773|cem|campos electromagneticos|ritel|retie|resolucion 4272|4272|alturas|resolucion 0491|0491|espacios confinados|confinados|0312|sg-sst|uit|itu|itu-t|g\.652|g\.655|g\.657|g\.984|g\.9807|g\.694|x\.805|tia-942|tia 942|uptime|tier iii|tier 3|gdpr|nist|pci-dss)/i.test(msgLower)) {
         return { intent: "legal", deptId: "c_gob", name: "Gobernanza Legal & Normativa", emblem: "⚖️" };
       }
 
@@ -3697,8 +3738,81 @@
         return await window.generateGISSpecializedResponse(userMsg, msgLower);
       }
 
-      // 1. GOBERNANZA LEGAL & NORMATIVA (c_gob)
+      // 1. GOBERNANZA LEGAL & NORMATIVA (c_gob) — DIRECTOR JURÍDICO & AUDITOR LÍDER ISO/UIT
       if (deptId === "c_gob") {
+        // Bloque 1A: ISO 27001 & 27011
+        if (/(iso 27001|27001|iso 27011|27011|sgsi|anexo a|iso 27701|27701|iso 22301|22301|drp|bcms)/i.test(msgLower)) {
+          return `### 🛡️ Dictamen de Auditoría: SGSI ISO/IEC 27001:2022 & Directrices Sectoriales ISO/IEC 27011\n\n` +
+            `Como **Director Jurídico de Telecomunicaciones & Auditor Líder ISO**, dictamino la conformidad del SGSI de AHOM FIBER IA CORP:\n\n` +
+            `- 🏢 **93 Controles del Anexo A (ISO/IEC 27001:2022):**\n` +
+            `  * **37 Organizacionales:** Gestión de activos, seguridad en nube y evaluación de proveedores TIC.\n` +
+            `  * **8 de Personas:** NDAs reforzados para personal NOC/SOC y verificación de antecedentes.\n` +
+            `  * **14 Físicos:** 7 perímetros de biometría en Data Centers Alma y Prado, salas ODF blindadas y CCTV 24/7 con analítica de intrusión.\n` +
+            `  * **34 Tecnológicos:** MFA FIDO2, cifrado AES-256 en reposo, TLS 1.3 en tránsito, DLP y segmentación de red troncal.\n` +
+            `- 🌐 **ISO/IEC 27011 (Seguridad en Telco - ITU-T X.1051):** Separación estricta de plano de gestión (OOB), plano de control (BGP/MPLS) y plano de usuario; monitoreo C-OTDR de fibra para prevenir espionaje óptico.\n` +
+            `- 🛡️ **Privacidad y Continuidad (ISO 27701 & ISO 22301):** Protección PII de abonados, conmutación óptica automática en **< 50 ms** y replicación metro-mirror con **RPO = 0** y **RTO < 15 min**.\n\n` +
+            `¿Deseas examinar la matriz de aplicabilidad (SoA) para algún control específico?`;
+        }
+
+        // Bloque 1B: Norma 47001 / ISO 42001 (IA), ISO 37301 (Compliance) & ISO 37001 (Antisoborno)
+        if (/(47001|iso 47001|isa 47001|iso 42001|42001|iso 37001|37001|iso 37301|37301|antisoborno|gobernanza ia|compliance)/i.test(msgLower)) {
+          return `### ⚖️ Dictamen Técnico-Jurídico: Articulación de la 'Norma 47001' (ISO/IEC 42001, ISO 37301 e ISO 37001)\n\n` +
+            `Desde la Dirección Jurídica y de Compliance, aclaramos y estructuramos la aplicación de la **'Norma 47001'** en AHOM FIBER IA CORP:\n\n` +
+            `| Pilar de Gobernanza | Norma Internacional | Aplicación en la Red Neuronal y Contratación AHOM |\n` +
+            `| :--- | :--- | :--- |\n` +
+            `| **Gobernanza de IA** | **ISO/IEC 42001:2023** (AIMS) | Rige los agentes inteligentes y modelos de lenguaje de la constelación. Garantiza trazabilidad de decisiones, explicabilidad algorítmica, mitigación de sesgos en enrutamiento y supervisión humana activa (HITL). |\n` +
+            `| **Cumplimiento Legal** | **ISO 37301:2021** (Compliance) | Sistema integral de cumplimiento normativo que audita permanentemente obligaciones ante CRC, MinTIC, ANE, SIC y DIAN con efectividad probada del 100%. |\n` +
+            `| **Antisoborno & Ética** | **ISO 37001:2016** (Antisoborno) | Debida diligencia en contratación pública (SECOP II) y privada (B2B), con cero tolerancia al cohecho en compras de infraestructura. |\n` +
+            `| **Seguridad Laboral** | **ISO 45001:2018** (SST) | Respaldo y protección a cuadrillas de planta externa aérea y subterránea. |\n\n` +
+            `*Cualquier requerimiento corporativo o pliego licitatorio que refiera a la 'Norma 47001' queda plenamente cubierto y respaldado mediante esta integración certificable.*`;
+        }
+
+        // Bloque 1C: SIG (ISO 9001, 14001, 45001 & HLS/PHVA)
+        if (/(sig|sistema integrado|iso 9001|9001|iso 14001|14001|iso 45001|45001|raee|iperc|phva|hls)/i.test(msgLower)) {
+          return `### 📋 Dictamen de Integración: Sistema Integrado de Gestión (SIG — ISO 9001, 14001 y 45001)\n\n` +
+            `AHOM FIBER IA CORP articula su Sistema Integrado de Gestión bajo la **Estructura de Alto Nivel (HLS)** y el ciclo **PHVA**:\n\n` +
+            `- 🏆 **ISO 9001:2015 (Calidad de Servicio):** Disponibilidad contractual de **99.985%** en enlaces dedicados, latencia < 3.5 ms y atención en sitio < 4 horas bajo ITIL v4.\n` +
+            `- 🌿 **ISO 14001:2015 (Gestión Ambiental):** Disposición certificada de RAEE (baterías VRLA y tramos de fibra según Dec. 284/2018), huella de carbono neutral y **PUE <= 1.30** en Data Centers.\n` +
+            `- 👷 **ISO 45001:2018 (Seguridad y Salud en el Trabajo):**\n` +
+            `  * **Matriz IPERC:** Controles de ingeniería activos en planta externa e interna.\n` +
+            `  * **Alturas (Res. 4272/2021):** Certificación vigente de operarios, arnés integral dieléctrico ANSI Z359 y líneas de vida en postes y torres.\n` +
+            `  * **Espacios Confinados (Res. 0491/2020):** Medición atmosférica previa con detector de 4 gases, ventilación forzada continua y vigía en superficie para cámaras subterráneas.\n` +
+            `  * **Riesgo Láser:** Gafas con densidad óptica (OD 5+) contra fuentes invisibles Clase 1M y 3B en DWDM.`;
+        }
+
+        // Bloque 2: Normativa MinTIC, Leyes TIC (1341, 1978, 2108), Habeas Data (1581), Delitos Informáticos (1273)
+        if (/(mintic|ley 1341|1341|ley 1978|1978|ley 2108|2108|servicio esencial|decreto 1078|dur-tic|ley 1273|delito informatico|delitos informaticos|conpes|mspi|colcert|futic|rutic)/i.test(msgLower)) {
+          return `### 🇨🇴 Dictamen Jurídico: Marco Legal Colombiano MinTIC, Leyes TIC y Seguridad Digital\n\n` +
+            `- 📜 **Ley 1341 de 2009:** Habilitación General para provisión de redes y servicios TIC, registro vigente en el **RUTIC** y aportes periódicos al Fondo Único de TIC (**FUTIC**).\n` +
+            `- 📡 **Ley 1978 de 2019 (Modernización TIC):** Sujeción al regulador convergente de la CRC y priorización de despliegue de infraestructura de última milla.\n` +
+            `- 🌐 **Ley 2108 de 2021 (Internet Servicio Esencial):** Reconocimiento del acceso a Internet como servicio público esencial y universal, garantizando continuidad ininterrumpida y protección de la infraestructura crítica.\n` +
+            `- ⚖️ **Código Penal (Ley 1273 de 2009):** Protocolos activos de ciberseguridad contra delitos informáticos (Arts. 269A a 269J).\n` +
+            `- 🛡️ **Políticas CONPES (3701, 3854 y 3995) & Modelo MSPI MinTIC:** Cumplimiento del marco nacional de seguridad digital y confianza ciudadana exigido para contratos con el Estado en SECOP II.`;
+        }
+
+        // Bloque 3: CRC 5050, Compartición de Infraestructura, ANE, RITEL, RETIE
+        if (/(crc 5050|5050|comparticion de infraestructura|compartición|posteria compartida|ducteria compartida|neutralidad|3502|ane|cnabf|resolucion 773|cem|campos electromagneticos|ritel|retie|resolucion 4272|4272|alturas|resolucion 0491|0491|espacios confinados|confinados|0312|sg-sst)/i.test(msgLower)) {
+          return `### ⚙️ Dictamen Regulatorio: Normativa Técnica CRC, ANE, RITEL, RETIE y Seguridad Operativa\n\n` +
+            `- 📜 **Resolución CRC 5050 de 2016 compilada:**\n` +
+            `  * **Título V (Calidad):** Indicadores obligatorios de disponibilidad, latencia y pérdida de paquetes con reporte continuo a SISTEL.\n` +
+            `  * **Compartición de Infraestructura:** Acuerdos regulatorios estandarizados para uso compartido de postes, ductos y cámaras subterráneas con empresas eléctricas y de telecomunicaciones (CRC / CREG).\n` +
+            `  * **Neutralidad de Red (Res. 3502/2011):** Cero bloqueo o degradación de tráfico lícito de terceros.\n` +
+            `- 📡 **Agencia Nacional del Espectro (ANE):** Cumplimiento del CNABF, uso de banda no licenciada de 6 GHz para Wi-Fi 6E/7 y certificación de límites de exposición CEM según **Resolución ANE 773 de 2023**.\n` +
+            `- 🏗️ **Reglamentos Técnicos:** RITEL (roseta óptica de fibra monomodo en propiedad horizontal), RETIE (subestaciones, UPS 2N y puesta a tierra < 5 ohms en Data Centers) y estándares SST de trabajo seguro en alturas y cámaras subterráneas.`;
+        }
+
+        // Bloque 4: Estándares Internacionales (UIT-T, TIA-942 Tier III, IEEE, GDPR, NIST)
+        if (/(uit|itu|itu-t|g\.652|g\.655|g\.657|g\.984|g\.9807|g\.694|x\.805|tia-942|tia 942|uptime|tier iii|tier 3|ieee|ietf|gdpr|nist|pci-dss)/i.test(msgLower)) {
+          return `### 🌐 Dictamen de Estándares Internacionales: UIT-T, ANSI/TIA-942 Tier III, IEEE y NIST\n\n` +
+            `- 🌍 **Recomendaciones UIT-T (ONU):**\n` +
+            `  * **Fibras Ópticas:** **ITU-T G.652.D** (monomodo troncal), **G.655** (NZDSF DWDM) y **G.657.A2** (radio de curvatura 7.5 mm en acometidas).\n` +
+            `  * **Redes Ópticas Pasivas:** **ITU-T G.984 (GPON)** y **ITU-T G.9807.1 (XGS-PON 10G simétrico)**.\n` +
+            `  * **DWDM y Seguridad:** Grilla espectral **ITU-T G.694.1** en banda C (50/100 GHz) y arquitectura de seguridad de 8 dimensiones **ITU-T X.805**.\n` +
+            `- 🏢 **Data Centers ANSI/TIA-942 e Uptime Institute Tier III:** Concurrencia mantenible con disponibilidad del **99.982%** (máx. 1.6 horas de corte anual) y mantenimiento en caliente sin afectación de carga de TI.\n` +
+            `- 🔒 **Marcos Globales:** IEEE 802.3 (Ethernet 10G a 400G), BGP-4 / TLS 1.3 (IETF), GDPR para clientes multinacionales y marco **NIST Cybersecurity Framework 2.0**.`;
+        }
+
+        // Casos Base Previos: Permanencia, Cancelación, PQR, Habeas Data, SECOP II
         if (/(permanencia|clausula|multa|penaliz)/i.test(msgLower)) {
           return `### ⚖️ Dictamen Legal: Permanencia Mínima (Resolución CRC 5111)\n\n- 🚫 **Prohibición Legal:** Ningún operador puede cobrar mensualidades futuras no disfrutadas.\n- 💰 **Fórmula de Liquidación:** Únicamente se cancela el saldo prorrateado del subsidio de instalación: \`Saldo = (Descuento / Meses) × Meses restantes\`.\n- 📜 **Sin Renovación Automática:** Cumplido el periodo inicial (12 o 24 meses), el contrato pasa a ser indefinido sin permanencia.\n\n¿Deseas verificar si tu contrato cuenta con permanencia vigente?`;
         }
@@ -3706,16 +3820,22 @@
           return `### ⚖️ Procedimiento Legal para Cancelación de Servicios (CRC 5111)\n\n- ⏱️ **Anticipación:** Puedes presentar la solicitud con al menos **3 días hábiles de anticipación** a tu fecha de corte de facturación.\n- 📢 **Canales Oficiales:** Vía telefónica al **178**, portal web **ahomfiber.com** o ventanilla presencial sin exigir documentos innecesarios.\n- 📦 **Devolución de Equipos:** Se coordina la entrega de equipos en comodato (ONT/módem) sin costo de penalización.\n- 📄 **Paz y Salvo:** Se expide una vez cancelada la última factura de servicios prestados.\n\n¿Deseas verificar tu fecha de corte para programar la solicitud?`;
         }
         if (/(radicar|como poner|como radicar|formulario|plantilla|interponer)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
-          return `### ⚖️ Procedimiento para Radicar Derecho de Petición (Ley 1755 de 2015)\n\nPara que tu Derecho de Petición tenga plena validez jurídica ante AHOM FIBER IA CORP y la SIC:\n\n1. **Canales Habilitados:** Ingresa a **ahomfiber.com/pqr**, llama al **178** o radícalo por escrito en cualquier Centro de Atención AHOM FIBER IA CORP.\n2. **Requisitos Indispensables:**\n   - Nombres, apellidos y documento de identidad (CC o NIT).\n   - Número de contrato, cuenta o línea telefónica.\n   - Hechos claros y pretensiones puntuales.\n   - Correo electrónico o dirección para notificación.\n3. **Término Legal:** AHOM FIBER IA CORP cuenta con **15 días hábiles** para responder. De lo contrario, opera el **Silencio Administrativo Positivo** a tu favor.\n\n¿Deseas orientación sobre cómo redactar tus pretensiones?`;
+          return `### ⚖️ Procedimiento para Radicar Derecho de Petición (Ley 1755 de 2015)\n\nPara que tu Derecho de Petición tenga plena validez jurídica ante AHOM FIBER IA CORP y la SIC:\n\n1. **Canales Habilitados:** Ingresa a **ahomfiber.com/pqr**, llama al **178** o radícalo por escrito en cualquier Centro de Atención AHOM FIBER IA CORP.\n2. **Requisitos Indispensables:** Nombres, documento de identidad (CC/NIT), número de contrato y hechos claros.\n3. **Término Legal:** AHOM FIBER IA CORP cuenta con **15 días hábiles** para responder. De lo contrario, opera el **Silencio Administrativo Positivo** a tu favor.\n\n¿Deseas orientación sobre cómo redactar tus pretensiones?`;
+        }
+        if (/(habeas data|datos personales|ley 1581|privacidad)/i.test(msgLower)) {
+          return `### ⚖️ Habeas Data y Tratamiento de Datos Personales (Ley 1581 de 2012)\n\n- 🏛️ **Soberanía y Custodia Nacional:** Almacenamiento seguro en Data Centers Tier III en Bogotá (Alma y Prado).\n- 📜 **Derechos del Titular:** Puedes solicitar en cualquier momento conocer, actualizar, rectificar y suprimir tus datos.\n- 🛡️ **Registro Nacional:** Bases de datos debidamente inscritas ante la SIC.`;
+        }
+        if (/(secop|licitacion|estatal|colombia compra|pliegos)/i.test(msgLower)) {
+          return `### ⚖️ Capacidad Jurídica y Contratación Pública en SECOP II\n\n- **Registro RUP:** Certificado con los más altos índices de capacidad financiera y organizacional.\n- **SECOP II:** Proveedor habilitado en Acuerdos Marco de Precios de Colombia Compra Eficiente para conectividad y Data Centers.\n- **Modalidades:** Capacidad de formalización directa o en Consorcio bajo Ley 80 de 1993 y Ley 1150 de 2007.`;
         }
         if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|cedula|cédula|nit)/i.test(msgLower)) {
           const matchNum = msgLower.match(/\b\d{5,12}\b/);
           const num = matchNum ? matchNum[0] : "53696969";
-          return `### ⚖️ Registro y Asesoría Jurídica — Caso Asociado\n\nHemos tomado nota de tu consulta jurídica para el contrato o documento **${num}**:\n\n- 📜 **Marco Aplicable:** Ley 1755 de 2015 y Resolución CRC 5111 de 2017.\n- ⏱️ **Garantía:** Todo trámite cuenta con fecha y hora oficial de radicación y término improrrogable de 15 días hábiles.\n- 🏛️ **Recursos:** Ante respuesta desfavorable, dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio Apelación ante la Superintendencia de Industria y Comercio (SIC)**.\n\n¿Requieres que un asesor jurídico revise un requerimiento particular sobre este contrato?`;
+          return `### ⚖️ Registro y Asesoría Jurídica — Caso Asociado\n\nHemos tomado nota de tu consulta jurídica para el contrato o documento **${num}**:\n\n- 📜 **Marco Aplicable:** Ley 1755 de 2015 y Resolución CRC 5111 de 2017.\n- ⏱️ **Garantía:** Término perentorio de 15 días hábiles.\n- 🏛️ **Recursos:** Dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio Apelación ante la SIC**.\n\n¿Requieres que un asesor jurídico revise un requerimiento particular sobre este contrato?`;
         }
-        return `### ⚖️ Gobernanza Legal & Normativa AHOM FIBER IA CORP\n\nSupervisamos el cumplimiento regulatorio ante la **CRC**, **MinTIC**, **SIC** y el régimen de **Habeas Data (Ley 1581)**:\n\n- **Derecho de Petición:** Término perentorio de 15 días hábiles con Silencio Administrativo Positivo.\n- **Contratos & Permanencia:** Liquidación justa sin cobros de mensualidades futuras.\n\n¿En qué trámite normativo o contractual requieres asesoría?`;
+        return `### ⚖️ Dirección Jurídica, Auditoría Líder ISO/UIT & Oficial de Cumplimiento (CCISO)\n\nSupervisamos el cumplimiento integral bajo 5 ejes normativos:\n- 🛡️ **Sistemas de Gestión:** ISO/IEC 27001:2022 (93 controles), ISO 27011, ISO 27701 e ISO 22301.\n- ⚖️ **Norma '47001':** Articulación de ISO/IEC 42001 (IA), ISO 37301 (Compliance) e ISO 37001 (Antisoborno).\n- 📋 **SIG:** ISO 9001 (Calidad/SLA), ISO 14001 (Ambiental/RAEE) e ISO 45001 (SST/Alturas/Confinados).\n- 🇨🇴 **Normativa MinTIC y CRC:** Leyes 1341/1978/2108, Res. CRC 5050/5111, ANE, RITEL y RETIE.\n- 🌐 **Estándares Internacionales:** ITU-T G.652/G.657/GPON/XGS-PON, TIA-942 Tier III, GDPR y NIST.\n\n¿En qué dictamen o requerimiento normativo deseas asistencia?`;
       }
-
+      
       // 2. SERVICIO AL CLIENTE & EXPERIENCIA (c_cx)
       if (deptId === "c_cx") {
         if (/(contacta|contactar|comunicar|hablar|asesor|humano|agente|persona|gestor|atencion personalizada|atención personalizada)/i.test(msgLower)) {
