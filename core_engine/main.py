@@ -145,6 +145,38 @@ async def upload_kmz_endpoint(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=f"Error procesando archivo KMZ/KML: {str(e)}")
 
 
+@app.get("/api/generate-kmz")
+async def generate_kmz_endpoint(
+    location: str = "Ricaurte Cundinamarca",
+    lat: float = 4.2777,
+    lon: float = -74.7718,
+    total_km: float = 1.47
+):
+    """
+    Genera y descarga un archivo .KMZ profesional compatible con Google Earth,
+    conteniendo doc.kml y la subcarpeta files/ con los íconos Poste.png y Camara doble.png.
+    """
+    from core_engine.kmz_parser import build_kmz_bytes
+    from fastapi.responses import Response
+
+    kmz_bytes = build_kmz_bytes(
+        location_name=location,
+        center_lat=lat,
+        center_lon=lon,
+        total_km=total_km
+    )
+    safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', location)
+    filename = f"{safe_name}_Red_Fibra_AHOM.kmz"
+
+    return Response(
+        content=kmz_bytes,
+        media_type="application/vnd.google-earth.kmz",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"'
+        }
+    )
+
+
 # Servir interfaz web desde el directorio frontend
 frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
 if frontend_dir.exists():

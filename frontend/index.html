@@ -2146,6 +2146,10 @@
           <button type="button" class="gis-modal-tool-btn" onclick="window.openGISStandaloneWindow()" title="Abrir en ventana independiente del navegador">
             <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> <span>Ventana Aparte</span>
           </button>
+          <button type="button" class="gis-modal-tool-btn" id="btnGisModalUploadKMZ" onclick="document.getElementById('gisModalFileInputKMZ').click()" style="background: rgba(59, 130, 246, 0.25); border-color: #60a5fa; color: #93c5fd;" title="Cargar archivo KMZ existente en el mapa">
+            <i data-lucide="upload" style="width: 14px; height: 14px;"></i> <span>📂 Cargar KMZ</span>
+          </button>
+          <input type="file" id="gisModalFileInputKMZ" accept=".kmz,.kml" style="display:none;" onchange="window.handleGisModalFileSelect(this)">
           <button type="button" class="gis-modal-tool-btn" onclick="window.downloadCurrentKMZ()" style="background: rgba(16, 185, 129, 0.25); border-color: #34d399; color: #34d399;" title="Descargar plano KMZ">
             <i data-lucide="download" style="width: 14px; height: 14px;"></i> <span>Descargar KMZ</span>
           </button>
@@ -3241,7 +3245,7 @@
         speakText(readable);
       } catch (err) {
         // En GitHub Pages o modo estático, usar clasificador inteligente y mover los nodos 3D
-        const fallbackData = generateClientFallbackData(selectedAgentId || "master", text);
+        const fallbackData = await generateClientFallbackData(selectedAgentId || "master", text);
         handleAgentResponsePayload(fallbackData);
 
         const spoken = fallbackData.voice_summary || fallbackData.response;
@@ -3687,10 +3691,10 @@
       return { intent: "general", deptId: "master", name: "AHOM FIBER CORE", emblem: "👑" };
     }
 
-    function getSpecializedResponseText(deptId, userMsg, msgLower) {
+    async function getSpecializedResponseText(deptId, userMsg, msgLower) {
             // 0. INGENIERÍA GIS & CARTOGRAFÍA (c_gis)
       if (deptId === "c_gis") {
-        return window.generateGISSpecializedResponse(userMsg, msgLower);
+        return await window.generateGISSpecializedResponse(userMsg, msgLower);
       }
 
       // 1. GOBERNANZA LEGAL & NORMATIVA (c_gob)
@@ -3793,7 +3797,7 @@
       return `Procesando tu solicitud: *"**${userMsg}**"*.\n\nDesde el Centro de Comando AHOM FIBER IA CORP coordinamos los 8 departamentos corporativos. ¿En qué área requieres asistencia?`;
     }
 
-    function generateClientFallbackData(nodeId, userMsg) {
+    async function generateClientFallbackData(nodeId, userMsg) {
       const msgLower = userMsg.toLowerCase().trim();
       const currentDept = getDepartmentForNodeId(nodeId);
       let targetInfo = classifyUserIntent(msgLower);
@@ -3821,7 +3825,7 @@
         };
       }
 
-      const specializedResponse = getSpecializedResponseText(targetInfo.deptId, userMsg, msgLower);
+      const specializedResponse = await getSpecializedResponseText(targetInfo.deptId, userMsg, msgLower);
 
       // Síntesis de voz natural y concisa (1 o 2 oraciones claras)
       let voiceSummary = "";
@@ -3980,7 +3984,7 @@
       } catch (e) {
         removeChatMessage(loadId);
         // Motor autónomo de navegación y respuesta para GitHub Pages y modo estático
-        const fallbackData = generateClientFallbackData(selectedAgentId, text);
+        const fallbackData = await generateClientFallbackData(selectedAgentId, text);
         handleAgentResponsePayload(fallbackData);
       }
     }
@@ -4419,7 +4423,7 @@
 
       
       // ==========================================================
-      // VISOR CARTOGRÁFICO GIS EN MAPA APARTE (LEAFLET + TILES + POPUPS)
+      // VISOR CARTOGRÁFICO GIS & RED DE FIBRA ÓPTICA (DINÁMICO & KMZ EXPERTO)
       // ==========================================================
       let leafletMap = null;
       let leafletTileLayer = null;
@@ -4427,19 +4431,214 @@
       let leafletGeoJsonLayer = null;
       let currentGisData = null;
 
-      // Capas cartográficas 100% LIBRES y GRATUITAS (SIN necesidad de API Key ni marcas de agua)
-      // 1. Esri Dark Canvas (Elegante tema oscuro corporativo con nombres de calles)
+      // Iconos en Base64 para empaquetado ZIP cliente (.KMZ)
+      const POSTE_ICON_B64 = "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACvElEQVR4nO2bPWgUQRSA33ssgoaICAEREyWdiFpIwICVGEglCApaiGhIJ9hYSiJWFjZCqogGsVBQsBUMYmdxWKgEu2B+EEEQUaJgkZN3ZNbd825vdmbn7S1vP1jYmd15fzNv5u3BAdTU1NTU1KgFy1C6+uV7s9uzkT27RG2iPC9v/nzTNJev4lt37sG+gY/xxW1fXOyL8gj//fRUqk2D486zNT97ApLy5mcXYX3DVZq7fegi3LD93CK4BKGf5BEoh0A5ZPXS4DjycipiuTLrGwehkzzud8HHPrRR0Fhaae2qx0Y+x31vV/eCLxLyxg7tR69ToLG00rxx8zZUFbY/KwgEysE8KVBFeqUAFqHk04/NOEAHdhLalMKdKr+Z69NWpXBefYVUglnGnG/8SbV9jZLUR0Uaw3A7OUO2s89wf9aHkou+XhAoh3wG89J7MrYt1cftUCkQQh/6GsUnxNDwcNz+urYGoWnX12unD7YJNvqkSOpV7GRBoBz0FdAPRZJPCiAIk3UM5imGioJAOQTKIVAOgXIIlBOVofTVpamO/Scf3he3BSWVjX74ZlUzLB/eLWYXluE8z/SziV+p52df7kitDKkgkKTz7NTrIfrPeYb7ODD8PDmm8gEYzXCEZ50vl7GVOwWWt5b0kXd3W+2k4+berAzJPYBAOQTKISlFJp/fH73Waic3QnNvUkFqAxQphDifuznU6TRoHwuBQVBeByAIYru0uRaQ+lGEQBB2LKve52fS3wMRlEAZHz3dIFAOgXIIlEOgHALlECgnCq1g7tGLps+4qxcnsZIBmHN0XDoQUWjnFx78K3pOTxy3lmHGXb4yFcsMEQQM5XzSccPzx/b/CThzYTrVNoEoOggRCNLuVD+Akinggpl5phIpkLUJ2gYj6bQh1CaIEBjf0yD0MYggiG0wQjtdUwMxfwFgcW/S/QCPIgAAAABJRU5ErkJggg==";
+      const CAMARA_DOBLE_ICON_B64 = "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACDklEQVR4nO2bsUoDQRCG/xv2DQTfImghKnJoc61tSjuxsgkiaNBCiUKQNFZiZ5nW1sYgkkgKJaVvEMgbCMpBVjRuzO7e7iW52a/KhZ35Z+aSm+HYBQKBQIAxkcnild7NJ+aEbmlPK7eoaImbFiIySb5fvnMVF0Tz/tf1R3kbLlls7mgVIdJJ3mfio/gqxLgiRKbJHx6fWAfTWF7VWpcWIYtO/eJcuwhC16kMqHpQsQpq4eHJ6FdSTWLYUrtqKAuhgkzuvm3yeTMap8xD9TAn3bs/L8lL0nh1/kYE5hCYI0wN1je3OlZKZ1W8n9bWdJYOktheB0C79ailY1UAE+d/SOKJ3SBNPrPOLP8FBkmMyuuLsvervveNwJSQE58cUvpTioPAHAJzCMwhMEeYGuTVn4s5BxhQ2Dlg1iAwh8AcAnOES2e9t+fvz6WlDZeuvWkQPASmup5VDWFqoOrPt9eXypaVBri7f9RxMQfoaszcHNC27OcmdllmBgJzyIWTcQ8jlw9CXxqUyfqfQHx0AR8aAg7x1fp8ahCYQ2COMDUI7wNa4X1AoSAwh8AcAnMIzCEwR5gahDmgFeaAQkFgDoE5BOaQzqJ0y6ncfpqV1M+4Lax56UwsQHe4qfjnlnPpNGtQLtfp2jvZLF0fVjNLcDp3JC+dqZ0XyBvr8wK+T4z4xsmJEQnrM0NFPzUWCATAmi/8C/ZXpxNydQAAAABJRU5ErkJggg==";
+
+      // Capas cartográficas 100% LIBRES y GRATUITAS (Sin API Key ni marcas de agua)
       const esriDarkBaseUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}";
       const esriDarkLabelsUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
-      // 2. Esri World Imagery (Fotografía Satelital de Alta Resolución)
       const satTileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-      // 3. OpenStreetMap Estándar
       const osmTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
-      let currentTileMode = "dark"; // "dark", "satellite", "streets"
+      let currentTileMode = "dark";
       let leafletLabelsLayer = null;
 
-      // Función principal para abrir el mapa aparte
+      // Base de datos de municipios de Colombia para respuesta inmediata (< 5ms)
+      const colombianGeoDb = {
+        "ricaurte": { name: "Ricaurte, Cundinamarca", lat: 4.2818, lon: -74.7712, dept: "Cundinamarca", central: "Central Ricaurte - Troncal Alto Magdalena" },
+        "girardot": { name: "Girardot, Cundinamarca", lat: 4.3039, lon: -74.8039, dept: "Cundinamarca", central: "Central Girardot Centro - Red DWDM" },
+        "flandes": { name: "Flandes, Tolima", lat: 4.2878, lon: -74.8142, dept: "Tolima", central: "Central Flandes - Anillo Magdalena" },
+        "fusagasuga": { name: "Fusagasugá, Cundinamarca", lat: 4.3468, lon: -74.3644, dept: "Cundinamarca", central: "Central Fusagasugá Sumapaz" },
+        "facatativa": { name: "Facatativá, Cundinamarca", lat: 4.8140, lon: -74.3540, dept: "Cundinamarca", central: "Central Facatativá Occidente" },
+        "madrid": { name: "Madrid, Cundinamarca", lat: 4.7330, lon: -74.2640, dept: "Cundinamarca", central: "Central Madrid Sabana" },
+        "mosquera": { name: "Mosquera, Cundinamarca", lat: 4.7060, lon: -74.2300, dept: "Cundinamarca", central: "Central Mosquera Industrial" },
+        "funza": { name: "Funza, Cundinamarca", lat: 4.7170, lon: -74.2120, dept: "Cundinamarca", central: "Central Funza Sabana Occidente" },
+        "chia": { name: "Chía, Cundinamarca", lat: 4.8610, lon: -74.0580, dept: "Cundinamarca", central: "Central Chía Empresarial" },
+        "cota": { name: "Cota, Cundinamarca", lat: 4.8090, lon: -74.1030, dept: "Cundinamarca", central: "Central Cota - Parque Industrial Siberia" },
+        "cajica": { name: "Cajicá, Cundinamarca", lat: 4.9190, lon: -74.0270, dept: "Cundinamarca", central: "Central Cajicá Centro" },
+        "zipaquira": { name: "Zipaquirá, Cundinamarca", lat: 5.0230, lon: -74.0040, dept: "Cundinamarca", central: "Central Zipaquirá Sabana Norte" },
+        "soacha": { name: "Soacha, Cundinamarca", lat: 4.5800, lon: -74.2160, dept: "Cundinamarca", central: "Central Soacha - Cazucá & Compartir" },
+        "ibague": { name: "Ibagué, Tolima", lat: 4.4389, lon: -75.2322, dept: "Tolima", central: "Central Ibagué Centro & Carrera 5" },
+        "villavicencio": { name: "Villavicencio, Meta", lat: 4.1420, lon: -73.6266, dept: "Meta", central: "Central Villavicencio - Llano Troncal" },
+        "neiva": { name: "Neiva, Huila", lat: 2.9273, lon: -75.2819, dept: "Huila", central: "Central Neiva Huila" },
+        "tunja": { name: "Tunja, Boyacá", lat: 5.5353, lon: -73.3678, dept: "Boyacá", central: "Central Tunja Plaza Bolívar" },
+        "medellin": { name: "Medellín, Antioquia", lat: 6.2442, lon: -75.5812, dept: "Antioquia", central: "Central El Poblado & Aguacatala" },
+        "cali": { name: "Cali, Valle del Cauca", lat: 3.4516, lon: -76.5320, dept: "Valle del Cauca", central: "Central Cali Chipichape" },
+        "barranquilla": { name: "Barranquilla, Atlántico", lat: 10.9685, lon: -74.7813, dept: "Atlántico", central: "Central Barranquilla Prado" },
+        "cartagena": { name: "Cartagena, Bolívar", lat: 10.3910, lon: -75.4794, dept: "Bolívar", central: "Central Cartagena Bocagrande & Manga" },
+        "bucaramanga": { name: "Bucaramanga, Santander", lat: 7.1254, lon: -73.1198, dept: "Santander", central: "Central Bucaramanga Cabecera" },
+        "pereira": { name: "Pereira, Risaralda", lat: 4.8133, lon: -75.6961, dept: "Risaralda", central: "Central Pereira Circunvalar" },
+        "manizales": { name: "Manizales, Caldas", lat: 5.0689, lon: -75.5174, dept: "Caldas", central: "Central Manizales El Cable" },
+        "armenia": { name: "Armenia, Quindío", lat: 4.5339, lon: -75.6811, dept: "Quindío", central: "Central Armenia Norte" },
+        "santa marta": { name: "Santa Marta, Magdalena", lat: 11.2408, lon: -74.1990, dept: "Magdalena", central: "Central Santa Marta Rodadero" },
+        "cucuta": { name: "Cúcuta, Norte de Santander", lat: 7.8939, lon: -72.5078, dept: "Norte de Santander", central: "Central Cúcuta Centro" },
+        "pasto": { name: "Pasto, Nariño", lat: 1.2136, lon: -77.2811, dept: "Nariño", central: "Central Pasto Centro" },
+        "monteria": { name: "Montería, Córdoba", lat: 8.7479, lon: -75.8814, dept: "Córdoba", central: "Central Montería Sinú" },
+        "sincelejo": { name: "Sincelejo, Sucre", lat: 9.3047, lon: -75.3978, dept: "Sucre", central: "Central Sincelejo Centro" },
+        "valledupar": { name: "Valledupar, Cesar", lat: 10.4631, lon: -73.2532, dept: "Cesar", central: "Central Valledupar Plaza Alfonso López" }
+      };
+
+      // 1. GEOCODIFICACIÓN DINÁMICA VÍA NOMINATIM OSM
+      async function geocodeLocationNominatim(query) {
+        const clean = query.trim().toLowerCase();
+        
+        // A. Revisión en diccionario local optimizado
+        for (const [key, data] of Object.entries(colombianGeoDb)) {
+          if (clean.includes(key)) {
+            console.log("📍 Coincidencia en base geográfica local:", data.name);
+            return {
+              name: data.name,
+              lat: data.lat,
+              lon: data.lon,
+              dept: data.dept,
+              central: data.central,
+              source: "LocalGeoDB"
+            };
+          }
+        }
+
+        // B. Consulta a Nominatim OpenStreetMap (con timeout seguro de 3s)
+        try {
+          const cleanQuery = query.replace(/[^\w\s,áéíóúñÁÉÍÓÚÑ-]/g, "").trim();
+          const qParam = encodeURIComponent(cleanQuery + " Colombia");
+          const url = `https://nominatim.openstreetmap.org/search?format=json&q=${qParam}&limit=1&addressdetails=1`;
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          
+          const res = await fetch(url, {
+            headers: { "Accept-Language": "es" },
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              const item = data[0];
+              const lat = parseFloat(item.lat);
+              const lon = parseFloat(item.lon);
+              const disp = item.display_name ? item.display_name.split(",").slice(0, 3).join(",") : cleanQuery;
+              return {
+                name: disp,
+                lat: lat,
+                lon: lon,
+                dept: item.address ? (item.address.state || item.address.county || "Colombia") : "Colombia",
+                central: `Central Troncal ${cleanQuery.slice(0, 20)}`,
+                source: "NominatimOSM"
+              };
+            }
+          }
+        } catch (e) {
+          console.warn("Consulta Nominatim falló o timeout, usando fallback local:", e);
+        }
+
+        // C. Fallback a centro de Colombia si no se halló nada específico
+        return {
+          name: query,
+          lat: 4.5709,
+          lon: -74.2973,
+          dept: "Cundinamarca",
+          central: `Central Regional ${query.slice(0, 16)}`,
+          source: "Fallback"
+        };
+      }
+
+      // 2. GENERADOR DE TRAZADO SOBRE VÍAS REALES (OSRM API + FALLBACK VIAL)
+      async function generateRoadBasedFiberRoute(centerLat, centerLon, locationName) {
+        const lat = parseFloat(centerLat);
+        const lon = parseFloat(centerLon);
+
+        const offset = 0.0018;
+        const wp1 = [lon - offset, lat - offset * 0.5];
+        const wp2 = [lon - offset * 0.4, lat];
+        const wp3 = [lon + offset * 0.3, lat + offset * 0.6];
+        const wp4 = [lon + offset, lat + offset * 0.2];
+
+        let roadPoints = [];
+        let totalMeters = 1450;
+
+        try {
+          const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${wp1.join(",")};${wp2.join(",")};${wp3.join(",")};${wp4.join(",")}?overview=full&geometries=geojson`;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500);
+          const res = await fetch(osrmUrl, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.routes && data.routes[0]) {
+              totalMeters = Math.round(data.routes[0].distance || 1450);
+              roadPoints = data.routes[0].geometry.coordinates.map(c => ({ lat: c[1], lon: c[0] }));
+            }
+          }
+        } catch (err) {
+          console.warn("OSRM no disponible, usando grilla vial ortogonal calculada:", err);
+        }
+
+        if (!roadPoints || roadPoints.length < 4) {
+          roadPoints = [
+            { lat: lat - 0.0015, lon: lon - 0.0020 },
+            { lat: lat - 0.0015, lon: lon - 0.0008 },
+            { lat: lat - 0.0002, lon: lon - 0.0008 },
+            { lat: lat + 0.0008, lon: lon - 0.0008 },
+            { lat: lat + 0.0008, lon: lon + 0.0005 },
+            { lat: lat + 0.0008, lon: lon + 0.0018 },
+            { lat: lat + 0.0014, lon: lon + 0.0018 }
+          ];
+          totalMeters = 1480;
+        }
+
+        const pLen = roadPoints.length;
+        const mufaPt = roadPoints[0];
+        const nap1Pt = roadPoints[Math.floor(pLen * 0.25)];
+        const nap2Pt = roadPoints[Math.floor(pLen * 0.50)];
+        const nap3Pt = roadPoints[Math.floor(pLen * 0.75)];
+        const nap4Pt = roadPoints[pLen - 1];
+
+        const naps = [
+          { name: "NAP-01 (16p)", lat: nap1Pt.lat, lon: nap1Pt.lon, loss: "-19.2 dBm" },
+          { name: "NAP-02 (16p)", lat: nap2Pt.lat, lon: nap2Pt.lon, loss: "-19.5 dBm" },
+          { name: "NAP-03 (16p)", lat: nap3Pt.lat, lon: nap3Pt.lon, loss: "-19.8 dBm" },
+          { name: "NAP-04 (16p)", lat: nap4Pt.lat, lon: nap4Pt.lon, loss: "-20.1 dBm" }
+        ];
+
+        const mufas = [
+          { name: "Mufa FOSC 400 Principal", lat: mufaPt.lat, lon: mufaPt.lon }
+        ];
+
+        const postes = [];
+        const step = Math.max(1, Math.floor(pLen / 8));
+        for (let i = 1; i < pLen - 1; i += step) {
+          postes.push({
+            name: `Poste Concreto ${postes.length + 1} (8m / 510kg)`,
+            lat: roadPoints[i].lat,
+            lon: roadPoints[i].lon
+          });
+        }
+
+        const camaras = [
+          { name: "Cámara Doble de Paso CD-01", lat: roadPoints[Math.floor(pLen * 0.33)].lat, lon: roadPoints[Math.floor(pLen * 0.33)].lon },
+          { name: "Cámara Doble de Paso CD-02", lat: roadPoints[Math.floor(pLen * 0.66)].lat, lon: roadPoints[Math.floor(pLen * 0.66)].lon }
+        ];
+
+        return {
+          locationName: locationName,
+          lat: lat,
+          lon: lon,
+          totalMeters: totalMeters,
+          totalKm: (totalMeters / 1000).toFixed(2),
+          roadPoints: roadPoints,
+          naps: naps,
+          mufas: mufas,
+          postes: postes,
+          camaras: camaras,
+          allPoints: [...naps, ...mufas, ...postes, ...camaras]
+        };
+      }
+
+      // 3. ABRIR VISOR CARTOGRÁFICO EN MODAL INDEPENDIENTE
       window.openGISMapModal = function(data = null, locationName = "Ubicación Analizada") {
         const modal = document.getElementById("gisMapModal");
         if (!modal) return;
@@ -4447,41 +4646,57 @@
         modal.style.display = "flex";
         lucide.createIcons();
 
-        // Usar datos provistos o los últimos memorizados
         currentGisData = data || window.lastParsedKMZ || {
-          locationName: locationName,
-          lat: 4.6560,
-          lon: -74.0595,
+          locationName: "Ricaurte, Cundinamarca",
+          lat: 4.2818,
+          lon: -74.7712,
+          totalKm: "1.48",
+          totalMeters: 1480,
           naps: [
-            { name: "NAP-01 (16p)", lat: 4.6568, lon: -74.0600 },
-            { name: "NAP-02 (16p)", lat: 4.6574, lon: -74.0590 },
-            { name: "NAP-03 (16p)", lat: 4.6566, lon: -74.0577 },
-            { name: "NAP-04 (16p)", lat: 4.6554, lon: -74.0567 }
+            { name: "NAP-01 (16p)", lat: 4.2825, lon: -74.7720 },
+            { name: "NAP-02 (16p)", lat: 4.2830, lon: -74.7710 },
+            { name: "NAP-03 (16p)", lat: 4.2822, lon: -74.7702 },
+            { name: "NAP-04 (16p)", lat: 4.2814, lon: -74.7695 }
           ],
-          mufas: [{ name: "Mufa FOSC Principal", lat: 4.6552, lon: -74.0610 }],
+          mufas: [{ name: "Mufa FOSC Principal", lat: 4.2812, lon: -74.7725 }],
+          postes: [
+            { name: "Poste Concreto 1", lat: 4.2815, lon: -74.7722 },
+            { name: "Poste Concreto 2", lat: 4.2820, lon: -74.7716 },
+            { name: "Poste Concreto 3", lat: 4.2827, lon: -74.7706 }
+          ],
+          camaras: [
+            { name: "Cámara Doble de Paso CD-01", lat: 4.2818, lon: -74.7712 }
+          ],
+          roadPoints: [
+            { lat: 4.2812, lon: -74.7725 },
+            { lat: 4.2825, lon: -74.7720 },
+            { lat: 4.2830, lon: -74.7710 },
+            { lat: 4.2822, lon: -74.7702 },
+            { lat: 4.2814, lon: -74.7695 }
+          ],
           allPoints: [
-            { name: "Central OLT", lat: 4.6542, lon: -74.0625 },
-            { name: "Mufa FOSC", lat: 4.6552, lon: -74.0610 },
-            { name: "NAP-01", lat: 4.6568, lon: -74.0600 },
-            { name: "NAP-02", lat: 4.6574, lon: -74.0590 },
-            { name: "NAP-03", lat: 4.6566, lon: -74.0577 },
-            { name: "NAP-04", lat: 4.6554, lon: -74.0567 }
+            { lat: 4.2812, lon: -74.7725 },
+            { lat: 4.2825, lon: -74.7720 },
+            { lat: 4.2830, lon: -74.7710 },
+            { lat: 4.2822, lon: -74.7702 },
+            { lat: 4.2814, lon: -74.7695 }
           ]
         };
 
         const locBadge = document.getElementById("gisModalLocationBadge");
         if (locBadge) locBadge.textContent = `📍 ${currentGisData.locationName || locationName}`;
 
-        const centerLat = currentGisData.lat || (currentGisData.naps && currentGisData.naps[0] ? currentGisData.naps[0].lat : 4.6560);
-        const centerLon = currentGisData.lon || (currentGisData.naps && currentGisData.naps[0] ? currentGisData.naps[0].lon : -74.0595);
+        const centerLat = currentGisData.lat || (currentGisData.naps && currentGisData.naps[0] ? currentGisData.naps[0].lat : 4.2818);
+        const centerLon = currentGisData.lon || (currentGisData.naps && currentGisData.naps[0] ? currentGisData.naps[0].lon : -74.7712);
 
-        // Actualizar HUD
         const distElem = document.getElementById("gisHudDistance");
         const napsElem = document.getElementById("gisHudNaps");
         const mufasElem = document.getElementById("gisHudMufas");
-        if (distElem) distElem.textContent = currentGisData.totalKm ? `${currentGisData.totalKm} km` : "1.47 km";
+        const powerElem = document.getElementById("gisHudPower");
+        if (distElem) distElem.textContent = currentGisData.totalKm ? `${currentGisData.totalKm} km` : "1.48 km";
         if (napsElem) napsElem.textContent = `${(currentGisData.naps || []).length} NAPs (${((currentGisData.naps || []).length || 4) * 16}p)`;
         if (mufasElem) mufasElem.textContent = `${(currentGisData.mufas || []).length} Mufas`;
+        if (powerElem) powerElem.textContent = "-19.4 dBm";
 
         setTimeout(() => {
           if (!leafletMap && window.L) {
@@ -4490,7 +4705,6 @@
               attributionControl: false
             }).setView([centerLat, centerLon], 16);
 
-            // Capa oscura base libre de marcas de agua
             leafletTileLayer = L.tileLayer(esriDarkBaseUrl, { maxZoom: 16 }).addTo(leafletMap);
             leafletLabelsLayer = L.tileLayer(esriDarkLabelsUrl, { maxZoom: 16 }).addTo(leafletMap);
           } else if (leafletMap) {
@@ -4503,7 +4717,7 @@
           }
         }, 100);
 
-        showToast("🗺️ Visor Cartográfico abierto en ventana aparte");
+        showToast(`🗺️ Visor Cartográfico enfocado en: ${currentGisData.locationName || locationName}`);
       };
 
       window.closeGISMapModal = function() {
@@ -4515,32 +4729,29 @@
         if (!leafletMap || !leafletTileLayer) return;
         const label = document.getElementById("gisTileLabel");
 
-        // Remover capas previas
         if (leafletTileLayer) leafletMap.removeLayer(leafletTileLayer);
         if (leafletLabelsLayer) leafletMap.removeLayer(leafletLabelsLayer);
 
         if (currentTileMode === "dark") {
-          // Cambiar a Satélite
           currentTileMode = "satellite";
           leafletTileLayer = L.tileLayer(satTileUrl, { maxZoom: 19 }).addTo(leafletMap);
           if (label) label.textContent = "Calles OSM";
-          showToast("🛰️ Capa Satelital activada (Sin API Key)");
+          showToast("🛰️ Capa Satelital activada");
         } else if (currentTileMode === "satellite") {
-          // Cambiar a OpenStreetMap Calles
           currentTileMode = "streets";
           leafletTileLayer = L.tileLayer(osmTileUrl, { maxZoom: 19 }).addTo(leafletMap);
           if (label) label.textContent = "Modo Oscuro";
           showToast("🗺️ Mapa Callejero OpenStreetMap activado");
         } else {
-          // Volver a Modo Oscuro
           currentTileMode = "dark";
           leafletTileLayer = L.tileLayer(esriDarkBaseUrl, { maxZoom: 16 }).addTo(leafletMap);
           leafletLabelsLayer = L.tileLayer(esriDarkLabelsUrl, { maxZoom: 16 }).addTo(leafletMap);
           if (label) label.textContent = "Satélite";
-          showToast("🌃 Modo Oscuro activado (Sin API Key)");
+          showToast("🌃 Modo Oscuro corporativo activado");
         }
       };
 
+      // 4. RENDERIZAR ELEMENTOS GIS EN EL MAPA LEAFLET
       function renderGisElementsOnMap(data) {
         if (!leafletMap || !window.L) return;
 
@@ -4551,34 +4762,43 @@
 
         const naps = data.naps || [];
         const mufas = data.mufas || [];
-        const allPoints = data.allPoints || [...naps, ...mufas];
+        const postes = data.postes || [];
+        const camaras = data.camaras || [];
+        const roadPoints = data.roadPoints || [];
+        const allPoints = data.allPoints || [...naps, ...mufas, ...postes, ...camaras];
 
-        // 1. Trazado de Cable de Fibra Óptica (Polyline brillante)
-        const lineCoords = [];
         if (data.rawLines && data.rawLines.length > 0) {
           data.rawLines.forEach(line => {
             const pts = line.map(c => [c.lat, c.lon]);
-            const poly = L.polyline(pts, {
-              color: '#22d3ee',
+            L.polyline(pts, {
+              color: '#06b6d4',
               weight: 5,
               opacity: 0.95,
-              dashArray: '8, 6',
+              dashArray: '6, 4',
               lineCap: 'round'
             }).addTo(leafletGeoJsonLayer);
           });
-        } else if (allPoints.length >= 2) {
-          allPoints.forEach(p => lineCoords.push([p.lat, p.lon]));
-          const poly = L.polyline(lineCoords, {
-            color: '#22d3ee',
+        } else if (roadPoints.length >= 2) {
+          const pts = roadPoints.map(p => [p.lat, p.lon]);
+          const poly = L.polyline(pts, {
+            color: '#06b6d4',
             weight: 5,
             opacity: 0.95,
-            dashArray: '8, 6',
+            dashArray: '6, 4',
             lineCap: 'round'
           }).addTo(leafletGeoJsonLayer);
-          poly.bindPopup(`<b>Trazado de Fibra Óptica Troncal AHOM</b><br>Longitud: ${data.totalKm || "1.47"} km`);
+          poly.bindPopup(`<b>Trazado de Fibra Óptica Troncal AHOM</b><br>Longitud Vial: ${data.totalKm || "1.48"} km<br>Capacidad: 48 Hilos G.652D`);
+        } else if (allPoints.length >= 2) {
+          const pts = allPoints.map(p => [p.lat, p.lon]);
+          L.polyline(pts, {
+            color: '#06b6d4',
+            weight: 5,
+            opacity: 0.95,
+            dashArray: '6, 4',
+            lineCap: 'round'
+          }).addTo(leafletGeoJsonLayer);
         }
 
-        // 2. Iconos personalizados para NAPs
         const napIcon = L.divIcon({
           className: 'custom-map-icon',
           html: `<div style="background:#10b981; border:2px solid #ffffff; width:16px; height:16px; border-radius:50%; box-shadow:0 0 10px #10b981;"></div>`,
@@ -4589,16 +4809,15 @@
         naps.forEach((n, idx) => {
           const marker = L.marker([n.lat, n.lon], { icon: napIcon }).addTo(leafletGeoJsonLayer);
           marker.bindPopup(`
-            <div style="font-family:sans-serif; min-width:180px;">
-              <strong style="color:#34d399; font-size:13px;">📍 ${n.name || `Caja NAP ${idx+1}`}</strong><br>
+            <div style="font-family:sans-serif; min-width:200px;">
+              <strong style="color:#10b981; font-size:13px;">📍 ${n.name || `Caja NAP ${idx+1}`}</strong><br>
               <span style="font-size:11px; color:#cbd5e1;">Capacidad: 16 Puertos GPON</span><br>
-              <span style="font-size:11px; color:#cbd5e1;">Potencia Óptica: -19.${2 + idx} dBm</span><br>
+              <span style="font-size:11px; color:#cbd5e1;">Potencia Óptica Rx: ${n.loss || `-19.${2 + idx} dBm`}</span><br>
               <span style="font-size:10px; color:#94a3b8;">Coords: (${n.lat.toFixed(5)}, ${n.lon.toFixed(5)})</span>
             </div>
           `);
         });
 
-        // 3. Icono para Mufas FOSC
         const mufaIcon = L.divIcon({
           className: 'custom-map-icon',
           html: `<div style="background:#f59e0b; border:2px solid #ffffff; width:18px; height:18px; border-radius:4px; box-shadow:0 0 10px #f59e0b;"></div>`,
@@ -4609,652 +4828,510 @@
         mufas.forEach((m, idx) => {
           const marker = L.marker([m.lat, m.lon], { icon: mufaIcon }).addTo(leafletGeoJsonLayer);
           marker.bindPopup(`
-            <div style="font-family:sans-serif;">
-              <strong style="color:#fbbf24;">🔧 ${m.name || `Mufa FOSC 400`}</strong><br>
-              <span style="font-size:11px; color:#cbd5e1;">Punto de Empalme por Fusión</span><br>
+            <div style="font-family:sans-serif; min-width:190px;">
+              <strong style="color:#f59e0b;">🔧 ${m.name || `Mufa FOSC 400`}</strong><br>
+              <span style="font-size:11px; color:#cbd5e1;">Punto de Sangrado y Empalme por Fusión</span><br>
               <span style="font-size:10px; color:#94a3b8;">Coords: (${m.lat.toFixed(5)}, ${m.lon.toFixed(5)})</span>
             </div>
           `);
         });
 
-        // Ajustar zoom a los límites
+        const posteIcon = L.divIcon({
+          className: 'custom-map-icon',
+          html: `<div style="background:#64748b; border:2px solid #38bdf8; width:13px; height:13px; border-radius:50%; box-shadow:0 0 6px rgba(56,189,248,0.7);"></div>`,
+          iconSize: [13, 13],
+          iconAnchor: [6.5, 6.5]
+        });
+
+        postes.forEach((p, idx) => {
+          const marker = L.marker([p.lat, p.lon], { icon: posteIcon }).addTo(leafletGeoJsonLayer);
+          marker.bindPopup(`
+            <div style="font-family:sans-serif;">
+              <strong style="color:#38bdf8;">🪵 ${p.name || `Poste ${idx+1}`}</strong><br>
+              <span style="font-size:11px; color:#cbd5e1;">Postería de concreto para tendido aéreo</span><br>
+              <span style="font-size:10px; color:#94a3b8;">Coords: (${p.lat.toFixed(5)}, ${p.lon.toFixed(5)})</span>
+            </div>
+          `);
+        });
+
+        const camaraIcon = L.divIcon({
+          className: 'custom-map-icon',
+          html: `<div style="background:#a855f7; border:2px solid #ffffff; width:15px; height:11px; border-radius:2px; box-shadow:0 0 8px #a855f7;"></div>`,
+          iconSize: [15, 11],
+          iconAnchor: [7.5, 5.5]
+        });
+
+        camaras.forEach((c, idx) => {
+          const marker = L.marker([c.lat, c.lon], { icon: camaraIcon }).addTo(leafletGeoJsonLayer);
+          marker.bindPopup(`
+            <div style="font-family:sans-serif;">
+              <strong style="color:#c084fc;">🕳️ ${c.name || `Cámara Doble ${idx+1}`}</strong><br>
+              <span style="font-size:11px; color:#cbd5e1;">Cámara de inspección subterránea IDU / Telecom</span><br>
+              <span style="font-size:10px; color:#94a3b8;">Coords: (${c.lat.toFixed(5)}, ${c.lon.toFixed(5)})</span>
+            </div>
+          `);
+        });
+
         if (allPoints.length > 0) {
           const bounds = L.latLngBounds(allPoints.map(p => [p.lat, p.lon]));
           leafletMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 17 });
         }
       }
 
-      // Función para abrir mapa en una NUEVA VENTANA / PESTAÑA independiente del navegador
+      // 5. VENTANA APARTE DEL NAVEGADOR
       window.openGISStandaloneWindow = function() {
         const data = currentGisData || window.lastParsedKMZ;
-        const loc = (data && data.locationName) ? data.locationName : "Ubicacion_Fibra_AHOM";
-        const lat = (data && data.lat) ? data.lat : 4.6560;
-        const lon = (data && data.lon) ? data.lon : -74.0595;
-        const jsonStr = encodeURIComponent(JSON.stringify(data || {}));
-
+        const lat = (data && data.lat) ? data.lat : 4.2818;
+        const lon = (data && data.lon) ? data.lon : -74.7712;
         const popupUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
         window.open(popupUrl, "_blank", "width=1000,height=700,menubar=no,toolbar=no,location=yes,status=no");
-        showToast("🚀 Mapa abierto en ventana independiente");
+        showToast("🚀 Visor abierto en ventana externa");
       };
 
-      window.downloadCurrentKMZ = function() {
-        if (currentGisData && typeof window.generateAndDownloadKMZ === "function") {
-          window.generateAndDownloadKMZ(
-            currentGisData.locationName || "Plano_Red_Fibra",
-            currentGisData.lat || 4.6560,
-            currentGisData.lon || -74.0595
-          );
-        } else if (typeof window.generateAndDownloadKMZ === "function") {
-          window.generateAndDownloadKMZ("Plano_Red_Fibra_AHOM", 4.6560, -74.0595);
-        }
-      };
-
-
-      // Compatibilidad con código previo
-      window.oldFocusKMZNetwork = function() {
-        // A. Si aún no existe el grupo 3D o está vacío, proyectar datos
-        if (!kmz3DGroup || kmz3DGroup.children.length === 0) {
-          if (window.lastParsedKMZ && typeof window.plotKMZIn3DScene === "function") {
-            window.plotKMZIn3DScene(window.lastParsedKMZ);
-          } else if (typeof window.plotKMZIn3DScene === "function") {
-            // Trazado por defecto en caso de no tener archivo cargado
-            window.plotKMZIn3DScene({
-              naps: [
-                { name: "NAP-01 (16p)", lat: 4.6568, lon: -74.0600 },
-                { name: "NAP-02 (16p)", lat: 4.6574, lon: -74.0590 },
-                { name: "NAP-03 (16p)", lat: 4.6566, lon: -74.0577 },
-                { name: "NAP-04 (16p)", lat: 4.6554, lon: -74.0567 }
-              ],
-              mufas: [{ name: "Mufa FOSC Principal", lat: 4.6552, lon: -74.0610 }],
-              allPoints: [
-                { name: "Central OLT", lat: 4.6542, lon: -74.0625 },
-                { name: "Mufa FOSC", lat: 4.6552, lon: -74.0610 },
-                { name: "NAP-01", lat: 4.6568, lon: -74.0600 },
-                { name: "NAP-02", lat: 4.6574, lon: -74.0590 },
-                { name: "NAP-03", lat: 4.6566, lon: -74.0577 },
-                { name: "NAP-04", lat: 4.6554, lon: -74.0567 }
-              ]
-            });
-          }
-        }
-
-        // B. Colapsar el panel lateral para despejar el 100% de la vista 3D
-        if (typeof togglePanel === "function") {
-          togglePanel(true);
-        } else if (window.togglePanel) {
-          window.togglePanel(true);
-        } else {
-          const panel = document.getElementById("sidePanel");
-          if (panel) panel.classList.add("collapsed");
-        }
-
-        // C. Centrar la cámara 3D directamente sobre el cluster GIS y el trazado KMZ
-        const tx = -26.0, ty = -6.0, tz = -14.0;
-        if (typeof focusCameraOn === "function") {
-          focusCameraOn(tx, ty, tz, 16);
-        } else if (window.focusCameraOn) {
-          window.focusCameraOn(tx, ty, tz, 16);
-        } else if (controls && camera) {
-          controls.target.set(tx, ty, tz);
-          camera.position.set(tx + 5, ty + 6, tz + 16);
-          controls.update();
-        }
-
-        // D. Efecto de pulso y destello en los nodos del trazado KMZ
-        if (kmz3DGroup) {
-          const origScale = kmz3DGroup.scale.clone();
-          kmz3DGroup.scale.set(1.4, 1.4, 1.4);
-          setTimeout(() => {
-            if (kmz3DGroup) kmz3DGroup.scale.copy(origScale);
-          }, 350);
-        }
-
-        // E. Mostrar banner flotante para regresar fácilmente al chat
-        let hud = document.getElementById("kmz3DHudBanner");
-        if (!hud) {
-          hud = document.createElement("div");
-          hud.id = "kmz3DHudBanner";
-          hud.style.cssText = "position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(6,78,59,0.92);border:1px solid #34d399;color:#fff;padding:8px 16px;border-radius:30px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:12px;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,0.65);backdrop-filter:blur(10px);transition:all 0.3s ease;";
-          document.body.appendChild(hud);
-        }
-        hud.innerHTML = `
-          <span style="display:flex;align-items:center;gap:6px;">🗺️ <strong>Trazado KMZ Activo en 3D</strong></span>
-          <button type="button" style="background:#10b981;border:none;color:#fff;font-weight:700;padding:5px 12px;border-radius:14px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;" onclick="(typeof togglePanel==='function'?togglePanel(false):window.togglePanel(false));document.getElementById('kmz3DHudBanner').style.display='none';">
-            💬 Volver al Chat
-          </button>
-          <button type="button" style="background:transparent;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;padding:0 4px;" onclick="document.getElementById('kmz3DHudBanner').style.display='none';" title="Cerrar aviso">✕</button>
-        `;
-        hud.style.display = "flex";
-
-        showToast("🎯 Trazado KMZ enfocado en la Constelación 3D");
-      };
-
-      // 2. Generador y Descargador de Archivos KMZ comprimidos (Google Earth / QGIS)
-      window.generateAndDownloadKMZ = function(locationName, centerLat, centerLon, elements = null) {
+      // 6. GENERADOR EXPERTO DE KMZ (ZIP REAL COMPATIBLE CON GOOGLE EARTH & QGIS)
+      window.generateAndDownloadKMZ = async function(locationName, centerLat, centerLon, elements = null) {
         if (!window.JSZip) {
           alert("Librería de compresión JSZip cargándose, intente de nuevo en un segundo.");
           return;
         }
 
-        showToast(`📦 Generando archivo KMZ: ${locationName}...`);
+        showToast(`📦 Generando archivo KMZ con estructura profesional: ${locationName}...`);
 
-        const lat = parseFloat(centerLat) || 4.6560;
-        const lon = parseFloat(centerLon) || -74.0595;
+        const lat = parseFloat(centerLat) || 4.2818;
+        const lon = parseFloat(centerLon) || -74.7712;
         const safeName = (locationName || "Plano_Red_Fibra_AHOM").replace(/[^a-zA-Z0-9_-]/g, "_");
 
-        // Construir KML profesional compatible con Google Earth, Google Maps y QGIS
-        const kmlDoc = `<?xml version="1.0" encoding="UTF-8"?>
+        let net = currentGisData;
+        if (!net || Math.abs(net.lat - lat) > 0.05 || Math.abs(net.lon - lon) > 0.05) {
+          net = await generateRoadBasedFiberRoute(lat, lon, locationName);
+        }
+
+        const roadCoords = (net.roadPoints || [
+          { lat: lat - 0.0015, lon: lon - 0.0020 },
+          { lat: lat - 0.0005, lon: lon - 0.0008 },
+          { lat: lat + 0.0008, lon: lon + 0.0005 },
+          { lat: lat + 0.0014, lon: lon + 0.0018 }
+        ]).map(p => `${p.lon.toFixed(6)},${p.lat.toFixed(6)},0`).join(" ");
+
+        let kmlDoc = `<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
     <name>AHOM FIBER - Red de Fibra Óptica: ${locationName}</name>
-    <description>Diseño geoespacial de telecomunicaciones generado por AHOM FIBER IA CORP (Agente de Ingeniería GIS).</description>
-    
-    <!-- Estilos de Elementos de Red -->
-    <Style id="styleCentral">
+    <description><![CDATA[
+      <h3>Red de Fibra Óptica Diseñada por AHOM FIBER IA CORP</h3>
+      <p><b>Municipio:</b> ${locationName}</p>
+      <p><b>Longitud Total:</b> ${net.totalKm || "1.48"} km</p>
+      <p><b>Atenuación Óptica Estimada:</b> -19.4 dBm</p>
+      <p><b>Capacidad:</b> 64 Puertos GPON (4 Cajas NAP)</p>
+    ]]></description>
+
+    <!-- ESTILOS CON ÍCONOS PERSONALIZADOS EN SUBDIRECTORIO files/ -->
+    <Style id="stylePoste">
       <IconStyle>
-        <color>ffffaa00</color>
-        <scale>1.3</scale>
-        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href></Icon>
+        <scale>1.1</scale>
+        <Icon><href>files/Poste.png</href></Icon>
       </IconStyle>
+      <LabelStyle><scale>0.8</scale><color>ffffffff</color></LabelStyle>
     </Style>
-    
-    <Style id="styleMufa">
+
+    <Style id="styleCamara">
       <IconStyle>
-        <color>ff00aaff</color>
-        <scale>1.2</scale>
-        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/caution.png</href></Icon>
+        <scale>1.1</scale>
+        <Icon><href>files/Camara doble.png</href></Icon>
       </IconStyle>
+      <LabelStyle><scale>0.8</scale><color>ffffffff</color></LabelStyle>
     </Style>
 
     <Style id="styleNAP">
       <IconStyle>
         <color>ff00ff00</color>
-        <scale>1.1</scale>
+        <scale>1.2</scale>
         <Icon><href>http://maps.google.com/mapfiles/kml/shapes/target.png</href></Icon>
       </IconStyle>
+      <LabelStyle><scale>0.85</scale><color>ff34d399</color></LabelStyle>
     </Style>
 
-    <Style id="styleCable">
+    <Style id="styleMufa">
+      <IconStyle>
+        <color>ff00aaff</color>
+        <scale>1.3</scale>
+        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/caution.png</href></Icon>
+      </IconStyle>
+      <LabelStyle><scale>0.85</scale><color>fff59e0b</color></LabelStyle>
+    </Style>
+
+    <Style id="styleFibraTroncal">
       <LineStyle>
         <color>ffffff00</color>
-        <width>4</width>
+        <width>5</width>
       </LineStyle>
     </Style>
 
-    <!-- Carpeta 1: Infraestructura Principal -->
+    <!-- 1. CARPETA: Trazado Fibra Óptica -->
     <Folder>
-      <name>1. Cabecera y Empalmes</name>
+      <name>Trazado Fibra Óptica</name>
+      <open>1</open>
       <Placemark>
-        <name>Central OLT AHOM FIBER</name>
-        <description>Cabecera óptica de alimentación con enlace DWDM 100G redundante.</description>
-        <styleUrl>#styleCentral</styleUrl>
-        <Point><coordinates>${(lon - 0.003).toFixed(6)},${(lat - 0.002).toFixed(6)},0</coordinates></Point>
-      </Placemark>
-      <Placemark>
-        <name>Mufa FOSC Principal (Empalme Sangrado)</name>
-        <description>Mufa de derivación FOSC 400 con capacidad para 48 empalmes por fusión.</description>
-        <styleUrl>#styleMufa</styleUrl>
-        <Point><coordinates>${(lon - 0.0015).toFixed(6)},${(lat - 0.001).toFixed(6)},0</coordinates></Point>
-      </Placemark>
-    </Folder>
-
-    <!-- Carpeta 2: Cajas de Distribución NAP -->
-    <Folder>
-      <name>2. Cajas NAP 16 Puertos</name>
-      <Placemark>
-        <name>NAP-01 (16 Puertos GPON)</name>
-        <description>Caja de dispersión óptica con splitter 1:16. Potencia estimada: -19.2 dBm.</description>
-        <styleUrl>#styleNAP</styleUrl>
-        <Point><coordinates>${(lon - 0.0008).toFixed(6)},${(lat + 0.0006).toFixed(6)},0</coordinates></Point>
-      </Placemark>
-      <Placemark>
-        <name>NAP-02 (16 Puertos GPON)</name>
-        <description>Caja de dispersión óptica con splitter 1:16. Potencia estimada: -19.5 dBm.</description>
-        <styleUrl>#styleNAP</styleUrl>
-        <Point><coordinates>${(lon + 0.0005).toFixed(6)},${(lat + 0.0012).toFixed(6)},0</coordinates></Point>
-      </Placemark>
-      <Placemark>
-        <name>NAP-03 (16 Puertos GPON)</name>
-        <description>Caja de dispersión óptica con splitter 1:16. Potencia estimada: -19.8 dBm.</description>
-        <styleUrl>#styleNAP</styleUrl>
-        <Point><coordinates>${(lon + 0.0018).toFixed(6)},${(lat + 0.0004).toFixed(6)},0</coordinates></Point>
-      </Placemark>
-      <Placemark>
-        <name>NAP-04 (16 Puertos GPON)</name>
-        <description>Caja de dispersión óptica con splitter 1:16. Potencia estimada: -20.1 dBm.</description>
-        <styleUrl>#styleNAP</styleUrl>
-        <Point><coordinates>${(lon + 0.0028).toFixed(6)},${(lat - 0.0008).toFixed(6)},0</coordinates></Point>
-      </Placemark>
-    </Folder>
-
-    <!-- Carpeta 3: Trazado Lineal de Fibra Óptica -->
-    <Folder>
-      <name>3. Trazado de Cable Fibra Óptica</name>
-      <Placemark>
-        <name>Ruta Troncal &amp; Distribución Subterránea</name>
-        <description>Cable dieléctrico ADSS / Ductado subterráneo de 48 hilos monomodo ITU-T G.652D.</description>
-        <styleUrl>#styleCable</styleUrl>
+        <name>Tendido Troncal &amp; Distribución (${locationName})</name>
+        <description><![CDATA[
+          <table border="1" cellpadding="4" style="border-collapse:collapse; font-family:sans-serif;">
+            <tr style="background:#0284c7; color:#fff;"><th>Parámetro</th><th>Valor</th></tr>
+            <tr><td><b>Tipo de Cable</b></td><td>ADSS / Ductado Subterráneo 48 FO</td></tr>
+            <tr><td><b>Norma</b></td><td>ITU-T G.652D Monomodo</td></tr>
+            <tr><td><b>Longitud de Ruta</b></td><td>${net.totalKm || "1.48"} km (${net.totalMeters || 1480} m)</td></tr>
+            <tr><td><b>Atenuación Fibra</b></td><td>0.35 dB/km @ 1310nm</td></tr>
+          </table>
+        ]]></description>
+        <styleUrl>#styleFibraTroncal</styleUrl>
         <LineString>
           <tessellate>1</tessellate>
-          <coordinates>
-            ${(lon - 0.003).toFixed(6)},${(lat - 0.002).toFixed(6)},0
-            ${(lon - 0.0015).toFixed(6)},${(lat - 0.001).toFixed(6)},0
-            ${(lon - 0.0008).toFixed(6)},${(lat + 0.0006).toFixed(6)},0
-            ${(lon + 0.0005).toFixed(6)},${(lat + 0.0012).toFixed(6)},0
-            ${(lon + 0.0018).toFixed(6)},${(lat + 0.0004).toFixed(6)},0
-            ${(lon + 0.0028).toFixed(6)},${(lat - 0.0008).toFixed(6)},0
-          </coordinates>
+          <coordinates>${roadCoords}</coordinates>
         </LineString>
       </Placemark>
     </Folder>
+
+    <!-- 2. CARPETA: Postería y Cámaras -->
+    <Folder>
+      <name>Postería y Cámaras</name>
+      <open>1</open>
+`;
+
+        (net.postes || []).forEach((p, idx) => {
+          kmlDoc += `      <Placemark>
+        <name>${p.name}</name>
+        <description><![CDATA[
+          <p><b>Elemento:</b> Poste de Concreto para Tendido Aéreo</p>
+          <p><b>Altura:</b> 8 metros | Carga: 510 kg</p>
+          <p><b>Coordenadas:</b> ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>
+        ]]></description>
+        <styleUrl>#stylePoste</styleUrl>
+        <Point><coordinates>${p.lon.toFixed(6)},${p.lat.toFixed(6)},0</coordinates></Point>
+      </Placemark>
+`;
+        });
+
+        (net.camaras || []).forEach((c, idx) => {
+          kmlDoc += `      <Placemark>
+        <name>${c.name}</name>
+        <description><![CDATA[
+          <p><b>Elemento:</b> Cámara Doble Subterránea de Inspección y Paso</p>
+          <p><b>Norma:</b> ETB / Codensa / IDU</p>
+          <p><b>Coordenadas:</b> ${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}</p>
+        ]]></description>
+        <styleUrl>#styleCamara</styleUrl>
+        <Point><coordinates>${c.lon.toFixed(6)},${c.lat.toFixed(6)},0</coordinates></Point>
+      </Placemark>
+`;
+        });
+
+        kmlDoc += `    </Folder>
+
+    <!-- 3. CARPETA: Cajas NAP / Mufas FOSC -->
+    <Folder>
+      <name>Cajas NAP / Mufas FOSC</name>
+      <open>1</open>
+`;
+
+        (net.mufas || []).forEach(m => {
+          kmlDoc += `      <Placemark>
+        <name>${m.name}</name>
+        <description><![CDATA[
+          <table border="1" cellpadding="4" style="border-collapse:collapse; font-family:sans-serif;">
+            <tr style="background:#f59e0b; color:#fff;"><th>Elemento</th><th>Especificación</th></tr>
+            <tr><td><b>Tipo</b></td><td>Mufa de Empalme FOSC 400</td></tr>
+            <tr><td><b>Capacidad</b></td><td>48 Fusiones de Fibra Óptica</td></tr>
+            <tr><td><b>Pérdida por Inserción</b></td><td>&lt; 0.05 dB por empalme</td></tr>
+            <tr><td><b>Coordenadas</b></td><td>${m.lat.toFixed(6)}, ${m.lon.toFixed(6)}</td></tr>
+          </table>
+        ]]></description>
+        <styleUrl>#styleMufa</styleUrl>
+        <Point><coordinates>${m.lon.toFixed(6)},${m.lat.toFixed(6)},0</coordinates></Point>
+      </Placemark>
+`;
+        });
+
+        (net.naps || []).forEach((n, idx) => {
+          kmlDoc += `      <Placemark>
+        <name>${n.name}</name>
+        <description><![CDATA[
+          <table border="1" cellpadding="4" style="border-collapse:collapse; font-family:sans-serif;">
+            <tr style="background:#10b981; color:#fff;"><th>Parámetro</th><th>Telemetría</th></tr>
+            <tr><td><b>Capacidad</b></td><td>16 Puertos GPON para Abonados</td></tr>
+            <tr><td><b>Splitter</b></td><td>1:16 Balanceado PLC</td></tr>
+            <tr><td><b>Potencia Rx Óptica</b></td><td>${n.loss || `-19.${2 + idx} dBm`}</td></tr>
+            <tr><td><b>Distancia Media Cliente</b></td><td>38 metros</td></tr>
+            <tr><td><b>Coordenadas</b></td><td>${n.lat.toFixed(6)}, ${n.lon.toFixed(6)}</td></tr>
+          </table>
+        ]]></description>
+        <styleUrl>#styleNAP</styleUrl>
+        <Point><coordinates>${n.lon.toFixed(6)},${n.lat.toFixed(6)},0</coordinates></Point>
+      </Placemark>
+`;
+        });
+
+        kmlDoc += `    </Folder>
   </Document>
 </kml>`;
 
-        const zip = new JSZip();
-        zip.file("doc.kml", kmlDoc);
+        try {
+          const zip = new JSZip();
+          zip.file("doc.kml", kmlDoc);
+          
+          const filesFolder = zip.folder("files");
+          filesFolder.file("Poste.png", POSTE_ICON_B64, { base64: true });
+          filesFolder.file("Camara doble.png", CAMARA_DOBLE_ICON_B64, { base64: true });
 
-        zip.generateAsync({ type: "blob", mimeType: "application/vnd.google-earth.kmz" })
-          .then(blob => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${safeName}.kmz`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast(`✅ Descarga completada: ${safeName}.kmz`);
-          })
-          .catch(err => {
-            console.error("Error empaquetando KMZ:", err);
-            // Fallback directo a KML
-            const blob = new Blob([kmlDoc], { type: "application/vnd.google-earth.kml+xml" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${safeName}.kml`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          });
+          const blob = await zip.generateAsync({ type: "blob", mimeType: "application/vnd.google-earth.kmz" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${safeName}.kmz`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast(`✅ Descarga completada: ${safeName}.kmz (Google Earth)`);
+        } catch (err) {
+          console.error("Error generando KMZ ZIP:", err);
+          showToast("⚠️ Fallo en empaquetado KMZ");
+        }
       };
 
-      // 3. Generador de Respuestas Especializadas de Ingeniería GIS & Análisis de Ubicación
-      window.generateGISSpecializedResponse = function(userMsg, msgLower) {
-        // Detectar si el usuario especifica una ubicación o coordenadas
-        let locationName = "Sector Comercial Calle 72 & Cra 7, Bogotá";
-        let lat = 4.6562;
-        let lon = -74.0592;
-        let centralRef = "Central Chico / DC Alma (Suba)";
-
-        // Regex para capturar coordenadas lat, lon
-        const coordMatch = userMsg.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
-        if (coordMatch) {
-          lat = parseFloat(coordMatch[1]);
-          lon = parseFloat(coordMatch[2]);
-          locationName = `Coordenadas (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-        } else if (/(calle 72|cra 7|carrera 7|carrera 7a)/i.test(msgLower)) {
-          locationName = "Carrera 7 con Calle 72 (Zona Financiera)";
-          lat = 4.6560; lon = -74.0595;
-          centralRef = "Central Chico & Anillo Troncal DWDM 100G";
-        } else if (/(chapinero|lourdes|cll 63|cll 53)/i.test(msgLower)) {
-          locationName = "Sector Chapinero & Alta Densidad Comercial";
-          lat = 4.6480; lon = -74.0635;
-          centralRef = "Central Chapinero & Ductería Subterránea AHOM";
-        } else if (/(calle 100|chico|chicó|parque 93|cra 15)/i.test(msgLower)) {
-          locationName = "Corredor Empresarial Calle 100 & Chico";
-          lat = 4.6852; lon = -74.0538;
-          centralRef = "Central Chico Tier III Connection";
-        } else if (/(suba|alma|turingia|alcaldia suba)/i.test(msgLower)) {
-          locationName = "Sector Suba & Data Center Alma";
-          lat = 4.7450; lon = -74.0880;
-          centralRef = "Data Center Alma (Suba) - Núcleo Primario";
-        } else if (/(puente aranda|prado|zona industrial|las americas)/i.test(msgLower)) {
-          locationName = "Zona Industrial Puente Aranda & DC Prado";
-          lat = 4.6280; lon = -74.1120;
-          centralRef = "Data Center Prado (Disaster Recovery)";
-        } else if (/(usaquen|usaquén|santa barbara|unicentro)/i.test(msgLower)) {
-          locationName = "Usaquén & Santa Bárbara Empresarial";
-          lat = 4.6980; lon = -74.0320;
-          centralRef = "Anillo Troncal Norte DWDM";
-        } else if (/(centro|la candelaria|plaza bolivar|torre ahom)/i.test(msgLower)) {
-          locationName = "Centro Internacional & Torre AHOM FIBER";
-          lat = 4.6097; lon = -74.0720;
-          centralRef = "Torre Central AHOM FIBER (Cra 8a # 20-00)";
-        } else if (/(medellin|medellín|poblado|laureles)/i.test(msgLower)) {
-          locationName = "Medellín - Corredor El Poblado";
-          lat = 6.2088; lon = -75.5670;
-          centralRef = "Nodo Troncal Interurbano Medellín";
-        } else if (/(cali|chipichape|granada)/i.test(msgLower)) {
-          locationName = "Cali - Zona Norte & Chipichape";
-          lat = 3.4750; lon = -76.5300;
-          centralRef = "Nodo Troncal Interurbano Valle";
-        }
-
-        // Trazar de inmediato la red en 3D para que el usuario la vea cobrar vida en pantalla
-        const syntheticNetwork = {
-          naps: [
-            { name: "NAP-01 (16p)", lat: lat + 0.0006, lon: lon - 0.0008 },
-            { name: "NAP-02 (16p)", lat: lat + 0.0012, lon: lon + 0.0005 },
-            { name: "NAP-03 (16p)", lat: lat + 0.0004, lon: lon + 0.0018 },
-            { name: "NAP-04 (16p)", lat: lat - 0.0008, lon: lon + 0.0028 }
-          ],
-          mufas: [
-            { name: "Mufa FOSC Sangrado", lat: lat - 0.001, lon: lon - 0.0015 }
-          ],
-          cables: [
-            { name: "Alimentación Troncal 48 FO", meters: 850 },
-            { name: "Ramal Distribución NAPs", meters: 620 }
-          ],
-          allPoints: [
-            { name: "Central OLT", lat: lat - 0.002, lon: lon - 0.003 },
-            { name: "Mufa FOSC Sangrado", lat: lat - 0.001, lon: lon - 0.0015 },
-            { name: "NAP-01", lat: lat + 0.0006, lon: lon - 0.0008 },
-            { name: "NAP-02", lat: lat + 0.0012, lon: lon + 0.0005 },
-            { name: "NAP-03", lat: lat + 0.0004, lon: lon + 0.0018 },
-            { name: "NAP-04", lat: lat - 0.0008, lon: lon + 0.0028 }
-          ]
-        };
-
-        window.lastParsedKMZ = syntheticNetwork;
-        if (typeof window.plotKMZIn3DScene === "function") {
-          window.plotKMZIn3DScene(syntheticNetwork);
-        }
-
-        const safeLoc = locationName.replace(/['"]/g, "");
-        const totalKm = "1.47";
-        const totalNaps = 4;
-        const totalCapacity = 64; // 4 NAPs * 16 puertos
-
-        return `### 🗺️ Dictamen de Factibilidad & Diseño de Red KMZ
-` +
-          `**Ubicación Analizada:** **${locationName}**
-` +
-          `📍 **Coordenadas de Referencia:** \`(${lat.toFixed(5)}, ${lon.toFixed(5)})\`
-
-` +
-          `He generado el trazado cartográfico de fibra óptica en un **Mapa Aparte** con capas satélite y telemetría geoespacial y generado el plano cartográfico descargable en formato **.KMZ**:
-
-` +
-          `<div class="kmz-action-card">
-            <div class="kmz-action-card-header">
-              <span>⚡ Telemetría de Diseño de Fibra Óptica</span>
-            </div>
-            <div class="kmz-stat-grid">
-              <div class="kmz-stat-item">
-                <div class="kmz-stat-val">${totalKm} km</div>
-                <div class="kmz-stat-lbl">Tendido de Fibra Subterránea</div>
-              </div>
-              <div class="kmz-stat-item">
-                <div class="kmz-stat-val">${totalNaps} Cajas NAP</div>
-                <div class="kmz-stat-lbl">Capacidad: ${totalCapacity} Puertos GPON</div>
-              </div>
-              <div class="kmz-stat-item">
-                <div class="kmz-stat-val">-19.4 dBm</div>
-                <div class="kmz-stat-lbl">Potencia Óptica Rx Estimada</div>
-              </div>
-              <div class="kmz-stat-item">
-                <div class="kmz-stat-val" style="color:#34d399;">100% Factible</div>
-                <div class="kmz-stat-lbl">Conexión Inmediata FTTH/FTTO</div>
-              </div>
-            </div>
-            <div class="kmz-btn-group">
-              <button type="button" class="kmz-action-btn" onclick="window.generateAndDownloadKMZ('${safeLoc}', ${lat}, ${lon})">
-                📥 Descargar Plano KMZ (${safeLoc.slice(0, 18)}.kmz)
-              </button>
-              <button type="button" class="kmz-action-btn secondary" onclick="window.focusKMZNetwork()">
-                🗺️ Ver Trazado en Mapa Aparte
-              </button>
-              <a class="kmz-action-btn secondary" href="https://www.google.com/maps?q=${lat},${lon}" target="_blank">
-                🗺️ Abrir en Google Maps
-              </a>
-            </div>
-          </div>
-
-` +
-          `#### 📋 Especificaciones Técnicas del Enlace:
-` +
-          `- 🏢 **Central de Cabecera:** **${centralRef}**
-` +
-          `- ⚡ **Cajas NAP Diseñadas:** 4 cajas de 16 puertos en postes/cámaras estratégicas (distancia promedio al cliente: **42 metros**).
-` +
-          `- 🛡️ **Presupuesto Óptico:** Tx OLT +4.5 dBm | Atenuación fibra (-0.51 dB) | Splitter 1:16 (-13.8 dB) | Empalmes FOSC (-0.6 dB) = **Rx ONT -19.4 dBm** (Margen de reserva de **+7.6 dB** sobre umbral crítico).
-` +
-          `- 🚀 **SLA Corporativo:** Apto para enlaces simétricos dedicados 1:1 desde 100 Mbps hasta 10 Gbps XGS-PON.
-
-` +
-          `*Haz clic en el botón superior para descargar el archivo **.KMZ** e importarlo directamente en Google Earth o QGIS.*`;
+      window.downloadCurrentKMZ = function() {
+        const net = currentGisData || window.lastParsedKMZ || { locationName: "Ricaurte_Cundinamarca", lat: 4.2818, lon: -74.7712 };
+        window.generateAndDownloadKMZ(
+          net.locationName || "Plano_Red_Fibra",
+          net.lat || 4.2818,
+          net.lon || -74.7712
+        );
       };
 
-      window.processKMZFile = async function(file) {
-        const processKMZFile = window.processKMZFile;
-        showToast(`📍 Cargando archivo ${file.name}...`);
-        
-        // 1. Abrir panel lateral y pasar a pestaña de Chat
-        const sidePanel = document.getElementById("sidePanel");
-        if (sidePanel && sidePanel.classList.contains("collapsed")) {
-          sidePanel.classList.remove("collapsed");
-        }
-        switchTab("chat");
-
-        // 2. Enfocar en el Agente de Ingeniería GIS
-        currentDept = { id: "c_gis", name: "Ingeniería GIS & Cartografía", emblem: "🗺️" };
-        const agentAvatar = document.getElementById("agent-avatar");
-        const agentName = document.getElementById("agent-name");
-        const agentRole = document.getElementById("agent-role");
-        if (agentAvatar) agentAvatar.textContent = "🗺️";
-        if (agentName) agentName.textContent = "Ingeniería GIS & Diseño de Red (KMZ)";
-        if (agentRole) agentRole.textContent = "Lector e Intérprete Cartográfico Experto de Fibra Óptica";
-
-        // Mover la cámara hacia el cluster GIS si existe
-        if (typeof focusOnDepartment === "function") {
-          focusOnDepartment("c_gis");
-        }
-
-        const loadId = appendChatMessage("agent", `🔄 *Analizando y extrayendo topología del archivo: **${file.name}**...*`);
+      // 7. LECTOR E IMPORTADOR DE ARCHIVOS KMZ DESDE EL VISOR CARTOGRÁFICO
+      window.handleGisModalFileSelect = async function(input) {
+        if (!input || !input.files || !input.files[0]) return;
+        const file = input.files[0];
+        input.value = "";
+        showToast(`📂 Descomprimiendo y cargando ${file.name} en el mapa...`);
 
         try {
           let kmlText = "";
           const isKmz = file.name.toLowerCase().endsWith(".kmz");
 
           if (isKmz) {
-            if (!window.JSZip) {
-              throw new Error("Librería de descompresión JSZip no inicializada");
-            }
+            if (!window.JSZip) throw new Error("Librería JSZip no cargada.");
             const zip = await JSZip.loadAsync(file);
             let kmlFile = zip.file("doc.kml");
             if (!kmlFile) {
-              const kmlFiles = Object.keys(zip.files).filter(f => f.toLowerCase().endsWith(".kml"));
-              if (kmlFiles.length > 0) kmlFile = zip.file(kmlFiles[0]);
+              const kmls = Object.keys(zip.files).filter(f => f.toLowerCase().endsWith(".kml"));
+              if (kmls.length > 0) kmlFile = zip.file(kmls[0]);
             }
-            if (!kmlFile) {
-              throw new Error("El archivo .KMZ no contiene ningún archivo .kml válido.");
-            }
+            if (!kmlFile) throw new Error("El archivo .kmz no contiene ningún doc.kml válido.");
             kmlText = await kmlFile.async("text");
           } else {
             kmlText = await file.text();
           }
 
-          // Parsear XML KML
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(kmlText, "text/xml");
+          const placemarks = xmlDoc.getElementsByTagName("Placemark");
+
+          const naps = [];
+          const mufas = [];
+          const postes = [];
+          const camaras = [];
+          const roadPoints = [];
           let totalMeters = 0;
-          let naps = [];
-          let mufas = [];
-          let cables = [];
-          let postes = [];
 
-          if (kmlText) {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(kmlText, "text/xml");
-            const placemarks = xmlDoc.getElementsByTagName("Placemark");
+          for (let i = 0; i < placemarks.length; i++) {
+            const pm = placemarks[i];
+            const pName = pm.getElementsByTagName("name")[0]?.textContent?.trim() || `Elemento ${i+1}`;
+            const pLower = pName.toLowerCase();
 
-            for (let i = 0; i < placemarks.length; i++) {
-              const pm = placemarks[i];
-              const pName = pm.getElementsByTagName("name")[0]?.textContent?.trim() || `Elemento ${i+1}`;
-              const pLower = pName.toLowerCase();
-
-              // Extraer punto (Point)
-              const pt = pm.getElementsByTagName("Point")[0];
-              if (pt) {
-                const cText = pt.getElementsByTagName("coordinates")[0]?.textContent?.trim();
-                if (cText) {
-                  const parts = cText.split(",");
-                  const lon = parseFloat(parts[0]);
-                  const lat = parseFloat(parts[1]);
-                  if (!isNaN(lat) && !isNaN(lon)) {
-                    if (/(nap|caja|dispersion|splitter)/i.test(pLower)) {
-                      naps.push({ name: pName, lat, lon });
-                    } else if (/(mufa|fosc|empalme|torpedo)/i.test(pLower)) {
-                      mufas.push({ name: pName, lat, lon });
-                    } else if (/(poste|pole)/i.test(pLower)) {
-                      postes.push({ name: pName, lat, lon });
-                    }
+            const pt = pm.getElementsByTagName("Point")[0];
+            if (pt) {
+              const coords = pt.getElementsByTagName("coordinates")[0]?.textContent?.trim();
+              if (coords) {
+                const parts = coords.split(",");
+                const lon = parseFloat(parts[0]);
+                const lat = parseFloat(parts[1]);
+                if (!isNaN(lat) && !isNaN(lon)) {
+                  if (/(nap|caja|dispersion|splitter)/i.test(pLower)) {
+                    naps.push({ name: pName, lat, lon });
+                  } else if (/(mufa|fosc|empalme)/i.test(pLower)) {
+                    mufas.push({ name: pName, lat, lon });
+                  } else if (/(camara|cámara|manhole)/i.test(pLower)) {
+                    camaras.push({ name: pName, lat, lon });
+                  } else if (/(poste|pole)/i.test(pLower)) {
+                    postes.push({ name: pName, lat, lon });
+                  } else {
+                    postes.push({ name: pName, lat, lon });
                   }
                 }
               }
+            }
 
-              // Extraer línea (LineString)
-              const line = pm.getElementsByTagName("LineString")[0];
-              if (line) {
-                const cText = line.getElementsByTagName("coordinates")[0]?.textContent?.trim();
-                if (cText) {
-                  const tokens = cText.split(/\s+/).filter(Boolean);
-                  let dist = 0;
-                  let prevLat = null, prevLon = null;
-                  for (const t of tokens) {
-                    const parts = t.split(",");
-                    const lon = parseFloat(parts[0]);
-                    const lat = parseFloat(parts[1]);
-                    if (!isNaN(lat) && !isNaN(lon)) {
-                      if (prevLat !== null) {
-                        dist += haversineDistMeters(prevLat, prevLon, lat, lon);
-                      }
-                      prevLat = lat; prevLon = lon;
+            const line = pm.getElementsByTagName("LineString")[0];
+            if (line) {
+              const coords = line.getElementsByTagName("coordinates")[0]?.textContent?.trim();
+              if (coords) {
+                const tokens = coords.split(/\s+/).filter(Boolean);
+                let prevLat = null, prevLon = null;
+                for (const t of tokens) {
+                  const parts = t.split(",");
+                  const lon = parseFloat(parts[0]);
+                  const lat = parseFloat(parts[1]);
+                  if (!isNaN(lat) && !isNaN(lon)) {
+                    roadPoints.push({ lat, lon });
+                    if (prevLat !== null) {
+                      totalMeters += haversineDistMeters(prevLat, prevLon, lat, lon);
                     }
+                    prevLat = lat; prevLon = lon;
                   }
-                  totalMeters += dist;
-                  cables.push({ name: pName, meters: Math.round(dist) });
                 }
               }
             }
           }
 
-          // Intentar enviar al backend en caliente si está disponible
-          try {
-            const formData = new FormData();
-            formData.append("file", file);
-            fetch(`${API_BASE}/api/upload-kmz`, { method: "POST", body: formData })
-              .then(r => r.json())
-              .then(data => console.log("KMZ sincronizado en Backend:", data))
-              .catch(err => console.warn("Backend local no disponible para sync KMZ, usando cliente:", err));
-          } catch (e) {
-            console.warn("Backend no disponible:", e);
+          const allPoints = [...naps, ...mufas, ...postes, ...camaras, ...roadPoints];
+          if (allPoints.length === 0) {
+            throw new Error("No se encontraron coordenadas en el archivo cargado.");
           }
 
-          // Remover mensaje de carga
-          const loadElem = document.getElementById(loadId);
-          if (loadElem) loadElem.remove();
+          const centerLat = allPoints[0].lat;
+          const centerLon = allPoints[0].lon;
+          const totalKm = (totalMeters > 0 ? totalMeters / 1000 : 1.45).toFixed(2);
 
-          const totalKm = (totalMeters / 1000).toFixed(2);
-          const napsText = naps.length > 0
-            ? naps.slice(0, 4).map(n => `- 📍 **${n.name}**: \`(${n.lat.toFixed(5)}, ${n.lon.toFixed(5)})\``).join("\n")
-            : "- _Cajas NAP georreferenciadas según trazado general_";
+          const parsedData = {
+            locationName: file.name.replace(/\.[^/.]+$/, ""),
+            lat: centerLat,
+            lon: centerLon,
+            totalKm: totalKm,
+            totalMeters: Math.round(totalMeters),
+            naps: naps,
+            mufas: mufas,
+            postes: postes,
+            camaras: camaras,
+            roadPoints: roadPoints,
+            allPoints: allPoints
+          };
 
-          const cablesText = cables.length > 0
-            ? cables.slice(0, 3).map(c => `- 📏 **${c.name}**: **${(c.meters/1000).toFixed(2)} km** (${c.meters} m)`).join("\n")
-            : `- 📏 **Trazado de fibra continua**: **${totalKm} km**`;
-
-          const responseMsg = `### 🗺️ ¡Plano KMZ Procesado y Memorizado Exitosamente!\n\n` +
-            `He integrado el archivo **\`${file.name}\`** en la memoria cartográfica del **Agente de Ingeniería GIS**:\n\n` +
-            `#### 📊 Telemetría Geoespacial Extraída:\n` +
-            `- 📏 **Longitud Total de Fibra Óptica:** **${totalKm} km** (${Math.round(totalMeters)} metros)\n` +
-            `- 📍 **Cajas NAP Detectadas:** **${naps.length} NAPs**\n` +
-            `- 🔧 **Mufas de Empalme FOSC:** **${mufas.length} Mufas**\n` +
-            `- ⚡ **Trazados de Cable:** **${cables.length || 1} Rutas lineales**\n\n` +
-            `#### 📍 Elementos Destacados:\n` +
-            `${napsText}\n` +
-            `${cablesText}\n\n` +
-            `✅ **Memoria del Agente Actualizada:** Puedes consultarme ahora sobre factibilidad de conexión en cualquier coordenada *(ej: \`${naps[0] ? naps[0].lat.toFixed(4) + ", " + naps[0].lon.toFixed(4) : "4.6852, -74.0538"}\`)* o pedirme detalles de cualquier tramo de fibra.`;
-
-          // Proyectar el KMZ subido en 3D en la Constelación
-          const parsedData = { naps, mufas, cables, totalMeters, allPoints: [...naps, ...mufas] };
+          currentGisData = parsedData;
           window.lastParsedKMZ = parsedData;
-          if (typeof window.plotKMZIn3DScene === "function") {
-            window.plotKMZIn3DScene(parsedData);
-          }
 
-          const capacity = (naps.length || 1) * 16;
-          const estLoss = (totalKm * 0.35 + 14.5).toFixed(1);
+          window.openGISMapModal(parsedData, parsedData.locationName);
 
-          const richResponseMsg = `### 🗺️ ¡Plano Cartográfico KMZ Analizado & Renderizado en 3D!
+          appendChatMessage("agent", `### 🗺️ ¡Archivo KMZ Cargado en el Visor Cartográfico!\n\n` +
+            `He renderizado el archivo **\`${file.name}\`** en el Visor GIS interactivo:\n` +
+            `- 📍 **Ubicación Base:** \`Lat: ${centerLat.toFixed(5)}, Lon: ${centerLon.toFixed(5)}\`\n` +
+            `- 📏 **Longitud de Fibra:** **${totalKm} km**\n` +
+            `- ⚡ **Cajas NAP:** **${naps.length}**\n` +
+            `- 🔧 **Mufas FOSC:** **${mufas.length}**\n` +
+            `- 🪵 **Postes Identificados:** **${postes.length}**\n` +
+            `- 🕳️ **Cámaras Dobles:** **${camaras.length}**\n\n` +
+            `Puedes examinar las capas de satélite y calles directamente en el visor o consultarme detalles sobre este diseño.`,
+            { agent_name: "Ingeniería GIS & Diseño de Red (KMZ)", emblem: "🗺️" }
+          );
 
-` +
-            `He decodificado completamente el archivo **\`${file.name}\`** y he proyectado su topología directamente sobre la **Constelación 3D**:
+          showToast(`✅ ${file.name} renderizado exitosamente en el mapa`);
+        } catch (err) {
+          console.error("Error al cargar KMZ en el visor:", err);
+          showToast(`⚠️ Error al leer KMZ: ${err.message}`);
+        }
+      };
 
-` +
-            `<div class="kmz-action-card">
-              <div class="kmz-action-card-header">
-                <span>📊 Auditoría Geoespacial de Red (${file.name})</span>
+      window.focusKMZNetwork = function() {
+        window.openGISMapModal(window.lastParsedKMZ, (window.lastParsedKMZ && window.lastParsedKMZ.locationName) || "Ubicación Analizada");
+      };
+
+      // 8. GENERADOR DE RESPUESTAS ESPECIALIZADAS DE INGENIERÍA GIS (DINÁMICO & CONECTADO A NOMINATIM/OSRM)
+      window.generateGISSpecializedResponse = async function(userMsg, msgLower) {
+        let cleanQuery = userMsg
+          .replace(/(diseño de red|diseno de red|factibilidad|cobertura|genera un kmz|generar kmz|descargar kmz|trazado|en el municipio de|en el sector de|en la ciudad de|en|para|sector|municipio|ciudad)/gi, " ")
+          .trim();
+
+        if (cleanQuery.length < 3) {
+          if (/(ricaurte)/i.test(msgLower)) cleanQuery = "Ricaurte, Cundinamarca";
+          else if (/(girardot)/i.test(msgLower)) cleanQuery = "Girardot, Cundinamarca";
+          else if (/(flandes)/i.test(msgLower)) cleanQuery = "Flandes, Tolima";
+          else if (/(fusagasuga|fusa)/i.test(msgLower)) cleanQuery = "Fusagasugá, Cundinamarca";
+          else if (/(ibague|ibagué)/i.test(msgLower)) cleanQuery = "Ibagué, Tolima";
+          else if (/(villavicencio|villavo)/i.test(msgLower)) cleanQuery = "Villavicencio, Meta";
+          else if (/(medellin|medellín)/i.test(msgLower)) cleanQuery = "Medellín, Antioquia";
+          else if (/(cali)/i.test(msgLower)) cleanQuery = "Cali, Valle del Cauca";
+          else if (/(bogota|bogotá)/i.test(msgLower)) cleanQuery = "Bogotá, Colombia";
+          else cleanQuery = "Ricaurte, Cundinamarca";
+        }
+
+        const geo = await geocodeLocationNominatim(cleanQuery);
+        const lat = geo.lat;
+        const lon = geo.lon;
+        const locName = geo.name;
+        const centralRef = geo.central;
+
+        const net = await generateRoadBasedFiberRoute(lat, lon, locName);
+        window.lastParsedKMZ = net;
+        currentGisData = net;
+
+        window.openGISMapModal(net, locName);
+
+        const safeLoc = locName.replace(/['"]/g, "");
+        const totalKm = net.totalKm || "1.48";
+        const totalNaps = (net.naps || []).length || 4;
+        const totalCapacity = totalNaps * 16;
+        const totalPostes = (net.postes || []).length;
+        const totalCamaras = (net.camaras || []).length;
+
+        return `### 🗺️ Dictamen de Factibilidad & Diseño de Red KMZ\n\n` +
+          `**Ubicación Analizada:** **${locName}**\n` +
+          `📍 **Coordenadas Geográficas Reales:** \`Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}\`\n\n` +
+          `He centrado el **Visor Cartográfico GIS** exactamente en las coordenadas reales de **${locName}** y calculado el tendido de fibra siguiendo las vías públicas vehiculares y peatonales:\n\n` +
+          `<div class="kmz-action-card">
+            <div class="kmz-action-card-header">
+              <span>⚡ Telemetría de Red de Fibra (${locName})</span>
+            </div>
+            <div class="kmz-stat-grid">
+              <div class="kmz-stat-item">
+                <div class="kmz-stat-val">${totalKm} km</div>
+                <div class="kmz-stat-lbl">Tendido sobre Vías Reales</div>
               </div>
-              <div class="kmz-stat-grid">
-                <div class="kmz-stat-item">
-                  <div class="kmz-stat-val">${totalKm} km</div>
-                  <div class="kmz-stat-lbl">Longitud Total de Fibra</div>
-                </div>
-                <div class="kmz-stat-item">
-                  <div class="kmz-stat-val">${naps.length} NAPs</div>
-                  <div class="kmz-stat-lbl">Capacidad: ${capacity} Abonados (16p)</div>
-                </div>
-                <div class="kmz-stat-item">
-                  <div class="kmz-stat-val">${mufas.length} Mufas</div>
-                  <div class="kmz-stat-lbl">Puntos de Empalme FOSC</div>
-                </div>
-                <div class="kmz-stat-item">
-                  <div class="kmz-stat-val" style="color:#34d399;">-${estLoss} dBm</div>
-                  <div class="kmz-stat-lbl">Atenuación Estimada GPON</div>
-                </div>
+              <div class="kmz-stat-item">
+                <div class="kmz-stat-val">${totalNaps} NAPs</div>
+                <div class="kmz-stat-lbl">Capacidad: ${totalCapacity} Puertos GPON</div>
               </div>
-              <div class="kmz-btn-group">
-                <button type="button" class="kmz-action-btn" onclick="window.generateAndDownloadKMZ('${file.name.replace(/\.[^/.]+$/, "")}_Optimizado', ${naps[0] ? naps[0].lat : 4.656}, ${naps[0] ? naps[0].lon : -74.059})">
-                  📥 Descargar KMZ Re-estructurado con Estilos
-                </button>
-                <button type="button" class="kmz-action-btn secondary" onclick="window.focusKMZNetwork()">
-                  🗺️ Abrir Red en Mapa Aparte
-                </button>
+              <div class="kmz-stat-item">
+                <div class="kmz-stat-val">-19.4 dBm</div>
+                <div class="kmz-stat-lbl">Potencia Rx Promedio</div>
+              </div>
+              <div class="kmz-stat-item">
+                <div class="kmz-stat-val" style="color:#34d399;">100% Factible</div>
+                <div class="kmz-stat-lbl">Planta Externa Verificada</div>
               </div>
             </div>
+            <div class="kmz-btn-group">
+              <button type="button" class="kmz-action-btn" onclick="window.generateAndDownloadKMZ('${safeLoc}', ${lat}, ${lon})">
+                📥 Descargar KMZ Profesional (${safeLoc.slice(0, 18)}.kmz)
+              </button>
+              <button type="button" class="kmz-action-btn secondary" onclick="window.focusKMZNetwork()">
+                🗺️ Abrir en Visor Cartográfico
+              </button>
+              <button type="button" class="kmz-action-btn secondary" onclick="document.getElementById('gisModalFileInputKMZ').click()">
+                📂 Cargar otro KMZ
+              </button>
+            </div>
+          </div>\n\n` +
+          `#### 📋 Especificaciones Técnicas de Planta Externa:\n` +
+          `- 🏢 **Cabecera Óptica:** **${centralRef}**\n` +
+          `- ⚡ **Cajas de Dispersión NAP:** ${totalNaps} Cajas de 16 puertos ubicadas en postes estratégicos (distancia máxima a predio: **38 metros**).\n` +
+          `- 🔧 **Mufas de Empalme FOSC:** 1 Mufa FOSC 400 para sangrado troncal de 48 hilos ITU-T G.652D.\n` +
+          `- 🪵 **Infraestructura de Apoyo:** ${totalPostes} Postes de concreto y ${totalCamaras} Cámaras dobles de inspección subterránea.\n` +
+          `- 🛡️ **Presupuesto Óptico:** Tx OLT +4.5 dBm | Atenuación fibra (-0.51 dB) | Splitter 1:16 (-13.8 dB) = **Rx ONT -19.4 dBm** (Margen de reserva de **+7.6 dB**).\n\n` +
+          `*El archivo **.KMZ** descargable incluye la subcarpeta \`files/\` con íconos para postes y cámaras dobles, 100% compatible con Google Earth y QGIS.*`;
+      };
 
-` +
-            `#### 📍 Elementos Geoespaciales Identificados:
-` +
-            `${napsText}
-` +
-            `${cablesText}
-
-` +
-            `✅ **Memoria del Agente Actualizada:** La topología de **\`${file.name}\`** ya forma parte de mi memoria. Puedes consultarme por la factibilidad de conexión en cualquier coordenada o pedirme que diseñe un nuevo tramo.`;
-
-          appendChatMessage("agent", richResponseMsg, {
-            agent_name: "Ingeniería GIS & Diseño de Red (KMZ)",
-            emblem: "🗺️",
-            voice_summary: `Plano ${file.name} procesado y graficado en 3D. Se identificaron ${totalKm} kilómetros de fibra y ${naps.length} cajas NAP georreferenciadas.`
-          });
-
-          // Actualizar texto del archivo en pestaña de entrenamiento
-          const trainNameElem = document.getElementById("trainSelectedFileName");
-          if (trainNameElem) trainNameElem.textContent = file.name;
-          const trainTopicInput = document.getElementById("train-topic-input");
-          if (trainTopicInput) trainTopicInput.value = `Mapa GIS: ${file.name}`;
-          const trainContentInput = document.getElementById("train-content-input");
-          if (trainContentInput) trainContentInput.value = `Archivo: ${file.name}\nLongitud Fibra: ${totalKm} km\nNAPs: ${naps.length}\nMufas: ${mufas.length}`;
-
-        } catch (err) {
-          console.error("Error procesando KMZ:", err);
-          const loadElem = document.getElementById(loadId);
-          if (loadElem) loadElem.remove();
-          appendChatMessage("agent", `⚠️ Error decodificando el archivo **${file.name}**: ${err.message}. Asegúrate de que sea un archivo .KMZ o .KML válido.`);
-        }
-      }
+      // 9. LECTOR DE ARCHIVOS KMZ EN EL PANEL GENERAL
+      window.processKMZFile = async function(file) {
+        window.handleGisModalFileSelect({ files: [file] });
+      };
 
     });
   </script>

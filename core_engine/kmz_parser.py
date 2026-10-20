@@ -328,3 +328,225 @@ def generate_kmz_knowledge_markdown(data: Dict[str, Any]) -> str:
 3. **Auditoría de Ruta:** En caso de cortes o mantenimiento, el Agente GIS localiza el trazado troncal y la mufa aguas arriba que alimenta la zona afectada.
 """
     return md
+
+
+def build_kmz_bytes(
+    location_name: str,
+    center_lat: float,
+    center_lon: float,
+    naps: Optional[List[Dict[str, Any]]] = None,
+    mufas: Optional[List[Dict[str, Any]]] = None,
+    postes: Optional[List[Dict[str, Any]]] = None,
+    camaras: Optional[List[Dict[str, Any]]] = None,
+    line_coords: Optional[List[Tuple[float, float]]] = None,
+    total_km: float = 1.47
+) -> bytes:
+    """
+    Construye un archivo .KMZ profesional compatible al 100% con Google Earth y QGIS.
+    Empaqueta:
+      - doc.kml con estilos, carpetas organizadas y tablas HTML de telemetría.
+      - files/Poste.png (icono oficial de poste)
+      - files/Camara doble.png (icono oficial de cámara doble subterránea)
+    """
+    import base64
+    from core_engine.gis_icons_b64 import POSTE_PNG_B64, CAMARA_DOBLE_PNG_B64
+
+    poste_png_bytes = base64.b64decode(POSTE_PNG_B64)
+    camara_png_bytes = base64.b64decode(CAMARA_DOBLE_PNG_B64)
+
+    # Coordenadas por defecto si no vienen provistas
+    lat = float(center_lat)
+    lon = float(center_lon)
+
+    if not naps:
+        naps = [
+            {"name": "NAP-01 (16p)", "lat": round(lat + 0.0006, 6), "lon": round(lon - 0.0008, 6), "puertos": 16, "potencia": "-19.2 dBm"},
+            {"name": "NAP-02 (16p)", "lat": round(lat + 0.0012, 6), "lon": round(lon + 0.0005, 6), "puertos": 16, "potencia": "-19.5 dBm"},
+            {"name": "NAP-03 (16p)", "lat": round(lat + 0.0004, 6), "lon": round(lon + 0.0018, 6), "puertos": 16, "potencia": "-19.8 dBm"},
+            {"name": "NAP-04 (16p)", "lat": round(lat - 0.0008, 6), "lon": round(lon + 0.0028, 6), "puertos": 16, "potencia": "-20.1 dBm"},
+        ]
+
+    if not mufas:
+        mufas = [
+            {"name": "Mufa FOSC Principal", "lat": round(lat - 0.0010, 6), "lon": round(lon - 0.0015, 6), "tipo": "FOSC 400 48 FO"}
+        ]
+
+    if not postes:
+        postes = [
+            {"name": f"P-{i+1:02d} Concreto 8m", "lat": round(lat - 0.0015 + i*0.0007, 6), "lon": round(lon - 0.0018 + i*0.0006, 6)}
+            for i in range(6)
+        ]
+
+    if not camaras:
+        camaras = [
+            {"name": "Cámara Doble CD-01", "lat": round(lat - 0.0020, 6), "lon": round(lon - 0.0022, 6)},
+            {"name": "Cámara Doble CD-02", "lat": round(lat + 0.0002, 6), "lon": round(lon + 0.0008, 6)},
+        ]
+
+    if not line_coords:
+        line_coords = [
+            (round(lat - 0.0025, 6), round(lon - 0.0030, 6)),
+            (round(lat - 0.0018, 6), round(lon - 0.0020, 6)),
+            (round(lat - 0.0010, 6), round(lon - 0.0015, 6)),
+            (round(lat + 0.0000, 6), round(lon + 0.0000, 6)),
+            (round(lat + 0.0006, 6), round(lon + 0.0012, 6)),
+            (round(lat + 0.0015, 6), round(lon + 0.0025, 6)),
+        ]
+
+    coords_kml_str = "\n            ".join(f"{pt[1]},{pt[0]},0" for pt in line_coords)
+
+    # Construcción de KML
+    kml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>AHOM FIBER - Red de Fibra Óptica: {location_name}</name>
+    <description><![CDATA[
+      <h3>AHOM FIBER IA CORP - Red de Telecomunicaciones</h3>
+      <p><b>Ubicación:</b> {location_name}</p>
+      <p><b>Longitud Total de Fibra:</b> {total_km} km</p>
+      <p><b>Total NAPs:</b> {len(naps)} Cajas (Capacidad: {len(naps)*16} Puertos GPON)</p>
+      <p><b>Postes Aéreos:</b> {len(postes)} | <b>Cámaras Subterráneas:</b> {len(camaras)}</p>
+      <p><i>Generado automáticamente por el Agente de Ingeniería GIS</i></p>
+    ]]></description>
+
+    <!-- Estilos de Red con Iconos Personalizados en files/ -->
+    <Style id="stylePoste">
+      <IconStyle>
+        <scale>1.1</scale>
+        <Icon><href>files/Poste.png</href></Icon>
+      </IconStyle>
+    </Style>
+
+    <Style id="styleCamara">
+      <IconStyle>
+        <scale>1.1</scale>
+        <Icon><href>files/Camara doble.png</href></Icon>
+      </IconStyle>
+    </Style>
+
+    <Style id="styleNAP">
+      <IconStyle>
+        <color>ff00ff00</color>
+        <scale>1.1</scale>
+        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/target.png</href></Icon>
+      </IconStyle>
+    </Style>
+
+    <Style id="styleMufa">
+      <IconStyle>
+        <color>ff00aaff</color>
+        <scale>1.2</scale>
+        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/caution.png</href></Icon>
+      </IconStyle>
+    </Style>
+
+    <Style id="styleFibraTroncal">
+      <LineStyle>
+        <color>ffffff00</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+
+    <!-- Carpeta 1: Trazado Fibra Óptica -->
+    <Folder>
+      <name>1. Trazado Fibra Óptica</name>
+      <open>1</open>
+      <Placemark>
+        <name>Tendido Troncal &amp; Distribución ({total_km} km)</name>
+        <styleUrl>#styleFibraTroncal</styleUrl>
+        <description><![CDATA[
+          <table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:12px;">
+            <tr bgcolor="#0f172a" style="color:#22d3ee;"><th>Parámetro</th><th>Especificación</th></tr>
+            <tr><td><b>Cable Óptico</b></td><td>ADSS Monomodo ITU-T G.652D 48 Hilos</td></tr>
+            <tr><td><b>Longitud de Ruta</b></td><td>{total_km} km</td></tr>
+            <tr><td><b>Atenuación Estimada</b></td><td>-{(float(total_km)*0.35 + 14.5):.1f} dBm</td></tr>
+            <tr><td><b>Sede / Municipio</b></td><td>{location_name}</td></tr>
+          </table>
+        ]]></description>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            {coords_kml_str}
+          </coordinates>
+        </LineString>
+      </Placemark>
+    </Folder>
+
+    <!-- Carpeta 2: Postería y Cámaras -->
+    <Folder>
+      <name>2. Postería y Cámaras Subterráneas</name>
+"""
+    for cam in camaras:
+        kml += f"""      <Placemark>
+        <name>{cam['name']}</name>
+        <styleUrl>#styleCamara</styleUrl>
+        <description><![CDATA[
+          <b>Tipo:</b> Cámara Doble Subterránea de Inspección y Paso<br>
+          <b>Coordenadas:</b> ({cam['lat']}, {cam['lon']})<br>
+          <b>Ductería:</b> 4 Vías PVC 4 pulgadas con subductos PEAD
+        ]]></description>
+        <Point><coordinates>{cam['lon']},{cam['lat']},0</coordinates></Point>
+      </Placemark>
+"""
+    for p in postes:
+        kml += f"""      <Placemark>
+        <name>{p['name']}</name>
+        <styleUrl>#stylePoste</styleUrl>
+        <description><![CDATA[
+          <b>Tipo:</b> Poste de Concreto para Tendido Aéreo de Fibra<br>
+          <b>Coordenadas:</b> ({p['lat']}, {p['lon']})<br>
+          <b>Vano Promedio:</b> 38 metros con herrajes tipo D y cruceta
+        ]]></description>
+        <Point><coordinates>{p['lon']},{p['lat']},0</coordinates></Point>
+      </Placemark>
+"""
+    kml += """    </Folder>
+
+    <!-- Carpeta 3: Cajas NAP / Mufas FOSC -->
+    <Folder>
+      <name>3. Cajas NAP y Mufas FOSC</name>
+"""
+    for m in mufas:
+        kml += f"""      <Placemark>
+        <name>{m['name']}</name>
+        <styleUrl>#styleMufa</styleUrl>
+        <description><![CDATA[
+          <table border="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;">
+            <tr><td><b>Elemento</b></td><td>Mufa FOSC 400 de Empalme por Fusión</td></tr>
+            <tr><td><b>Capacidad</b></td><td>48 Fusiones Ópticas (Bandejas 12F)</td></tr>
+            <tr><td><b>Coordenadas</b></td><td>({m['lat']}, {m['lon']})</td></tr>
+          </table>
+        ]]></description>
+        <Point><coordinates>{m['lon']},{m['lat']},0</coordinates></Point>
+      </Placemark>
+"""
+    for n in naps:
+        puertos = n.get('puertos', 16)
+        pot = n.get('potencia', '-19.4 dBm')
+        kml += f"""      <Placemark>
+        <name>{n['name']}</name>
+        <styleUrl>#styleNAP</styleUrl>
+        <description><![CDATA[
+          <table border="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;">
+            <tr bgcolor="#064e3b" style="color:#34d399;"><th colspan="2">Caja NAP GPON FTTH</th></tr>
+            <tr><td><b>Capacidad</b></td><td>{puertos} Puertos SC/APC</td></tr>
+            <tr><td><b>Splitter</b></td><td>1:16 Balanceado PLC</td></tr>
+            <tr><td><b>Potencia Rx</b></td><td>{pot}</td></tr>
+            <tr><td><b>Coordenadas</b></td><td>({n['lat']}, {n['lon']})</td></tr>
+          </table>
+        ]]></description>
+        <Point><coordinates>{n['lon']},{n['lat']},0</coordinates></Point>
+      </Placemark>
+"""
+    kml += """    </Folder>
+  </Document>
+</kml>"""
+
+    # Empaquetar en memoria como archivo ZIP (KMZ)
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as z:
+        z.writestr("doc.kml", kml.encode("utf-8"))
+        z.writestr("files/Poste.png", poste_png_bytes)
+        z.writestr("files/Camara doble.png", camara_png_bytes)
+
+    return buf.getvalue()
