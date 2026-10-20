@@ -2201,7 +2201,7 @@
     lucide.createIcons();
 
     function resolveApiBase() {
-      const custom = (localStorage.getItem("ahom_api_url") || localStorage.getItem("etb_api_url"));
+      const custom = (localStorage.getItem("ahom_api_url") || localStorage.getItem("ahom_legacy_api_url"));
       if (custom && custom.trim()) return custom.trim().replace(/\/$/, "");
 
       if (window.location.port === "8000" || window.location.pathname.startsWith("/static")) {
@@ -3817,10 +3817,10 @@
           return `### ⚖️ Dictamen Legal: Permanencia Mínima (Resolución CRC 5111)\n\n- 🚫 **Prohibición Legal:** Ningún operador puede cobrar mensualidades futuras no disfrutadas.\n- 💰 **Fórmula de Liquidación:** Únicamente se cancela el saldo prorrateado del subsidio de instalación: \`Saldo = (Descuento / Meses) × Meses restantes\`.\n- 📜 **Sin Renovación Automática:** Cumplido el periodo inicial (12 o 24 meses), el contrato pasa a ser indefinido sin permanencia.\n\n¿Deseas verificar si tu contrato cuenta con permanencia vigente?`;
         }
         if (/(cancelar|cancelacion|dar de baja|terminar contrato|retirar|desvincular)/i.test(msgLower)) {
-          return `### ⚖️ Procedimiento Legal para Cancelación de Servicios (CRC 5111)\n\n- ⏱️ **Anticipación:** Puedes presentar la solicitud con al menos **3 días hábiles de anticipación** a tu fecha de corte de facturación.\n- 📢 **Canales Oficiales:** Vía telefónica al **178**, portal web **ahomfiber.com** o ventanilla presencial sin exigir documentos innecesarios.\n- 📦 **Devolución de Equipos:** Se coordina la entrega de equipos en comodato (ONT/módem) sin costo de penalización.\n- 📄 **Paz y Salvo:** Se expide una vez cancelada la última factura de servicios prestados.\n\n¿Deseas verificar tu fecha de corte para programar la solicitud?`;
+          return `### ⚖️ Procedimiento Legal para Cancelación de Servicios (CRC 5111)\n\n- ⏱️ **Anticipación:** Puedes presentar la solicitud con al menos **3 días hábiles de anticipación** a tu fecha de corte de facturación.\n- 📢 **Canales Oficiales:** Vía telefónica a la línea **#700**, portal web **ahomfiber.com** o ventanilla presencial sin exigir documentos innecesarios.\n- 📦 **Devolución de Equipos:** Se coordina la entrega de equipos en comodato (ONT/módem) sin costo de penalización.\n- 📄 **Paz y Salvo:** Se expide una vez cancelada la última factura de servicios prestados.\n\n¿Deseas verificar tu fecha de corte para programar la solicitud?`;
         }
         if (/(radicar|como poner|como radicar|formulario|plantilla|interponer)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
-          return `### ⚖️ Procedimiento para Radicar Derecho de Petición (Ley 1755 de 2015)\n\nPara que tu Derecho de Petición tenga plena validez jurídica ante AHOM FIBER IA CORP y la SIC:\n\n1. **Canales Habilitados:** Ingresa a **ahomfiber.com/pqr**, llama al **178** o radícalo por escrito en cualquier Centro de Atención AHOM FIBER IA CORP.\n2. **Requisitos Indispensables:** Nombres, documento de identidad (CC/NIT), número de contrato y hechos claros.\n3. **Término Legal:** AHOM FIBER IA CORP cuenta con **15 días hábiles** para responder. De lo contrario, opera el **Silencio Administrativo Positivo** a tu favor.\n\n¿Deseas orientación sobre cómo redactar tus pretensiones?`;
+          return `### ⚖️ Procedimiento para Radicar Derecho de Petición (Ley 1755 de 2015)\n\nPara que tu Derecho de Petición tenga plena validez jurídica ante AHOM FIBER IA CORP y la SIC:\n\n1. **Canales Habilitados:** Ingresa a **ahomfiber.com/pqr**, llama a la línea **#700** o radícalo por escrito en cualquier Centro de Atención AHOM FIBER IA CORP.\n2. **Requisitos Indispensables:** Nombres, documento de identidad (CC/NIT), número de contrato y hechos claros.\n3. **Término Legal:** AHOM FIBER IA CORP cuenta con **15 días hábiles** para responder. De lo contrario, opera el **Silencio Administrativo Positivo** a tu favor.\n\n¿Deseas orientación sobre cómo redactar tus pretensiones?`;
         }
         if (/(habeas data|datos personales|ley 1581|privacidad)/i.test(msgLower)) {
           return `### ⚖️ Habeas Data y Tratamiento de Datos Personales (Ley 1581 de 2012)\n\n- 🏛️ **Soberanía y Custodia Nacional:** Almacenamiento seguro en Data Centers Tier III en Bogotá (Alma y Prado).\n- 📜 **Derechos del Titular:** Puedes solicitar en cualquier momento conocer, actualizar, rectificar y suprimir tus datos.\n- 🛡️ **Registro Nacional:** Bases de datos debidamente inscritas ante la SIC.`;
@@ -3839,7 +3839,7 @@
       // 2. SERVICIO AL CLIENTE & EXPERIENCIA (c_cx)
       if (deptId === "c_cx") {
         if (/(contacta|contactar|comunicar|hablar|asesor|humano|agente|persona|gestor|atencion personalizada|atención personalizada)/i.test(msgLower)) {
-          return `### 👤 Conexión Directa con Asesor de Servicio al Cliente AHOM FIBER IA CORP\n\n¡Comprendo perfectamente! Te pongo en contacto directo con nuestros gestores de servicio:\n\n- 📞 **Línea Telefónica Directa:** Marca al **178** (gratis desde fijos AHOM FIBER IA CORP) o al PBX **(601) 377-7777** opción 3.\n- 💬 **WhatsApp Oficial:** Escribe a nuestro WhatsApp verificado **+57 305 777 7777** y selecciona *'Atención con Asesor'*.\n- 🏢 **Centros Presenciales:** Atención de lunes a sábado en todos los Centros de Experiencia AHOM FIBER IA CORP.\n\n¿Deseas que te asigne un turno preferencial o necesitas radicar una solicitud formal antes de transferirte?`;
+          return `### 👤 Conexión Directa con Asesor de Servicio al Cliente AHOM FIBER IA CORP\n\n¡Comprendo perfectamente! Te pongo en contacto directo con nuestros gestores de servicio:\n\n- 📞 **Línea Telefónica Directa:** Marca a la línea **#700** (gratis desde fijos AHOM FIBER IA CORP) o al PBX **(601) 794-2000** opción 3.\n- 💬 **WhatsApp Oficial:** Escribe a nuestro WhatsApp verificado **+57 310 852 9000** y selecciona *'Atención con Asesor'*.\n- 🏢 **Centros Presenciales:** Atención de lunes a sábado en todos los Centros de Experiencia AHOM FIBER IA CORP.\n\n¿Deseas que te asigne un turno preferencial o necesitas radicar una solicitud formal antes de transferirte?`;
         }
         if (/(radica|radicar|abrir pqr|crear pqr|generar pqr|si deseo|si radica|si por favor|deseo radicar)/i.test(msgLower) && !/\b\d{5,12}\b/.test(msgLower)) {
           return `### 📝 Radicación de PQR — Servicio al Cliente AHOM FIBER IA CORP\n\n¡Con gusto! Para emitir tu **Código Único Numérico (CUN)** oficial con validez ante la CRC y la SIC:\n\nPor favor indícame:\n1. Tu **número de contrato, cuenta o cédula/NIT**.\n2. El **motivo principal** de la PQR (ej. inconformidad con cobro en factura, calidad de servicio o solicitud técnica).\n\nCon este dato registro tu PQR en el sistema central en tiempo real.`;
@@ -3848,9 +3848,9 @@
           const matchNum = msgLower.match(/\b\d{5,12}\b/);
           const num = matchNum ? matchNum[0] : "53696969";
           const cunCode = `CUN-2026-${num.slice(-6).padStart(6, '0')}`;
-          return `### ✅ PQR Radicada con Éxito — Servicio al Cliente AHOM FIBER IA CORP\n\nTu reclamación ha quedado registrada formalmente en nuestro sistema central:\n\n- 🎫 **Código Único Numérico (CUN):** \`${cunCode}\`\n- 📄 **Contrato / Documento:** **${num}**\n- ⏱️ **Término Legal de Respuesta:** Máximo **15 días hábiles** (Supervisado por CRC y SIC)\n- 📱 **Seguimiento en Tiempo Real:** Puedes consultar el avance en **ahomfiber.com/pqr** o enviando tu CUN al WhatsApp **+57 305 777 7777**.\n\n¿Deseas agregar alguna observación adicional para el equipo de auditoría?`;
+          return `### ✅ PQR Radicada con Éxito — Servicio al Cliente AHOM FIBER IA CORP\n\nTu reclamación ha quedado registrada formalmente en nuestro sistema central:\n\n- 🎫 **Código Único Numérico (CUN):** \`${cunCode}\`\n- 📄 **Contrato / Documento:** **${num}**\n- ⏱️ **Término Legal de Respuesta:** Máximo **15 días hábiles** (Supervisado por CRC y SIC)\n- 📱 **Seguimiento en Tiempo Real:** Puedes consultar el avance en **ahomfiber.com/pqr** o enviando tu CUN al WhatsApp **+57 310 852 9000**.\n\n¿Deseas agregar alguna observación adicional para el equipo de auditoría?`;
         }
-        return `### 🌟 Servicio al Cliente & Radicación de PQR\n\n¡Hola! En Servicio al Cliente gestionamos tu solicitud con prioridad:\n\n- 🎫 **Radicación Inmediata:** Generamos tu código **CUN** (Código Único Numérico) para seguimiento en tiempo real en **ahomfiber.com/pqr**.\n- 💬 **Canales Directos:** WhatsApp Oficial **+57 305 777 7777**, línea **178** o PBX **(601) 377-7777**.\n- 👤 **Atención Personalizada:** Si lo requieres, asignamos un gestor corporativo para atender tu inconformidad de forma directa.\n\n¿Deseas que radiquemos tu PQR o prefieres contactar con un asesor de servicio?`;
+        return `### 🌟 Servicio al Cliente & Radicación de PQR\n\n¡Hola! En Servicio al Cliente gestionamos tu solicitud con prioridad:\n\n- 🎫 **Radicación Inmediata:** Generamos tu código **CUN** (Código Único Numérico) para seguimiento en tiempo real en **ahomfiber.com/pqr**.\n- 💬 **Canales Directos:** WhatsApp Oficial **+57 310 852 9000**, línea **#700** o PBX **(601) 794-2000**.\n- 👤 **Atención Personalizada:** Si lo requieres, asignamos un gestor corporativo para atender tu inconformidad de forma directa.\n\n¿Deseas que radiquemos tu PQR o prefieres contactar con un asesor de servicio?`;
       }
 
       // 3. VENTAS & SOLUCIONES CORPORATIVAS (c_com)
@@ -3926,7 +3926,7 @@
       if (targetInfo.intent === "close") {
         return {
           is_transfer: false,
-          response: `### 🤝 ¡Sesión Finalizada con Éxito en AHOM FIBER IA CORP!\n\nMe alegra haberte asistido en **${currentDept.name}**.\n\n- 🌟 **Atención Corporativa:** Toda la red neuronal 3D continúa activa para tus requerimientos empresariales.\n- 📞 **Canales Oficiales:** PBX **(601) 377-7777** | WhatsApp **+57 305 777 7777**.\n\nDoy por cerrada esta consulta. ¡Que tengas un excelente día! 🚀`,
+          response: `### 🤝 ¡Sesión Finalizada con Éxito en AHOM FIBER IA CORP!\n\nMe alegra haberte asistido en **${currentDept.name}**.\n\n- 🌟 **Atención Corporativa:** Toda la red neuronal 3D continúa activa para tus requerimientos empresariales.\n- 📞 **Canales Oficiales:** PBX **(601) 794-2000** | WhatsApp **+57 310 852 9000**.\n\nDoy por cerrada esta consulta. ¡Que tengas un excelente día! 🚀`,
           voice_summary: "Sesión finalizada con éxito. Recuerda que nuestros canales corporativos están siempre a tu servicio. ¡Que tengas un excelente día!",
           suggested_action: null,
           source_meta: null
@@ -3951,7 +3951,7 @@
       let voiceSummary = "";
       if (targetInfo.deptId === "c_gob") {
         if (/(radicar|como poner)/i.test(msgLower)) {
-          voiceSummary = "Para radicar un derecho de petición en AHOM FIBER IA CORP ingresa a ahomfiber.com/pqr o marca al 178 con tu documento y contrato. El plazo legal de respuesta es de 15 días hábiles.";
+          voiceSummary = "Para radicar un derecho de petición en AHOM FIBER IA CORP ingresa a ahomfiber.com/pqr o marca a la línea nacional #700 con tu documento y contrato. El plazo legal de respuesta es de 15 días hábiles.";
         } else if (/(permanencia|clausula)/i.test(msgLower)) {
           voiceSummary = "Bajo la Resolución CRC 5111, si cancelas antes de la permanencia solo pagas el valor prorrateado del descuento de instalación, nunca las mensualidades futuras.";
         } else {
@@ -3959,7 +3959,7 @@
         }
       } else if (targetInfo.deptId === "c_cx") {
         if (/(contacta|contactar|comunicar|hablar|asesor|humano|agente|persona|gestor)/i.test(msgLower)) {
-          voiceSummary = "Te pongo en contacto con un asesor humano. Puedes llamar al 178 o escribir a nuestro WhatsApp oficial 305 777 7777 opción asesor.";
+          voiceSummary = "Te pongo en contacto con un asesor humano. Puedes llamar al #700 o escribir a nuestro WhatsApp oficial 310 852 9000 opción asesor.";
         } else if (/\b\d{5,12}\b/.test(msgLower) || /(contrato|cuenta|cedula|cédula)/i.test(msgLower)) {
           voiceSummary = "Tu PQR ha sido radicada con éxito en nuestro sistema central con seguimiento en tiempo real y garantía legal de 15 días hábiles.";
         } else if (/(radica|radicar|si radica|crear)/i.test(msgLower)) {
@@ -4314,7 +4314,7 @@
 
       if (btnOpenBackend) {
         btnOpenBackend.addEventListener("click", () => {
-          backendUrlInput.value = (localStorage.getItem("ahom_api_url") || localStorage.getItem("etb_api_url")) || API_BASE;
+          backendUrlInput.value = (localStorage.getItem("ahom_api_url") || localStorage.getItem("ahom_legacy_api_url")) || API_BASE;
           backendModal.classList.add("active");
         });
       }
@@ -5135,7 +5135,7 @@
         <name>${c.name}</name>
         <description><![CDATA[
           <p><b>Elemento:</b> Cámara Doble Subterránea de Inspección y Paso</p>
-          <p><b>Norma:</b> ETB / Codensa / IDU</p>
+          <p><b>Norma:</b> AHOM / Enel / IDU</p>
           <p><b>Coordenadas:</b> ${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}</p>
         ]]></description>
         <styleUrl>#styleCamara</styleUrl>

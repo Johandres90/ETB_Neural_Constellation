@@ -3,9 +3,9 @@
 ## 1. Canales de Atención y Contacto 24/7/365
 
 ### Canales Oficiales Inmediatos:
-- **Línea Telefónica Directa Bogotá:** **(601) 377-7777** (Opción 2: Clientes Corporativos / Empresas).
-- **Línea Gratuita Nacional:** **01 8000 112 170** (Atención técnica disponible 24 horas).
-- **WhatsApp Corporativo Oficial:** **+57 305 777 7777** (Gestión ágil de tickets e incidencias técnicas con agente de soporte).
+- **Línea Telefónica Directa Bogotá:** **(601) 794-2000** (Opción 2: Clientes Corporativos / Empresas).
+- **Línea Gratuita Nacional:** **01 8000 954 000** (Atención técnica disponible 24 horas).
+- **WhatsApp Corporativo Oficial:** **+57 310 852 9000** (Gestión ágil de tickets e incidencias técnicas con agente de soporte).
 - **Portal Web de Autoservicio / Service Desk:** **https://portal.ahomfiber.com** o mesa de ayuda ITIL corporativa.
 - **Correo de Escalamiento Especializado:** `soporte@ahomfiber.com`.
 

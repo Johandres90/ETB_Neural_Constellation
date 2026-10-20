@@ -495,7 +495,7 @@ class AgentManager:
                 f"### 🤝 ¡Sesión Finalizada con Éxito en AHOM FIBER IA CORP!\n\n"
                 f"¡Ha sido un verdadero placer asistirte hoy!\n\n"
                 f"Tu caso queda debidamente registrado y bajo seguimiento prioritario en nuestra central de operaciones. Te mantendremos informado por SMS y WhatsApp ante cualquier novedad del servicio.\n\n"
-                f"- 📞 **Soporte Técnico Especializado 24/7:** PBX **(601) 377-7777** (Opción 2 Empresas) | WhatsApp Oficial: **+57 305 777 7777**.\n\n"
+                f"- 📞 **Soporte Técnico Especializado 24/7:** PBX **(601) 794-2000** (Opción 2 Empresas) | WhatsApp Oficial: **+57 310 852 9000**.\n\n"
                 f"Doy por cerrada esta consulta. ¡Que tengas un excelente resto de día! 🚀"
             )
             voice = "Ha sido un placer asistirte. Tu ticket técnico continúa en seguimiento prioritario. ¡Que tengas un excelente día!"
@@ -715,9 +715,9 @@ class AgentManager:
             f"{prefix}"
             f"¡Hola! Soy tu especialista de soporte técnico en AHOM FIBER IA CORP. Estoy aquí para resolver cualquier duda o incidencia operativa en tus enlaces de fibra óptica, telefonía o centros de datos:\n\n"
             f"- 🛠️ **Diagnóstico Remoto:** Monitoreo en tiempo real de potencia óptica (dBm), estado de interfaces y reinicio de perfil OLT.\n"
-            f"- 📞 **PBX Bogotá:** **(601) 377-7777** (Opción 2 Empresas)\n"
-            f"- 📞 **Línea Nacional:** **01 8000 112 170** (Atención 24/7/365)\n"
-            f"- 💬 **WhatsApp Oficial:** **+57 305 777 7777**\n"
+            f"- 📞 **PBX Bogotá:** **(601) 794-2000** (Opción 2 Empresas)\n"
+            f"- 📞 **Línea Nacional:** **01 8000 954 000** (Atención 24/7/365)\n"
+            f"- 💬 **WhatsApp Oficial:** **+57 310 852 9000**\n"
             f"- ⚡ **Compromiso SLA:** Tiempo de primera respuesta menor a **3 minutos** y solución en campo menor a **4 horas** en enlaces dedicados.\n\n"
             f"¿Qué síntoma o requerimiento técnico deseas que revisemos?"
         )
@@ -824,7 +824,7 @@ class AgentManager:
                 f"Desde la Oficialía de Cumplimiento Técnico-Legal de AHOM FIBER IA CORP, detallamos los parámetros de conformidad vigentes:\n\n"
                 f"#### 1. Regulación de la CRC (Resolución CRC 5050 de 2016 compilada):\n"
                 f"- **Régimen de Calidad (Título V):** Cumplimiento continuo de los estándares de disponibilidad, latencia y pérdida de paquetes con entrega de reportes periódicos al Sistema de Información del Sector de Telecomunicaciones (SISTEL).\n"
-                f"- **Compartición de Infraestructura Pasiva:** Acuerdos regulatorios estandarizados para uso de ductería subterránea, cámaras de paso y postería compartida con operadores de telecomunicaciones y empresas de energía eléctrica (Enel/Codensa, EPM, Celsia) según resoluciones conjuntas CRC y CREG.\n"
+                f"- **Compartición de Infraestructura Pasiva:** Acuerdos regulatorios estandarizados para uso de ductería subterránea, cámaras de paso y postería compartida con operadores de telecomunicaciones y empresas de energía eléctrica (Enel Colombia, EPM, Celsia) según resoluciones conjuntas CRC y CREG.\n"
                 f"- **Neutralidad de la Red (Res. CRC 3502 de 2011):** No bloqueo ni discriminación de tráfico de contenidos o aplicaciones lícitas de terceros.\n\n"
                 f"#### 2. Agencia Nacional del Espectro (ANE) & Campos Electromagnéticos:\n"
                 f"- **CNABF:** Respeto irrestricto de las bandas de frecuencias del Cuadro Nacional. Uso de Wi-Fi 6E/7 en banda no licenciada de 6 GHz (5.925 - 7.125 GHz) según parámetros de la ANE.\n"
@@ -889,7 +889,7 @@ class AgentManager:
                 f"### ⚖️ Procedimiento Legal para Cancelación de Servicios de Telecomunicaciones\n\n"
                 f"Te indicamos el procedimiento legal y tus derechos garantizados por la regulación colombiana de la CRC:\n\n"
                 f"1. **Plazo de Solicitud:** Puedes solicitar la terminación del contrato en cualquier momento, con al menos **3 días hábiles de anticipación** a la fecha de corte de tu periodo de facturación.\n"
-                f"2. **Canales Habilitados:** Tienes derecho a presentar tu solicitud por **cualquier canal oficial de atención** (línea telefónica 178, portal web ahomfiber.com, PQR escrita o puntos presenciales), sin requisitos ni trabas improcedentes.\n"
+                f"2. **Canales Habilitados:** Tienes derecho a presentar tu solicitud por **cualquier canal oficial de atención** (línea telefónica #700, portal web ahomfiber.com, PQR escrita o puntos presenciales), sin requisitos ni trabas improcedentes.\n"
                 f"3. **Devolución de Equipos:** Al terminar el contrato, se coordina la recogida o entrega de los equipos en comodato (ONT/Router) sin costos adicionales.\n"
                 f"4. **Expedición de Paz y Salvo:** El operador debe emitir el estado de cuenta y paz y salvo una vez liquidada la última factura correspondiente a los servicios efectivamente prestados."
             )
@@ -904,14 +904,14 @@ class AgentManager:
                 f"Como Dirección Jurídica y Normativa de AHOM FIBER IA CORP, te indicamos el procedimiento conforme a la **Ley 1755 de 2015** y la **Resolución CRC 5111 de 2017**:\n\n"
                 f"1. **Canales Oficiales Habilitados:**\n"
                 f"   - 🌐 **Portal Web Oficial (Inmediato):** Ingresa a ahomfiber.com/pqr para radicación digital inmediata con asignación de Código Único Numérico (CUN).\n"
-                f"   - 📞 **Línea Telefónica:** Marca al **178** (desde línea fija AHOM FIBER), al **(601) 377-7777** o a la línea nacional **01 8000 111 112**.\n"
+                f"   - 📞 **Línea Telefónica:** Marca a la línea **#700** (desde línea fija AHOM FIBER), al **(601) 794-2000** o a la línea nacional **01 8000 954 000**.\n"
                 f"   - 🏢 **Puntos Presenciales:** Radicación física en Centros de Experiencia en Bogotá y Cundinamarca.\n\n"
                 f"2. **Términos Legales y Garantías:**\n"
                 f"   - **Plazo de Respuesta:** Máximo **15 días hábiles** contados a partir del día siguiente a la radicación.\n"
                 f"   - **Silencio Administrativo Positivo (SAP):** Si la empresa no emite respuesta de fondo en los 15 días hábiles, la petición se entenderá resuelta legalmente a tu favor por mandato de ley.\n"
                 f"   - **Recursos de Ley:** Si la respuesta no satisface tus pretensiones, dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio Apelación ante la Superintendencia de Industria y Comercio (SIC)**."
             )
-            voice = "Para radicar un derecho de petición ingresa a ahomfiber.com/pqr o llama al 178. El término legal de respuesta es de máximo 15 días hábiles con Silencio Administrativo Positivo garantizado."
+            voice = "Para radicar un derecho de petición ingresa a ahomfiber.com/pqr o llama al #700. El término legal de respuesta es de máximo 15 días hábiles con Silencio Administrativo Positivo garantizado."
             return text, voice
 
         # 4. Habeas Data y Protección de Datos Personales (Ley 1581)
@@ -1338,7 +1338,7 @@ class AgentManager:
                 f"### 🤝 ¡Ha sido un placer asistirte en AHOM FIBER IA CORP!\n\n"
                 f"Me alegra haberte podido ayudar a resolver tu solicitud y gestionar tu requerimiento con total agilidad y transparencia.\n\n"
                 f"- 🌟 **Atención Permanente:** Los 50 nodos y 8 departamentos de nuestra constelación están siempre activos para ti y tu empresa.\n"
-                f"- 📞 **Canales de Asistencia 24/7:** PBX **(601) 377-7777** | WhatsApp Oficial **+57 305 777 7777**.\n\n"
+                f"- 📞 **Canales de Asistencia 24/7:** PBX **(601) 794-2000** | WhatsApp Oficial **+57 310 852 9000**.\n\n"
                 f"¡Damos por finalizada esta sesión. Que tengas un excelente día! 🚀"
             )
             return {
