@@ -234,7 +234,9 @@ class AgentManager:
             "ane", "cnabf", "resolucion 773", "cem", "campos electromagneticos", "ritel", "retie", "resolucion 4272",
             "4272", "alturas", "resolucion 0491", "0491", "espacios confinados", "confinados", "0312", "sg-sst",
             "uit", "itu", "itu-t", "uit-t", "estandares internacionales", "estándares internacionales", "g.652", "g.655", "g.657", "g.984", "g.9807", "g.694", "x.805",
-            "tia-942", "tia 942", "uptime", "tier iii", "tier 3", "gdpr", "nist", "pci-dss"
+            "tia-942", "tia 942", "uptime", "tier iii", "tier 3", "gdpr", "nist", "pci-dss",
+            "sfc", "superfinanciera", "superintendencia financiera", "circular 029", "circular 007", "circular 033",
+            "circular externa 029", "circular externa 007", "circular externa 033", "riesgo operativo", "cloud computing bancario"
         ]):
             return {
                 "intent": "legal",
@@ -858,6 +860,31 @@ class AgentManager:
                 f"- **Privacidad y Ciberseguridad:** Cumplimiento de **GDPR** para multinacionales con transferencia de datos transfronteriza, marco **NIST CSF 2.0** y certificación **PCI-DSS v4.0** para procesamiento de pagos."
             )
             voice = "Infraestructura certificada bajo estándares internacionales ITU-T G.652, G.657 y XGS-PON, Centros de Datos Tier 3 según ANSI/TIA-942 y marcos de seguridad global NIST y GDPR."
+            return text, voice
+
+        # -------------------------------------------------------------
+        # BLOQUE 5: REGULACIÓN FINANCIERA SFC (CIRCULARES 029/2014, 007/2018 Y 033/2020)
+        # -------------------------------------------------------------
+        if any(w in msg_lower for w in ["sfc", "superfinanciera", "superintendencia financiera", "circular 029", "circular 007", "circular 033", "circular externa 029", "circular externa 007", "circular externa 033", "financier", "banco", "banca", "fintech", "outsourcing data center", "cloud computing"]):
+            text = (
+                f"{agent_badge}\n"
+                f"### 🏦 Dictamen de Cumplimiento Financiero SFC: Ciberseguridad, Riesgo Operativo y Cloud Computing\n\n"
+                f"Como Oficial de Cumplimiento y Auditor Líder de AHOM FIBER IA CORP, certificamos el cumplimiento integral de los requerimientos de la **Superintendencia Financiera de Colombia (SFC)** para entidades vigiladas alojadas en nuestra infraestructura:\n\n"
+                f"#### 1. Circular Externa 029 de 2014 (Seguridad y Calidad en Canales & Redes):\n"
+                f"- **Cifrado Extremo a Extremo:** Enlaces dedicados de fibra óptica y canales MPLS protegidos mediante cifrado por hardware AES-256 en capa física y TLS 1.3 en capas superiores.\n"
+                f"- **Trazabilidad & Logs de Auditoría:** Custodia inalterable de registros de tráfico y eventos en SIEM centralizado sincronizado con servidor NTP Estrato 1 certificado, conservados por 5 años.\n"
+                f"- **Seguridad en Infraestructura Tercerizada (Data Centers Tier III):** 7 perímetros de control de acceso biométrico, CCTV analítico de intrusión y segregación lógica absoluta de redes mediante VRF y VLANs dedicadas.\n\n"
+                f"#### 2. Circular Externa 007 de 2018 (Gestión del Riesgo de Ciberseguridad):\n"
+                f"- **Ciber-Resiliencia & Pruebas de Efectividad:** Políticas activas para anticipar y resistir ciberataques con pruebas semestrales de Ethical Hacking y Pentesting ejecutadas por firmas independientes.\n"
+                f"- **SOC/SIEM 24/7 & Anti-DDoS:** Monitoreo continuo en tiempo real con plataforma de mitigación de ataques volumétricos de Denegación de Servicio superior a 2.5 Tbps en borde.\n"
+                f"- **Reporte Temprano de Incidentes:** Procedimiento estandarizado de notificación al CSIRT Financiero (Asobancaria) y a la SFC en un término perentorio menor a **2 horas** ante eventos graves.\n\n"
+                f"#### 3. Circular Externa 033 de 2020 (Cloud Computing, DRP & Resiliencia Operacional):\n"
+                f"- **Auditabilidad Plena (Audit Rights):** Cláusula contractual que faculta la inspección física, técnica y forense directa por auditores internos, externos y delegados de la SFC.\n"
+                f"- **Soberanía y Ubicación de Datos:** Procesamiento y custodia 100% en Colombia en Data Centers Alma y Prado (ANSI/TIA-942 Tier III, disponibilidad 99.982%).\n"
+                f"- **Continuidad de Negocio (DRP ISO 22301):** Conmutación metro-mirror con **RPO = 0** y **RTO < 15 minutos**.\n"
+                f"- **Segregación Multi-Tenant & Salida Segura:** Microsegmentación Zero Trust, módulos HSM FIPS 140-2 y protocolo de borrado seguro certificado **NIST SP 800-88 Rev. 1 (Purge/Destroy)**."
+            )
+            voice = "Cumplimiento total con las Circulares Externas 029 de 2014, 007 de 2018 y 033 de 2020 de la Superfinanciera. Garantizamos auditabilidad plena, cifrado AES-256, SOC 24/7 y Data Centers Tier III soberanos en Colombia."
             return text, voice
 
         # -------------------------------------------------------------
@@ -1552,6 +1579,15 @@ class AgentManager:
             "suggested_action": suggested_action,
             "redirect_target": redirect_target,
             "redirect_name": redirect_name,
+            "activate_department": "legal_governance" if (target_dept == "juridica" or intent == "legal" or redirect_target == "c_gob") else None,
+            "active_subnode": (
+                "n_sfc_bank" if any(w in msg_lower for w in ["sfc", "superfinanciera", "029", "007", "033", "financier", "banco", "banca"]) else
+                "n_iso_27001" if any(w in msg_lower for w in ["27001", "27011", "sgsi", "anexo a", "27701", "22301"]) else
+                "n_iso_47001" if any(w in msg_lower for w in ["47001", "42001", "37001", "37301", "antisoborno"]) else
+                "n_sig_hls" if any(w in msg_lower for w in ["sig", "9001", "14001", "45001", "alturas", "confinados", "raee"]) else
+                "n_reg_tic" if any(w in msg_lower for w in ["mintic", "crc", "5050", "5111", "ane", "1581", "1341", "1978", "2108", "pqr", "permanencia"]) else
+                "n_intl_std" if any(w in msg_lower for w in ["uit", "itu", "g.652", "g.657", "g.984", "g.9807", "tia-942", "gdpr", "nist"]) else None
+            ) if (target_dept == "juridica" or intent == "legal" or redirect_target == "c_gob") else None,
             "metrics": {
                 "sla": "99.98%",
                 "latency_nap": "<3.5ms",
@@ -1658,12 +1694,13 @@ class AgentManager:
             {"id": "n_smart_city", "name": "Soluciones Smart City & IoT", "parent": "c_com", "cluster": "Soluciones Corporativas & B2B", "cat": "Diagnóstico", "color": "#fb7185", "offset": [6.0, 3.5, 3.0]},
             {"id": "n_pymes_cloud", "name": "Conectividad Pymes + Seguridad", "parent": "c_com", "cluster": "Soluciones Corporativas & B2B", "cat": "Diagnóstico", "color": "#fb7185", "offset": [1.5, -6.5, -3.5]},
 
-            # 4. Gobernanza Legal & Normativa
-            {"id": "n_crc_5111", "name": "Régimen Usuarios CRC 5111", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-4.0, 3.5, 2.5]},
-            {"id": "n_secop", "name": "Contratación Estatal SECOP II", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [4.5, -3.5, 2.5]},
-            {"id": "n_habeas", "name": "Ley 1581 Protección Datos", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-5.5, -4.0, -2.5]},
-            {"id": "n_crc_5050", "name": "Calidad de Servicio CRC 5050", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Quick Win", "color": "#f472b6", "offset": [5.0, 4.0, -2.5]},
-            {"id": "n_spectrum_reg", "name": "Regulación Espectro MinTIC", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Diagnóstico", "color": "#fb7185", "offset": [2.0, 6.5, 3.0]},
+            # 4. Gobernanza Legal & Normativa (Sub-nodos Aislados / Dinámicos)
+            {"id": "n_iso_27001", "name": "ISO 27001/27011 & Ciberseguridad", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-4.5, 3.5, 2.5]},
+            {"id": "n_iso_47001", "name": "Norma 47001 / IA (42001) & Compliance (37001)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [4.5, 3.5, 2.5]},
+            {"id": "n_sig_hls", "name": "SIG (ISO 9001, 14001, 45001)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-5.5, -3.5, -2.5]},
+            {"id": "n_reg_tic", "name": "Regulación TIC (MinTIC, CRC 5050, ANE, Ley 1581)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Quick Win", "color": "#f472b6", "offset": [5.0, -3.5, -2.5]},
+            {"id": "n_sfc_bank", "name": "Cumplimiento Financiero SFC (029, 007, 033)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#f59e0b", "offset": [0.0, 6.0, 3.0]},
+            {"id": "n_intl_std", "name": "Estándares Internacionales (UIT-T, TIA-942, NIST)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Diagnóstico", "color": "#fb7185", "offset": [0.0, -6.0, -3.0]},
 
             # 5. Planeación Financiera & Costos
             {"id": "n_tco_cop", "name": "Optimización TCO en Pesos (COP)", "parent": "c_erp", "cluster": "Planeación Financiera & Costos", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-3.5, 3.5, 2.0]},

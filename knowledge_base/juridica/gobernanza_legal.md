@@ -31,3 +31,9 @@ El repositorio de conocimiento de este nodo está organizado en tres matrices ma
    - **Data Centers:** ANSI/TIA-942 e Uptime Institute Tier III (99.982% de disponibilidad y concurrencia mantenible en Data Centers Alma y Prado); ANSI/TIA-568, TIA-758 (Planta Externa) y TIA-606.
    - **Redes y Protocolos:** IEEE 802.3 (Ethernet óptico 10G-400G), IEEE 802.1Q (VLAN/QoS), IETF RFCs (BGP-4, OSPFv3, MPLS, IPv6, TLS 1.3).
    - **Ciberseguridad y Privacidad:** GDPR (UE), NIST CSF 2.0, PCI-DSS v4.0, controles CIS v8 y OWASP Top 10.
+
+4. **[Regulación Financiera SFC (Ciberseguridad & Cloud Computing)](regulacion_financiera_sfc_ciberseguridad.md):**
+   - **Circular Externa 029 de 2014:** Canales de distribución, cifrado punto a punto en redes MPLS/DWDM, trazabilidad inalterable y controles de acceso físico a Data Centers Tier III.
+   - **Circular Externa 007 de 2018:** Ciber-resiliencia, monitoreo continuo en SOC/SIEM 24/7 con Anti-DDoS de 2.5 Tbps, pruebas periódicas de Ethical Hacking/Pentesting y reporte de incidentes en < 2 horas al CSIRT Financiero y la SFC.
+   - **Circular Externa 033 de 2020:** Computación en la Nube (IaaS/PaaS), soberanía nacional en Data Centers Alma y Prado, derecho irrestricto de auditoría e inspección para la SFC, DRP ISO 22301 (RPO = 0, RTO < 15 min), segregación multi-tenant y reversibilidad del servicio con borrado seguro certificado NIST SP 800-88.
+

@@ -2598,6 +2598,10 @@
         hitBoxList.push(hitBox);
 
         group.userData = node;
+        // Aislamiento inicial: Los subnodos de Gobernanza Legal inician en modo latente
+        if (node.isLegalSubnode || LEGAL_SUBNODE_IDS.includes(node.id)) {
+          group.visible = false;
+        }
         scene.add(group);
         nodeMeshMap.set(node.id, group);
       });
@@ -2623,6 +2627,9 @@
           });
           const tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
           tubeMesh.userData = { source: link.source, target: link.target };
+          if (link.source === "c_gob" && LEGAL_SUBNODE_IDS.includes(link.target)) {
+            tubeMesh.visible = false;
+          }
           scene.add(tubeMesh);
           edgeObjects.push(tubeMesh);
 
@@ -2699,15 +2706,107 @@
       }
     }
 
+    
+    // ==========================================================
+    // SISTEMA DE AISLAMIENTO Y ACTIVACIÓN DINÁMICA DE GOBERNANZA LEGAL (3D + VOZ + CHAT)
+    // ==========================================================
+    let isLegalEcosystemActive = false;
+    const LEGAL_SUBNODE_IDS = ["n_iso_27001", "n_iso_47001", "n_sig_hls", "n_reg_tic", "n_sfc_bank", "n_intl_std"];
+
+    function setLegalSubnodesVisibility(visible) {
+      isLegalEcosystemActive = visible;
+      LEGAL_SUBNODE_IDS.forEach(subId => {
+        const group = nodeMeshMap.get(subId);
+        if (group) {
+          group.visible = visible;
+          if (group.children) {
+            group.children.forEach(c => { c.visible = visible; });
+          }
+        }
+      });
+
+      // Actualizar visibilidad de enlaces que conectan a subnodos legales
+      edgeObjects.forEach(edge => {
+        if (edge.userData && edge.userData.source === "c_gob" && LEGAL_SUBNODE_IDS.includes(edge.userData.target)) {
+          edge.visible = visible;
+        }
+      });
+
+      pulseParticles.forEach(p => {
+        if (p.source === "c_gob" && LEGAL_SUBNODE_IDS.includes(p.target)) {
+          p.mesh.visible = visible;
+        }
+      });
+    }
+
+    function activarEcosistemaLegal(subNodoEspecifico = null, onCompleteCallback = null) {
+      console.log("⚡ Activando Ecosistema de Gobernanza Legal & Normativa... Subnodo:", subNodoEspecifico);
+      
+      // 1. Iluminar y desplegar subnodos legales latentes
+      setLegalSubnodesVisibility(true);
+
+      // 2. Destacar enlaces con pulsos y brillo cinemático
+      edgeObjects.forEach(edge => {
+        if (edge.userData && edge.userData.source === "c_gob" && LEGAL_SUBNODE_IDS.includes(edge.userData.target)) {
+          if (edge.material) {
+            edge.material.opacity = 0.85;
+            edge.material.color.setHex(0xf59e0b); // Ámbar dorado brillante
+          }
+        }
+      });
+
+      // 3. Transición de cámara (flyTo) hacia c_gob
+      const gobNode = hierarchyData && hierarchyData.nodes ? hierarchyData.nodes.find(n => n.id === "c_gob") : null;
+      if (gobNode) {
+        focusCameraOn(gobNode.x, gobNode.y, gobNode.z, 22, () => {
+          const gobGroup = nodeMeshMap.get("c_gob");
+          if (gobGroup) triggerNodeFlash(gobGroup);
+
+          // 4. Si se especificó un subnodo o se detectó en la consulta, enfocarlo y destacarlo con destello especial
+          if (subNodoEspecifico && nodeMeshMap.has(subNodoEspecifico)) {
+            setTimeout(() => {
+              const targetSubGroup = nodeMeshMap.get(subNodoEspecifico);
+              if (targetSubGroup) {
+                triggerNodeFlash(targetSubGroup);
+                // Pulso de brillo especial
+                if (targetSubGroup.wireMesh) {
+                  targetSubGroup.wireMesh.material.color.setHex(0xffffff);
+                  setTimeout(() => {
+                    const origCol = targetSubGroup.userData && targetSubGroup.userData.color ? parseInt(targetSubGroup.userData.color.replace("#", "0x")) : 0xf59e0b;
+                    targetSubGroup.wireMesh.material.color.setHex(origCol);
+                  }, 800);
+                }
+              }
+            }, 300);
+          }
+
+          if (typeof onCompleteCallback === "function") {
+            onCompleteCallback();
+          }
+        });
+      }
+    }
+    window.activarEcosistemaLegal = activarEcosistemaLegal;
+    window.setLegalSubnodesVisibility = setLegalSubnodesVisibility;
+
     function selectNode(nodeId) {
       selectedAgentId = nodeId;
       togglePanel(false);
 
-      const targetGroup = nodeMeshMap.get(nodeId);
-      if (targetGroup) {
-        const p = targetGroup.position;
-        focusCameraOn(p.x, p.y, p.z);
-        triggerNodeFlash(targetGroup);
+      // Trigger A (Clic en 3D): Si se hace clic en Gobernanza Legal o en uno de sus subnodos
+      if (nodeId === "c_gob") {
+        activarEcosistemaLegal();
+      } else if (LEGAL_SUBNODE_IDS.includes(nodeId)) {
+        activarEcosistemaLegal(nodeId);
+      } else {
+        // Aislamiento: compactar y ocultar subnodos legales si se navega a otro departamento
+        setLegalSubnodesVisibility(false);
+        const targetGroup = nodeMeshMap.get(nodeId);
+        if (targetGroup) {
+          const p = targetGroup.position;
+          focusCameraOn(p.x, p.y, p.z);
+          triggerNodeFlash(targetGroup);
+        }
       }
 
       updatePanelForNode(nodeId);
@@ -3224,6 +3323,22 @@
       if (!text || text.trim().length === 0) return;
       document.getElementById("elevenSubtitles").textContent = "Analizando con AHOM FIBER IA CORP...";
 
+      // Trigger B (Voz NEXO): Detectar consultas legales / normativas / SFC para activar ecosistema
+      const isLegalVoiceQuery = /(legal|normativ|norma|iso 27001|27001|47001|42001|sig|mintic|crc|circular 007|circular 029|circular 033|superfinanciera|sfc|habeas data|auditor)/i.test(text);
+      let detectedSubnode = null;
+      if (/(circular 007|circular 029|circular 033|superfinanciera|sfc|financier|banco)/i.test(text)) detectedSubnode = "n_sfc_bank";
+      else if (/(iso 27001|27001|27011|sgsi)/i.test(text)) detectedSubnode = "n_iso_27001";
+      else if (/(47001|42001|37001|37301)/i.test(text)) detectedSubnode = "n_iso_47001";
+      else if (/(sig|9001|14001|45001)/i.test(text)) detectedSubnode = "n_sig_hls";
+      else if (/(mintic|crc|5050|ane|1581)/i.test(text)) detectedSubnode = "n_reg_tic";
+      else if (/(uit|itu|tia-942|nist|gdpr)/i.test(text)) detectedSubnode = "n_intl_std";
+
+      if (isLegalVoiceQuery) {
+        activarEcosistemaLegal(detectedSubnode);
+        selectedAgentId = "c_gob";
+        updatePanelForNode("c_gob");
+      }
+
       try {
         const res = await fetch(`${API_BASE}/api/chat`, {
           method: "POST",
@@ -3465,11 +3580,13 @@
         { id: "n_smart_city", name: "Soluciones Smart City & IoT", parent: "c_com", cluster: "Soluciones Corporativas & B2B", cat: "Diagnóstico", color: "#fb7185", offset: [6.0, 3.5, 3.0] },
         { id: "n_pymes_cloud", name: "Conectividad Pymes + Seguridad", parent: "c_com", cluster: "Soluciones Corporativas & B2B", cat: "Diagnóstico", color: "#fb7185", offset: [1.5, -6.5, -3.5] },
 
-        { id: "n_crc_5111", name: "Régimen Usuarios CRC 5111", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#2dd4bf", offset: [-4.0, 3.5, 2.5] },
-        { id: "n_secop", name: "Contratación Estatal SECOP II", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#2dd4bf", offset: [4.5, -3.5, 2.5] },
-        { id: "n_habeas", name: "Ley 1581 Protección Datos", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#2dd4bf", offset: [-5.5, -4.0, -2.5] },
-        { id: "n_crc_5050", name: "Calidad de Servicio CRC 5050", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Quick Win", color: "#f472b6", offset: [5.0, 4.0, -2.5] },
-        { id: "n_spectrum_reg", name: "Regulación Espectro MinTIC", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Diagnóstico", color: "#fb7185", offset: [2.0, 6.5, 3.0] },
+        // Sub-nodos del Ecosistema de Gobernanza Legal & Normativa (Aislados / Activación Dinámica On-Demand)
+        { id: "n_iso_27001", name: "ISO 27001 / 27011 & Ciberseguridad", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#38bdf8", offset: [-5.5, 4.0, 2.5], isLegalSubnode: true },
+        { id: "n_iso_47001", name: "Norma 47001 / Gobernanza IA (42001) & Compliance (37001)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#818cf8", offset: [5.5, 4.0, 2.5], isLegalSubnode: true },
+        { id: "n_sig_hls", name: "SIG (ISO 9001, 14001, 45001)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#34d399", offset: [-6.0, -3.5, -2.5], isLegalSubnode: true },
+        { id: "n_reg_tic", name: "Regulación TIC Nacional (MinTIC, CRC 5050, ANE, Ley 1581)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Quick Win", color: "#f472b6", offset: [6.0, -3.5, -2.5], isLegalSubnode: true },
+        { id: "n_sfc_bank", name: "Cumplimiento Financiero SFC (Circulares 029/2014, 007/2018 y 033/2020)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#fbbf24", offset: [0.0, 6.5, 3.5], isLegalSubnode: true },
+        { id: "n_intl_std", name: "Estándares Internacionales (UIT-T, TIA-942, GDPR, NIST)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Diagnóstico", color: "#fb7185", offset: [0.0, -6.5, -3.5], isLegalSubnode: true },
 
         { id: "n_tco_cop", name: "Optimización TCO en Pesos (COP)", parent: "c_erp", cluster: "Planeación Financiera & Costos", cat: "Consolidado", color: "#2dd4bf", offset: [-3.5, 3.5, 2.0] },
         { id: "n_duct_infra", name: "Amortización Ductería Propia", parent: "c_erp", cluster: "Planeación Financiera & Costos", cat: "Consolidado", color: "#2dd4bf", offset: [4.0, 4.0, -2.5] },
@@ -3592,11 +3709,12 @@
       if (deptId === "c_gob" || deptId === "juridica") {
         container.innerHTML = `
           <div class="chat-chip chip-end" data-prompt="No tengo más consultas, finalizar chat">🛑 Finalizar Chat</div>
-          <div class="chat-chip" data-prompt="Auditoría y controles aplicables según ISO/IEC 27001:2022 y directrices ISO/IEC 27011 para redes de telecomunicaciones y Data Centers">🛡️ Auditoría ISO 27001 &amp; 27011 (SGSI Telco)</div>
-          <div class="chat-chip" data-prompt="Explica la articulación de la Norma 47001 con el Sistema de Gestión de Inteligencia Artificial ISO/IEC 42001, Compliance ISO 37301 y Antisoborno ISO 37001">⚖️ Norma 47001 / Gobernanza IA (42001) &amp; Compliance</div>
+          <div class="chat-chip" data-prompt="Cumplimiento de Circulares Externas 029 de 2014, 007 de 2018 y 033 de 2020 de la SFC para sector financiero, ciberseguridad, nube y auditoría en Data Centers">🏦 Circulares SFC (029/14, 007/18 y 033/20 - Banca &amp; Cloud)</div>
+          <div class="chat-chip" data-prompt="Auditoría y controles aplicables según ISO/IEC 27001:2022 y directrices ISO/IEC 27011 para redes de telecomunicaciones y Data Centers">🛡️ Auditoría ISO 27001 &amp; 27011 (SGSI)</div>
+          <div class="chat-chip" data-prompt="Explica la articulación de la Norma 47001 con el Sistema de Gestión de Inteligencia Artificial ISO/IEC 42001, Compliance ISO 37301 y Antisoborno ISO 37001">⚖️ Norma 47001 / Gobernanza IA &amp; Compliance</div>
           <div class="chat-chip" data-prompt="Detalla la implementación del Sistema Integrado de Gestión (SIG): Calidad ISO 9001, Gestión Ambiental ISO 14001 con RAEE y SST ISO 45001 con trabajo en alturas y espacios confinados">📋 Estructura del SIG (ISO 9001, 14001, 45001)</div>
           <div class="chat-chip" data-prompt="Marco regulatorio colombiano de telecomunicaciones: Leyes 1341/1978/2108, Resoluciones CRC 5050/5111, ANE espectro/CEM, RETIE, RITEL y Ley 1581 Habeas Data">🇨🇴 Normativa MinTIC, CRC 5050, ANE y Ley 1581</div>
-          <div class="chat-chip" data-prompt="Compendio de estándares internacionales de telecomunicaciones: ITU-T G.652/G.657/GPON/DWDM, TIA-942 Tier III, GDPR y NIST Cybersecurity Framework 2.0">🌐 Estándares Internacionales (UIT-T, TIA-942, GDPR, NIST)</div>
+          <div class="chat-chip" data-prompt="Compendio de estándares internacionales de telecomunicaciones: ITU-T G.652/G.657/GPON/DWDM, TIA-942 Tier III, GDPR y NIST Cybersecurity Framework 2.0">🌐 Estándares Internacionales (UIT-T, TIA-942, NIST)</div>
         `;
       } else if (deptId === "c_gis" || deptId === "ingenieria_gis") {
         container.innerHTML = `
@@ -3686,8 +3804,8 @@
         return { intent: "close", deptId: "master", name: "AHOM FIBER CORE", emblem: "🤝" };
       }
 
-      // 2. Gobernanza Legal, Normativa, ISO 27001/27011, Norma 47001/42001/37001, SIG, MinTIC, CRC, ANE, UIT-T (c_gob)
-      if (/(derecho de peticion|derecho de petición|tutela|abogad|juridic|legal|ley 1755|ley 1581|ley 80|normativ|norma|decreto|resolucion crc|resolución crc|crc 5111|crc 5050|secop|licitacion|silencio administrativo|habeas data|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula de permanencia|iso 27001|27001|iso 27011|27011|iso 27701|27701|iso 22301|22301|sgsi|anexo a|47001|iso 47001|isa 47001|iso 42001|42001|iso 37001|37001|iso 37301|37301|antisoborno|gobernanza ia|compliance|iso 9001|9001|iso 14001|14001|iso 45001|45001|sig|sistema integrado|hls|phva|mintic|ley 1341|1341|ley 1978|1978|ley 2108|2108|servicio esencial|decreto 1078|dur-tic|ley 1273|delito informatico|delitos informaticos|conpes|mspi|colcert|futic|rutic|comparticion|compartición|posteria compartida|ducteria compartida|neutralidad|3502|ane|cnabf|resolucion 773|cem|campos electromagneticos|ritel|retie|resolucion 4272|4272|alturas|resolucion 0491|0491|espacios confinados|confinados|0312|sg-sst|uit|itu|itu-t|g\.652|g\.655|g\.657|g\.984|g\.9807|g\.694|x\.805|tia-942|tia 942|uptime|tier iii|tier 3|gdpr|nist|pci-dss)/i.test(msgLower)) {
+      // 2. Gobernanza Legal, Normativa, ISO 27001/27011, Norma 47001/42001/37001, SIG, MinTIC, CRC, ANE, UIT-T, SFC (c_gob)
+      if (/(derecho de peticion|derecho de petición|tutela|abogad|juridic|legal|ley 1755|ley 1581|ley 80|normativ|norma|decreto|resolucion crc|resolución crc|crc 5111|crc 5050|secop|licitacion|silencio administrativo|habeas data|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula de permanencia|iso 27001|27001|iso 27011|27011|iso 27701|27701|iso 22301|22301|sgsi|anexo a|47001|iso 47001|isa 47001|iso 42001|42001|iso 37001|37001|iso 37301|37301|antisoborno|gobernanza ia|compliance|iso 9001|9001|iso 14001|14001|iso 45001|45001|sig|sistema integrado|hls|phva|mintic|ley 1341|1341|ley 1978|1978|ley 2108|2108|servicio esencial|decreto 1078|dur-tic|ley 1273|delito informatico|delitos informaticos|conpes|mspi|colcert|futic|rutic|comparticion|compartición|posteria compartida|ducteria compartida|neutralidad|3502|ane|cnabf|resolucion 773|cem|campos electromagneticos|ritel|retie|resolucion 4272|4272|alturas|resolucion 0491|0491|espacios confinados|confinados|0312|sg-sst|uit|itu|itu-t|g\.652|g\.655|g\.657|g\.984|g\.9807|g\.694|x\.805|tia-942|tia 942|uptime|tier iii|tier 3|gdpr|nist|pci-dss|sfc|superfinanciera|superintendencia financiera|circular 029|circular 007|circular 033|circular externa 029|circular externa 007|circular externa 033|riesgo operativo|cloud computing)/i.test(msgLower)) {
         return { intent: "legal", deptId: "c_gob", name: "Gobernanza Legal & Normativa", emblem: "⚖️" };
       }
 
@@ -3810,6 +3928,25 @@
             `  * **DWDM y Seguridad:** Grilla espectral **ITU-T G.694.1** en banda C (50/100 GHz) y arquitectura de seguridad de 8 dimensiones **ITU-T X.805**.\n` +
             `- 🏢 **Data Centers ANSI/TIA-942 e Uptime Institute Tier III:** Concurrencia mantenible con disponibilidad del **99.982%** (máx. 1.6 horas de corte anual) y mantenimiento en caliente sin afectación de carga de TI.\n` +
             `- 🔒 **Marcos Globales:** IEEE 802.3 (Ethernet 10G a 400G), BGP-4 / TLS 1.3 (IETF), GDPR para clientes multinacionales y marco **NIST Cybersecurity Framework 2.0**.`;
+        }
+
+        // Bloque 5: Regulación Financiera SFC (Circulares Externas 029/2014, 007/2018 y 033/2020)
+        if (/(sfc|superfinanciera|superintendencia financiera|circular 029|circular 007|circular 033|circular externa 029|circular externa 007|circular externa 033|financier|banco|banca|fintech|outsourcing data center|cloud computing)/i.test(msgLower)) {
+          return `### 🏦 Dictamen de Cumplimiento Financiero SFC: Ciberseguridad, Riesgo Operativo y Cloud Computing\n\n` +
+            `Como **Director Jurídico y Oficial de Cumplimiento de AHOM FIBER IA CORP**, certificamos la conformidad regulatoria frente a la **Superintendencia Financiera de Colombia (SFC)**:\n\n` +
+            `- 💳 **Circular Externa 029 de 2014 (Seguridad y Calidad en Canales & Redes):**\n` +
+            `  * **Cifrado Extremo a Extremo:** Enlaces dedicados de fibra y túneles MPLS con cifrado AES-256 en capa física y TLS 1.3.\n` +
+            `  * **Trazabilidad & Logs:** Custodia inalterable de registros en SIEM centralizado sincronizado con NTP Estrato 1 certificado (retención de 5 años).\n` +
+            `  * **Seguridad en Tercerización (Data Centers Tier III):** 7 perímetros biométricos y segregación lógica absoluta mediante VRF dedicadas.\n` +
+            `- 🛡️ **Circular Externa 007 de 2018 (Gestión del Riesgo de Ciberseguridad):**\n` +
+            `  * **Ciber-Resiliencia:** Políticas de continuidad y pruebas periódicas de Ethical Hacking / Pentesting semestral.\n` +
+            `  * **SOC/SIEM 24/7:** Mitigación Anti-DDoS superior a 2.5 Tbps en borde nacional e internacional.\n` +
+            `  * **Notificación Temprana:** Notificación al CSIRT Financiero (Asobancaria) y a la SFC en **< 2 horas** ante incidentes graves.\n` +
+            `- ☁️ **Circular Externa 033 de 2020 (Cloud Computing, DRP & Resiliencia Operacional):**\n` +
+            `  * **Auditabilidad Plena (Audit Rights):** Cláusula contractual con derecho de inspección física, técnica y forense directa por la SFC.\n` +
+            `  * **Soberanía Nacional:** Procesamiento y custodia en Colombia en Data Centers Alma y Prado (ANSI/TIA-942 Tier III, SLA 99.982%).\n` +
+            `  * **Continuidad DRP ISO 22301:** Replicación sincrónica con **RPO = 0** y **RTO < 15 minutos**.\n` +
+            `  * **Salida Segura (Exit Strategy):** Portabilidad de datos y borrado seguro certificado bajo estándar **NIST SP 800-88 Rev. 1**.`;
         }
 
         // Casos Base Previos: Permanencia, Cancelación, PQR, Habeas Data, SECOP II
@@ -4029,6 +4166,11 @@
     }
 
     function handleAgentResponsePayload(data) {
+      // Trigger C: Activación dinámica por chat cuando se clasifica intención legal o devuelve activate_department
+      if (data.activate_department === "legal_governance" || data.redirect_target === "c_gob" || (data.agent === "c_gob")) {
+        activarEcosistemaLegal(data.active_subnode || null);
+      }
+
       if (data.is_transfer && data.redirect_target && selectedAgentId !== data.redirect_target) {
         // 1. Mostrar aviso del agente actual explicando que no es su área y que lo transferirá
         const introMsg = data.transfer_intro || `ℹ️ Esta consulta no corresponde a mi área. Te voy a transferir al nodo de **${data.redirect_name}**...`;
