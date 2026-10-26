@@ -1063,7 +1063,65 @@
       align-items: center;
       gap: 5px;
       transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    .chat-action-pill.voice-pill {
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      background: rgba(34, 211, 238, 0.15);
+      color: #67e8f9;
+    }
+    .chat-action-pill.voice-pill:hover {
+      background: rgba(34, 211, 238, 0.35);
+      color: #ffffff;
+      border-color: #22d3ee;
+      transform: translateY(-1px);
+    }
+    .chat-tool-btn.voice-active {
+      border-color: rgba(34, 211, 238, 0.6);
+      background: rgba(34, 211, 238, 0.2);
+    }
+    .eleven-text-input-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+      background: rgba(8, 15, 30, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 12px;
+      padding: 3px 6px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    .eleven-text-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 10.5px;
+      color: #f8fafc;
+      padding: 3px 4px;
+      font-family: inherit;
+      width: 110px;
+    }
+    .eleven-text-input::placeholder {
+      color: #64748b;
+      font-size: 9.5px;
+    }
+    .eleven-text-send-btn {
+      background: rgba(56, 189, 248, 0.25);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      border-radius: 8px;
+      color: #38bdf8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 7px;
+      transition: all 0.2s ease;
+    }
+    .eleven-text-send-btn:hover {
+      background: rgba(56, 189, 248, 0.5);
+      color: #ffffff;
+      transform: scale(1.05);
     }
 
     .chat-action-pill:hover {
@@ -1974,6 +2032,14 @@
       🎙️ Pulse el botón para consultar con AHOM FIBER Voice IA
     </div>
 
+    <!-- Text input fallback when mic is unavailable -->
+    <div class="eleven-text-input-row" title="Escribe una pregunta para escucharla en voz sin micrófono">
+      <input type="text" id="elevenModalTextInput" placeholder="Escribe para responder con voz..." class="eleven-text-input">
+      <button type="button" class="eleven-text-send-btn" id="btnElevenModalSend" title="Enviar consulta de voz">
+        <i data-lucide="send" style="width: 13px; height: 13px;"></i>
+      </button>
+    </div>
+
     <!-- Bottom Switcher Pill [ Voice | Chat ] -->
     <div class="eleven-bottom-switcher">
       <button class="eleven-tab-btn active" id="tabModeVoice">Voice</button>
@@ -2065,6 +2131,9 @@
       <div class="chat-input-box">
         <button class="chat-tool-btn" id="btnChatAttachKMZ" onclick="triggerKMZUpload()" title="Subir archivo .KMZ / .KML de fibra óptica">
           <i data-lucide="map-pin" style="width: 17px; height: 17px;"></i>
+        </button>
+        <button class="chat-tool-btn voice-active" id="btnToggleAutoVoice" title="Respuestas con Voz Automática (ElevenLabs): Activado" type="button">
+          <i data-lucide="volume-2" id="iconAutoVoice" style="width: 17px; height: 17px; color: #22d3ee;"></i>
         </button>
         <textarea id="chat-input" placeholder="Escriba una instrucción o consulta corporativa..."></textarea>
         <button class="send-btn" id="chat-send-btn">
@@ -2222,6 +2291,14 @@
     let hierarchyData = null;
     let autoRotate = true;
     let panelCollapsed = true;
+    let isVoiceAutoPlayEnabled = true; // Auto-voz activada por defecto
+
+    window.speakRawText = function(text) {
+      if (!text) return;
+      stopActiveVoiceAudio();
+      speakText(text);
+      showToast("🔊 Reproduciendo respuesta con voz...");
+    };
 
     // Three.js Globals
     let scene, camera, renderer, controls;
@@ -4246,8 +4323,16 @@
 
       } else {
         // Flujo regular dentro del mismo nodo
-        appendChatMessage("agent", data.response, data.source_meta, data.suggested_action);
+        appendChatMessage("agent", data.response, data.source_meta, data.suggested_action, data.voice_summary);
         chatHistory.push({ role: "assistant", content: data.response, agent: selectedAgentId });
+      }
+
+      // Si la voz automática está habilitada, hablar la respuesta al recibirla
+      if (isVoiceAutoPlayEnabled) {
+        const textToSpeak = cleanTextForSpeech(data.voice_summary || data.response);
+        if (textToSpeak) {
+          setTimeout(() => { speakText(textToSpeak); }, 300);
+        }
       }
     }
 
@@ -4326,19 +4411,26 @@
           `;
         }
 
-        // Action buttons (Finalizar Chat or closed badge)
+        // Action buttons (Finalizar Chat, Escuchar Voz, or closed badge)
         let actionsHtml = "";
         const isClosed = /Sesión Finalizada|cerrada esta consulta|Consulta Finalizada|finalizada esta sesión|¡Ha sido un placer asistirte/i.test(content);
+        const speechSnippet = encodeURIComponent(cleanTextForSpeech(content));
         if (isClosed) {
           actionsHtml = `
             <div class="chat-msg-actions">
               <span class="chat-closed-badge">✅ Consulta Finalizada</span>
+              <button type="button" class="chat-action-pill voice-pill" onclick="window.speakRawText(decodeURIComponent('${speechSnippet}'))" title="Escuchar este mensaje con voz">
+                <span>🔊 Escuchar</span>
+              </button>
             </div>
           `;
         } else {
           actionsHtml = `
             <div class="chat-msg-actions">
-              <button class="chat-action-pill" onclick="sendQuickMessage('No tengo más consultas, finalizar chat')">
+              <button type="button" class="chat-action-pill voice-pill" onclick="window.speakRawText(decodeURIComponent('${speechSnippet}'))" title="Escuchar esta respuesta con voz">
+                <span>🔊 Escuchar</span>
+              </button>
+              <button type="button" class="chat-action-pill" onclick="sendQuickMessage('No tengo más consultas, finalizar chat')">
                 <span>🛑 Finalizar Chat</span>
               </button>
             </div>
@@ -4372,6 +4464,54 @@
       fetchHierarchy();
       initElevenVoiceSystem();
       initFluidOrbAnimation();
+
+      // Toggle Auto-Voice Responses in Chat
+      const btnToggleAutoVoice = document.getElementById("btnToggleAutoVoice");
+      if (btnToggleAutoVoice) {
+        btnToggleAutoVoice.addEventListener("click", () => {
+          isVoiceAutoPlayEnabled = !isVoiceAutoPlayEnabled;
+          const icon = document.getElementById("iconAutoVoice");
+          if (isVoiceAutoPlayEnabled) {
+            btnToggleAutoVoice.classList.add("voice-active");
+            btnToggleAutoVoice.title = "Respuestas con Voz Automática (ElevenLabs): Activado";
+            if (icon) {
+              icon.setAttribute("data-lucide", "volume-2");
+              icon.style.color = "#22d3ee";
+            }
+            showToast("🔊 Respuestas con voz activadas");
+          } else {
+            btnToggleAutoVoice.classList.remove("voice-active");
+            btnToggleAutoVoice.title = "Respuestas con Voz Automática: Silenciado";
+            if (icon) {
+              icon.setAttribute("data-lucide", "volume-x");
+              icon.style.color = "#94a3b8";
+            }
+            stopActiveVoiceAudio();
+            showToast("🔇 Respuestas con voz silenciadas");
+          }
+          lucide.createIcons();
+        });
+      }
+
+      // Voice Modal text input (no mic required)
+      const elevenInput = document.getElementById("elevenModalTextInput");
+      const btnElevenSend = document.getElementById("btnElevenModalSend");
+      function submitElevenModalText() {
+        if (!elevenInput) return;
+        const query = elevenInput.value.trim();
+        if (!query) return;
+        elevenInput.value = "";
+        handleVoiceAiQuery(query);
+      }
+      if (btnElevenSend) btnElevenSend.addEventListener("click", submitElevenModalText);
+      if (elevenInput) {
+        elevenInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            submitElevenModalText();
+          }
+        });
+      }
 
       // Side panel toggle
       document.getElementById("btnTogglePanel").addEventListener("click", () => togglePanel());
