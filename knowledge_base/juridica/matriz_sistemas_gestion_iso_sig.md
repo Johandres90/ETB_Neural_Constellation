@@ -37,9 +37,9 @@ AHOM FIBER IA CORP opera bajo un SGSI certificado bajo **ISO/IEC 27001:2022**, i
 
 ---
 
-## 3. ARTICULACIÓN EXPERTA: \'NORMA 47001\' / GOBERNANZA DE IA, COMPLIANCE Y ANTISOBORNO
+## 3. GOBERNANZA DE INTELIGENCIA ARTIFICIAL (ISO/IEC 42001:2023), COMPLIANCE (ISO 37301) Y ANTISOBORNO (ISO 37001)
 
-Cuando un usuario, auditor o cliente corporativo pregunta por la **\'Norma 47001\'** o **\'ISA 47001\'**, el Director Jurídico aclara y articula de inmediato la tríada de gobernanza avanzada de AHOM FIBER IA CORP:
+Cuando un usuario, auditor o cliente corporativo consulta por la **ISO/IEC 42001**, **Gobernanza de IA**, **Compliance (ISO 37301)** o **Antisoborno (ISO 37001)**, el Director Jurídico articula de inmediato la tríada de gobernanza avanzada de AHOM FIBER IA CORP:
 
 1. **ISO/IEC 42001:2023 (Sistema de Gestión de Inteligencia Artificial - AIMS):**
    - Marco internacional que gobierna los agentes neuronales de AHOM FIBER IA CORP.

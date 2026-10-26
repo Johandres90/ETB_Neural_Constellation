@@ -2711,7 +2711,7 @@
     // SISTEMA DE AISLAMIENTO Y ACTIVACIÓN DINÁMICA DE GOBERNANZA LEGAL (3D + VOZ + CHAT)
     // ==========================================================
     let isLegalEcosystemActive = false;
-    const LEGAL_SUBNODE_IDS = ["n_iso_27001", "n_iso_47001", "n_sig_hls", "n_reg_tic", "n_sfc_bank", "n_intl_std"];
+    const LEGAL_SUBNODE_IDS = ["n_iso_27001", "n_iso_42001", "n_sig_hls", "n_reg_tic", "n_sfc_bank", "n_intl_std"];
 
     function setLegalSubnodesVisibility(visible) {
       isLegalEcosystemActive = visible;
@@ -3324,11 +3324,11 @@
       document.getElementById("elevenSubtitles").textContent = "Analizando con AHOM FIBER IA CORP...";
 
       // Trigger B (Voz NEXO): Detectar consultas legales / normativas / SFC para activar ecosistema
-      const isLegalVoiceQuery = /(legal|normativ|norma|iso 27001|27001|47001|42001|sig|mintic|crc|circular 007|circular 029|circular 033|superfinanciera|sfc|habeas data|auditor)/i.test(text);
+      const isLegalVoiceQuery = /(legal|normativ|norma|iso 27001|27001|iso 42001|42001|47001|37001|37301|sig|mintic|crc|circular 007|circular 029|circular 033|superfinanciera|sfc|habeas data|auditor)/i.test(text);
       let detectedSubnode = null;
       if (/(circular 007|circular 029|circular 033|superfinanciera|sfc|financier|banco)/i.test(text)) detectedSubnode = "n_sfc_bank";
       else if (/(iso 27001|27001|27011|sgsi)/i.test(text)) detectedSubnode = "n_iso_27001";
-      else if (/(47001|42001|37001|37301)/i.test(text)) detectedSubnode = "n_iso_47001";
+      else if (/(42001|47001|37001|37301|gobernanza ia|antisoborno|compliance)/i.test(text)) detectedSubnode = "n_iso_42001";
       else if (/(sig|9001|14001|45001)/i.test(text)) detectedSubnode = "n_sig_hls";
       else if (/(mintic|crc|5050|ane|1581)/i.test(text)) detectedSubnode = "n_reg_tic";
       else if (/(uit|itu|tia-942|nist|gdpr)/i.test(text)) detectedSubnode = "n_intl_std";
@@ -3392,46 +3392,80 @@
         }
       }
 
-      // 1. Primario: Audio Natural Neural en streaming de Google en español
-      try {
-        const neuralUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=es&client=tw-ob&q=${encodeURIComponent(speechSnippet)}`;
-        const audio = new Audio();
-        audio.crossOrigin = "anonymous";
-        activeAudioPlayer = audio;
+      let hasFallenBack = false;
+      const fallbackToSecondaryTts = () => {
+        if (hasFallenBack) return;
+        hasFallenBack = true;
+        try {
+          const neuralUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=es&client=tw-ob&q=${encodeURIComponent(speechSnippet)}`;
+          const audio = new Audio();
+          audio.crossOrigin = "anonymous";
+          activeAudioPlayer = audio;
 
-        let hasFallenBack = false;
-        const fallbackToSynthesis = () => {
-          if (hasFallenBack) return;
-          hasFallenBack = true;
+          audio.onplay = () => {
+            isSpeaking = true;
+            setOrbState("talking");
+          };
+          audio.onended = () => {
+            isSpeaking = false;
+            setOrbState("idle");
+            activeAudioPlayer = null;
+            if (isCallActive) {
+              setTimeout(startListening, 600);
+            }
+          };
+          audio.onerror = () => {
+            speakWithBrowserSynthesis(speechSnippet);
+          };
+          audio.src = neuralUrl;
+          audio.play().catch(() => {
+            speakWithBrowserSynthesis(speechSnippet);
+          });
+        } catch (err) {
           speakWithBrowserSynthesis(speechSnippet);
-        };
+        }
+      };
 
-        audio.onplay = () => {
-          isSpeaking = true;
-          setOrbState("talking");
-        };
+      // 1. Primario: Servicio oficial ElevenLabs desde el backend (/api/tts)
+      fetch(`${API_BASE}/api/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: speechSnippet })
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("ElevenLabs TTS status " + res.status);
+          return res.blob();
+        })
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(blob);
+          const audio = new Audio(blobUrl);
+          activeAudioPlayer = audio;
 
-        audio.onended = () => {
-          isSpeaking = false;
-          setOrbState("idle");
-          activeAudioPlayer = null;
-          if (isCallActive) {
-            setTimeout(startListening, 600);
-          }
-        };
-
-        audio.onerror = () => {
-          fallbackToSynthesis();
-        };
-
-        audio.src = neuralUrl;
-        audio.play().catch(err => {
-          console.warn("Audio play bloqueado o sin permisos, usando síntesis del navegador:", err);
-          fallbackToSynthesis();
+          audio.onplay = () => {
+            isSpeaking = true;
+            setOrbState("talking");
+          };
+          audio.onended = () => {
+            URL.revokeObjectURL(blobUrl);
+            isSpeaking = false;
+            setOrbState("idle");
+            activeAudioPlayer = null;
+            if (isCallActive) {
+              setTimeout(startListening, 600);
+            }
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(blobUrl);
+            fallbackToSecondaryTts();
+          };
+          audio.play().catch(() => {
+            URL.revokeObjectURL(blobUrl);
+            fallbackToSecondaryTts();
+          });
+        })
+        .catch(() => {
+          fallbackToSecondaryTts();
         });
-      } catch (err) {
-        speakWithBrowserSynthesis(speechSnippet);
-      }
     }
 
     function speakWithBrowserSynthesis(text) {
@@ -3582,7 +3616,7 @@
 
         // Sub-nodos del Ecosistema de Gobernanza Legal & Normativa (Aislados / Activación Dinámica On-Demand)
         { id: "n_iso_27001", name: "ISO 27001 / 27011 & Ciberseguridad", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#38bdf8", offset: [-5.5, 4.0, 2.5], isLegalSubnode: true },
-        { id: "n_iso_47001", name: "Norma 47001 / Gobernanza IA (42001) & Compliance (37001)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#818cf8", offset: [5.5, 4.0, 2.5], isLegalSubnode: true },
+        { id: "n_iso_42001", name: "ISO 42001 / Gobernanza IA", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#818cf8", offset: [5.5, 4.0, 2.5], isLegalSubnode: true },
         { id: "n_sig_hls", name: "SIG (ISO 9001, 14001, 45001)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#34d399", offset: [-6.0, -3.5, -2.5], isLegalSubnode: true },
         { id: "n_reg_tic", name: "Regulación TIC Nacional (MinTIC, CRC 5050, ANE, Ley 1581)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Quick Win", color: "#f472b6", offset: [6.0, -3.5, -2.5], isLegalSubnode: true },
         { id: "n_sfc_bank", name: "Cumplimiento Financiero SFC (Circulares 029/2014, 007/2018 y 033/2020)", parent: "c_gob", cluster: "Gobernanza Legal & Normativa", cat: "Consolidado", color: "#fbbf24", offset: [0.0, 6.5, 3.5], isLegalSubnode: true },
@@ -3711,7 +3745,7 @@
           <div class="chat-chip chip-end" data-prompt="No tengo más consultas, finalizar chat">🛑 Finalizar Chat</div>
           <div class="chat-chip" data-prompt="Cumplimiento de Circulares Externas 029 de 2014, 007 de 2018 y 033 de 2020 de la SFC para sector financiero, ciberseguridad, nube y auditoría en Data Centers">🏦 Circulares SFC (029/14, 007/18 y 033/20 - Banca &amp; Cloud)</div>
           <div class="chat-chip" data-prompt="Auditoría y controles aplicables según ISO/IEC 27001:2022 y directrices ISO/IEC 27011 para redes de telecomunicaciones y Data Centers">🛡️ Auditoría ISO 27001 &amp; 27011 (SGSI)</div>
-          <div class="chat-chip" data-prompt="Explica la articulación de la Norma 47001 con el Sistema de Gestión de Inteligencia Artificial ISO/IEC 42001, Compliance ISO 37301 y Antisoborno ISO 37001">⚖️ Norma 47001 / Gobernanza IA &amp; Compliance</div>
+          <div class="chat-chip" data-prompt="Explica el Sistema de Gestión de Inteligencia Artificial ISO/IEC 42001:2023 y su articulación con Compliance ISO 37301 y Antisoborno ISO 37001">⚖️ ISO 42001 / Gobernanza IA &amp; Compliance</div>
           <div class="chat-chip" data-prompt="Detalla la implementación del Sistema Integrado de Gestión (SIG): Calidad ISO 9001, Gestión Ambiental ISO 14001 con RAEE y SST ISO 45001 con trabajo en alturas y espacios confinados">📋 Estructura del SIG (ISO 9001, 14001, 45001)</div>
           <div class="chat-chip" data-prompt="Marco regulatorio colombiano de telecomunicaciones: Leyes 1341/1978/2108, Resoluciones CRC 5050/5111, ANE espectro/CEM, RETIE, RITEL y Ley 1581 Habeas Data">🇨🇴 Normativa MinTIC, CRC 5050, ANE y Ley 1581</div>
           <div class="chat-chip" data-prompt="Compendio de estándares internacionales de telecomunicaciones: ITU-T G.652/G.657/GPON/DWDM, TIA-942 Tier III, GDPR y NIST Cybersecurity Framework 2.0">🌐 Estándares Internacionales (UIT-T, TIA-942, NIST)</div>
@@ -3804,8 +3838,8 @@
         return { intent: "close", deptId: "master", name: "AHOM FIBER CORE", emblem: "🤝" };
       }
 
-      // 2. Gobernanza Legal, Normativa, ISO 27001/27011, Norma 47001/42001/37001, SIG, MinTIC, CRC, ANE, UIT-T, SFC (c_gob)
-      if (/(derecho de peticion|derecho de petición|tutela|abogad|juridic|legal|ley 1755|ley 1581|ley 80|normativ|norma|decreto|resolucion crc|resolución crc|crc 5111|crc 5050|secop|licitacion|silencio administrativo|habeas data|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula de permanencia|iso 27001|27001|iso 27011|27011|iso 27701|27701|iso 22301|22301|sgsi|anexo a|47001|iso 47001|isa 47001|iso 42001|42001|iso 37001|37001|iso 37301|37301|antisoborno|gobernanza ia|compliance|iso 9001|9001|iso 14001|14001|iso 45001|45001|sig|sistema integrado|hls|phva|mintic|ley 1341|1341|ley 1978|1978|ley 2108|2108|servicio esencial|decreto 1078|dur-tic|ley 1273|delito informatico|delitos informaticos|conpes|mspi|colcert|futic|rutic|comparticion|compartición|posteria compartida|ducteria compartida|neutralidad|3502|ane|cnabf|resolucion 773|cem|campos electromagneticos|ritel|retie|resolucion 4272|4272|alturas|resolucion 0491|0491|espacios confinados|confinados|0312|sg-sst|uit|itu|itu-t|g\.652|g\.655|g\.657|g\.984|g\.9807|g\.694|x\.805|tia-942|tia 942|uptime|tier iii|tier 3|gdpr|nist|pci-dss|sfc|superfinanciera|superintendencia financiera|circular 029|circular 007|circular 033|circular externa 029|circular externa 007|circular externa 033|riesgo operativo|cloud computing)/i.test(msgLower)) {
+      // 2. Gobernanza Legal, Normativa, ISO 27001/27011, ISO/IEC 42001/37301/37001, SIG, MinTIC, CRC, ANE, UIT-T, SFC (c_gob)
+      if (/(derecho de peticion|derecho de petición|tutela|abogad|juridic|legal|ley 1755|ley 1581|ley 80|normativ|norma|decreto|resolucion crc|resolución crc|crc 5111|crc 5050|secop|licitacion|silencio administrativo|habeas data|terminar contrato|cancelar contrato|incumplimiento de contrato|clausula de permanencia|iso 27001|27001|iso 27011|27011|iso 27701|27701|iso 22301|22301|sgsi|anexo a|iso 42001|42001|47001|iso 47001|aims|iso 37001|37001|iso 37301|37301|antisoborno|gobernanza ia|compliance|iso 9001|9001|iso 14001|14001|iso 45001|45001|sig|sistema integrado|hls|phva|mintic|ley 1341|1341|ley 1978|1978|ley 2108|2108|servicio esencial|decreto 1078|dur-tic|ley 1273|delito informatico|delitos informaticos|conpes|mspi|colcert|futic|rutic|comparticion|compartición|posteria compartida|ducteria compartida|neutralidad|3502|ane|cnabf|resolucion 773|cem|campos electromagneticos|ritel|retie|resolucion 4272|4272|alturas|resolucion 0491|0491|espacios confinados|confinados|0312|sg-sst|uit|itu|itu-t|g\.652|g\.655|g\.657|g\.984|g\.9807|g\.694|x\.805|tia-942|tia 942|uptime|tier iii|tier 3|gdpr|nist|pci-dss|sfc|superfinanciera|superintendencia financiera|circular 029|circular 007|circular 033|circular externa 029|circular externa 007|circular externa 033|riesgo operativo|cloud computing)/i.test(msgLower)) {
         return { intent: "legal", deptId: "c_gob", name: "Gobernanza Legal & Normativa", emblem: "⚖️" };
       }
 
@@ -3872,17 +3906,17 @@
             `¿Deseas examinar la matriz de aplicabilidad (SoA) para algún control específico?`;
         }
 
-        // Bloque 1B: Norma 47001 / ISO 42001 (IA), ISO 37301 (Compliance) & ISO 37001 (Antisoborno)
-        if (/(47001|iso 47001|isa 47001|iso 42001|42001|iso 37001|37001|iso 37301|37301|antisoborno|gobernanza ia|compliance)/i.test(msgLower)) {
-          return `### ⚖️ Dictamen Técnico-Jurídico: Articulación de la 'Norma 47001' (ISO/IEC 42001, ISO 37301 e ISO 37001)\n\n` +
-            `Desde la Dirección Jurídica y de Compliance, aclaramos y estructuramos la aplicación de la **'Norma 47001'** en AHOM FIBER IA CORP:\n\n` +
+        // Bloque 1B: ISO/IEC 42001 (Gobernanza IA), ISO 37301 (Compliance) & ISO 37001 (Antisoborno)
+        if (/(iso 42001|42001|47001|iso 47001|aims|iso 37001|37001|iso 37301|37301|antisoborno|gobernanza ia|compliance)/i.test(msgLower)) {
+          return `### ⚖️ Dictamen Técnico-Jurídico: Gobernanza de IA (ISO/IEC 42001:2023), Compliance (ISO 37301) y Antisoborno (ISO 37001)\n\n` +
+            `Desde la Dirección Jurídica y de Compliance, estructuramos la aplicación de la norma **ISO/IEC 42001:2023** y su articulación en AHOM FIBER IA CORP:\n\n` +
             `| Pilar de Gobernanza | Norma Internacional | Aplicación en la Red Neuronal y Contratación AHOM |\n` +
             `| :--- | :--- | :--- |\n` +
             `| **Gobernanza de IA** | **ISO/IEC 42001:2023** (AIMS) | Rige los agentes inteligentes y modelos de lenguaje de la constelación. Garantiza trazabilidad de decisiones, explicabilidad algorítmica, mitigación de sesgos en enrutamiento y supervisión humana activa (HITL). |\n` +
             `| **Cumplimiento Legal** | **ISO 37301:2021** (Compliance) | Sistema integral de cumplimiento normativo que audita permanentemente obligaciones ante CRC, MinTIC, ANE, SIC y DIAN con efectividad probada del 100%. |\n` +
             `| **Antisoborno & Ética** | **ISO 37001:2016** (Antisoborno) | Debida diligencia en contratación pública (SECOP II) y privada (B2B), con cero tolerancia al cohecho en compras de infraestructura. |\n` +
             `| **Seguridad Laboral** | **ISO 45001:2018** (SST) | Respaldo y protección a cuadrillas de planta externa aérea y subterránea. |\n\n` +
-            `*Cualquier requerimiento corporativo o pliego licitatorio que refiera a la 'Norma 47001' queda plenamente cubierto y respaldado mediante esta integración certificable.*`;
+            `*Todo requerimiento corporativo o pliego licitatorio de gobernanza de inteligencia artificial y ética empresarial queda plenamente cubierto y respaldado mediante esta integración certificable.*`;
         }
 
         // Bloque 1C: SIG (ISO 9001, 14001, 45001 & HLS/PHVA)
@@ -3970,7 +4004,7 @@
           const num = matchNum ? matchNum[0] : "53696969";
           return `### ⚖️ Registro y Asesoría Jurídica — Caso Asociado\n\nHemos tomado nota de tu consulta jurídica para el contrato o documento **${num}**:\n\n- 📜 **Marco Aplicable:** Ley 1755 de 2015 y Resolución CRC 5111 de 2017.\n- ⏱️ **Garantía:** Término perentorio de 15 días hábiles.\n- 🏛️ **Recursos:** Dispones de 10 días hábiles para interponer **Recurso de Reposición y en subsidio Apelación ante la SIC**.\n\n¿Requieres que un asesor jurídico revise un requerimiento particular sobre este contrato?`;
         }
-        return `### ⚖️ Dirección Jurídica, Auditoría Líder ISO/UIT & Oficial de Cumplimiento (CCISO)\n\nSupervisamos el cumplimiento integral bajo 5 ejes normativos:\n- 🛡️ **Sistemas de Gestión:** ISO/IEC 27001:2022 (93 controles), ISO 27011, ISO 27701 e ISO 22301.\n- ⚖️ **Norma '47001':** Articulación de ISO/IEC 42001 (IA), ISO 37301 (Compliance) e ISO 37001 (Antisoborno).\n- 📋 **SIG:** ISO 9001 (Calidad/SLA), ISO 14001 (Ambiental/RAEE) e ISO 45001 (SST/Alturas/Confinados).\n- 🇨🇴 **Normativa MinTIC y CRC:** Leyes 1341/1978/2108, Res. CRC 5050/5111, ANE, RITEL y RETIE.\n- 🌐 **Estándares Internacionales:** ITU-T G.652/G.657/GPON/XGS-PON, TIA-942 Tier III, GDPR y NIST.\n\n¿En qué dictamen o requerimiento normativo deseas asistencia?`;
+        return `### ⚖️ Dirección Jurídica, Auditoría Líder ISO/UIT & Oficial de Cumplimiento (CCISO)\n\nSupervisamos el cumplimiento integral bajo 5 ejes normativos:\n- 🛡️ **Sistemas de Gestión:** ISO/IEC 27001:2022 (93 controles), ISO 27011, ISO 27701 e ISO 22301.\n- ⚖️ **ISO/IEC 42001 & Compliance:** Sistema de Gestión de IA (ISO/IEC 42001:2023), Compliance (ISO 37301) y Antisoborno (ISO 37001).\n- 📋 **SIG:** ISO 9001 (Calidad/SLA), ISO 14001 (Ambiental/RAEE) e ISO 45001 (SST/Alturas/Confinados).\n- 🇨🇴 **Normativa MinTIC y CRC:** Leyes 1341/1978/2108, Res. CRC 5050/5111, ANE, RITEL y RETIE.\n- 🌐 **Estándares Internacionales:** ITU-T G.652/G.657/GPON/XGS-PON, TIA-942 Tier III, GDPR y NIST.\n\n¿En qué dictamen o requerimiento normativo deseas asistencia?`;
       }
       
       // 2. SERVICIO AL CLIENTE & EXPERIENCIA (c_cx)

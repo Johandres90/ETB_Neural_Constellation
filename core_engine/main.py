@@ -1,16 +1,18 @@
 """
 Main FastAPI Server - AHOM FIBER IA CORP Neural Constellation
-Endpoints para chat interactivo, entrenamiento en caliente y despacho de la jerarquía 3D.
+Endpoints para chat interactivo, entrenamiento en caliente, síntesis de voz ElevenLabs y despacho de la jerarquía 3D.
 """
 
 import os
+import re
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from core_engine.kmz_parser import parse_kmz_or_kml_bytes, generate_kmz_knowledge_markdown
+from core_engine.elevenlabs_service import elevenlabs_service
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from core_engine.agent_manager import AgentManager
@@ -19,7 +21,7 @@ from core_engine.agent_manager import AgentManager
 app = FastAPI(
     title="AHOM FIBER IA CORP Neural Constellation Backend",
     description="Motor de agentes corporativos jerárquicos y entrenamiento modular para AHOM FIBER IA CORP",
-    version="3.0.0"
+    version="3.2.0"
 )
 
 # Habilitar CORS para permitir consumo desde Three.js en cualquier puerto local
@@ -47,6 +49,10 @@ class TrainRequest(BaseModel):
     content: str = Field(..., min_length=5, description="Texto o documento de conocimiento a integrar")
     topic: Optional[str] = Field(default=None, description="Título o tema del entrenamiento")
 
+class TTSRequest(BaseModel):
+    text: str = Field(..., min_length=1, description="Texto a sintetizar con ElevenLabs")
+    voice_id: Optional[str] = Field(default=None, description="Voice ID opcional (usa ELEVENLABS_VOICE_ID por defecto)")
+
 
 @app.get("/api/health")
 def health_check():
@@ -54,10 +60,59 @@ def health_check():
     return {
         "status": "healthy",
         "system": "AHOM FIBER IA CORP Neural Constellation Core Engine",
-        "version": "3.0.0",
+        "version": "3.2.0",
         "total_agents": len(agent_manager.agents),
-        "knowledge_base_path": str(agent_manager.kb_root)
+        "knowledge_base_path": str(agent_manager.kb_root),
+        "elevenlabs": elevenlabs_service.get_status()
     }
+
+
+@app.get("/api/tts/status")
+def tts_status_endpoint():
+    """Retorna el estado de configuración del servicio ElevenLabs sin exponer credenciales."""
+    return elevenlabs_service.get_status()
+
+
+@app.post("/api/tts")
+def tts_post_endpoint(payload: TTSRequest):
+    """Sintetiza voz neuronal utilizando ElevenLabs leyendo API Key y Voice ID desde variables de entorno."""
+    try:
+        audio_bytes = elevenlabs_service.synthesize_speech(
+            text=payload.text,
+            voice_id=payload.voice_id
+        )
+        return Response(
+            content=audio_bytes,
+            media_type="audio/mpeg",
+            headers={"Cache-Control": "no-store"}
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except RuntimeError as re_err:
+        raise HTTPException(status_code=502, detail=str(re_err))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en síntesis ElevenLabs: {str(e)}")
+
+
+@app.get("/api/tts")
+def tts_get_endpoint(text: str, voice_id: Optional[str] = None):
+    """Endpoint GET para streaming directo de audio ElevenLabs desde reproductores HTML5 Audio."""
+    try:
+        audio_bytes = elevenlabs_service.synthesize_speech(
+            text=text,
+            voice_id=voice_id
+        )
+        return Response(
+            content=audio_bytes,
+            media_type="audio/mpeg",
+            headers={"Cache-Control": "no-store"}
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except RuntimeError as re_err:
+        raise HTTPException(status_code=502, detail=str(re_err))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en síntesis ElevenLabs: {str(e)}")
 
 
 @app.get("/api/agents")
@@ -157,7 +212,6 @@ async def generate_kmz_endpoint(
     conteniendo doc.kml y la subcarpeta files/ con los íconos Poste.png y Camara doble.png.
     """
     from core_engine.kmz_parser import build_kmz_bytes
-    from fastapi.responses import Response
 
     kmz_bytes = build_kmz_bytes(
         location_name=location,

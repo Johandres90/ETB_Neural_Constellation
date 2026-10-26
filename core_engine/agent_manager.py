@@ -219,14 +219,14 @@ class AgentManager:
                 "emblem": "🗺️"
             }
 
-        # 2. Marco Legal, Normativa CRC, MinTIC, ANE, ISO 27001/27011, Norma 47001/42001/37001, SIG, RITEL, RETIE, UIT-T
+        # 2. Marco Legal, Normativa CRC, MinTIC, ANE, ISO 27001/27011, ISO/IEC 42001/37301/37001, SIG, RITEL, RETIE, UIT-T
         if any(w in msg_lower for w in [
             "derecho de peticion", "derecho de petición", "tutela", "sic", "superintendencia", "legal", "juridic", 
             "abogad", "clausula", "permanencia", "cancelar", "cancelacion", "dar de baja", "terminar contrato", 
             "derecho", "regulac", "crc", "5111", "5050", "ley 1581", "ley 1755", "habeas data", "datos personales", 
             "secop", "licitacion", "pliego", "rup", "colombia compra", "regimen", "silencio administrativo",
             "iso 27001", "27001", "iso 27011", "27011", "iso 27701", "27701", "iso 22301", "22301", "sgsi", "anexo a",
-            "47001", "iso 47001", "isa 47001", "iso 42001", "42001", "iso 37001", "37001", "iso 37301", "37301",
+            "iso 42001", "42001", "iso/iec 42001", "aims", "gobernanza ia", "iso 37001", "37001", "iso 37301", "37301", "antisoborno", "compliance",
             "iso 9001", "9001", "iso 14001", "14001", "iso 45001", "45001", "sig", "sistema integrado", "hls", "phva",
             "mintic", "ley 1341", "1341", "ley 1978", "1978", "ley 2108", "2108", "servicio esencial", "decreto 1078",
             "dur-tic", "ley 1273", "delito informatico", "delitos informaticos", "conpes", "mspi", "colcert", "futic", "rutic",
@@ -753,13 +753,13 @@ class AgentManager:
             return text, voice
 
         # -------------------------------------------------------------
-        # BLOQUE 1B: NORMA 47001 / GOBERNANZA IA (ISO 42001), COMPLIANCE (37301) & ANTISOBORNO (37001)
+        # BLOQUE 1B: ISO/IEC 42001 (GOBERNANZA IA), COMPLIANCE (37301) & ANTISOBORNO (37001)
         # -------------------------------------------------------------
-        if any(w in msg_lower for w in ["47001", "iso 47001", "isa 47001", "iso 42001", "42001", "iso 37001", "37001", "iso 37301", "37301", "antisoborno", "gobernanza ia", "compliance"]):
+        if any(w in msg_lower for w in ["iso 42001", "42001", "iso/iec 42001", "aims", "gobernanza ia", "iso 37001", "37001", "iso 37301", "37301", "antisoborno", "compliance", "antisoborno", "gobernanza ia", "compliance"]):
             text = (
                 f"{agent_badge}\n"
-                f"### ⚖️ Dictamen Técnico-Jurídico: Articulación de la 'Norma 47001' (ISO/IEC 42001, ISO 37301 e ISO 37001)\n\n"
-                f"Como Director Jurídico y Auditor Líder, aclaro y estructuro la aplicación de la denominación **'Norma 47001'** dentro del marco de gobernanza corporativa e inteligencia artificial de AHOM FIBER IA CORP:\n\n"
+                f"### ⚖️ Dictamen Técnico-Jurídico: Gobernanza de IA (ISO/IEC 42001:2023), Compliance (ISO 37301) y Antisoborno (ISO 37001)\n\n"
+                f"Como Director Jurídico y Auditor Líder, estructuro la aplicación de la norma **ISO/IEC 42001:2023** y su articulación dentro del marco de gobernanza corporativa e inteligencia artificial de AHOM FIBER IA CORP:\n\n"
                 f"| Pilar de Gobernanza | Norma Internacional | Aplicación en la Red Neuronal y Contratación AHOM |\n"
                 f"| :--- | :--- | :--- |\n"
                 f"| **Gobernanza de IA** | **ISO/IEC 42001:2023** (AIMS) | Rige los agentes inteligentes y modelos de lenguaje de la constelación. Garantiza trazabilidad de decisiones, explicabilidad algorítmica, mitigación de sesgos en el enrutamiento de red y supervisión humana activa (Human-in-the-Loop). |\n"
@@ -767,9 +767,9 @@ class AgentManager:
                 f"| **Antisoborno & Ética** | **ISO 37001:2016** (Antisoborno) | Políticas de debida diligencia en contratación pública (SECOP II) y privada (B2B), con cero tolerancia a pagos de facilitación, dádivas o conflictos de interés en compras de infraestructura. |\n"
                 f"| **Seguridad Laboral** | **ISO 45001:2018** (SST) | Respaldo a la cuadrilla técnica y linieros en despliegues de planta externa aérea y subterránea. |\n\n"
                 f"#### Conclusión de Auditoría:\n"
-                f"Cualquier requerimiento corporativo o pliego de licitación que refiera a la **'Norma 47001'** queda plenamente cubierto y respaldado mediante la integración certificable de **ISO/IEC 42001** (Gestión de Inteligencia Artificial), **ISO 37301** (Compliance) e **ISO 37001** (Antisoborno)."
+                f"Todo requerimiento corporativo o pliego de licitación sobre gobernanza tecnológica y ética empresarial queda plenamente cubierto y respaldado mediante la certificación e integración de **ISO/IEC 42001:2023** (Sistema de Gestión de Inteligencia Artificial), **ISO 37301** (Compliance) e **ISO 37001** (Antisoborno)."
             )
-            voice = "La articulación de la Norma 47001 integra el Sistema de Gestión de Inteligencia Artificial ISO 42001, Compliance ISO 37301 y Antisoborno ISO 37001 con plena validez contractual y regulatoria."
+            voice = "El marco de Gobernanza de Inteligencia Artificial de AHOM FIBER IA CORP se rige bajo la norma ISO 42001 versión 2023, articulada con Compliance ISO 37301 y Antisoborno ISO 37001 con plena validez contractual y regulatoria."
             return text, voice
 
         # -------------------------------------------------------------
@@ -973,7 +973,7 @@ class AgentManager:
             f"### ⚖️ Dirección Jurídica, Auditoría Líder ISO/UIT & Oficial de Cumplimiento (CCISO)\n\n"
             f"Te asiste el **Director Jurídico de Telecomunicaciones & Oficial de Cumplimiento** de AHOM FIBER IA CORP. Aseguramos la gobernanza integral bajo 5 ejes normativos:\n\n"
             f"1. 🛡️ **Sistemas de Gestión:** ISO/IEC 27001:2022 (93 controles Anexo A), ISO 27011 (SGSI Telco), ISO 27701 e ISO 22301 (Continuidad de Negocio/DRP).\n"
-            f"2. ⚖️ **Norma \'47001\':** Articulación de ISO/IEC 42001:2023 (Gestión de IA), ISO 37301 (Compliance) e ISO 37001 (Antisoborno).\n"
+            f"2. ⚖️ **ISO/IEC 42001 & Compliance:** Sistema de Gestión de IA (ISO/IEC 42001:2023), Compliance (ISO 37301) y Antisoborno (ISO 37001).\n"
             f"3. 📋 **Sistema Integrado de Gestión (SIG):** ISO 9001 (SLA 99.985%), ISO 14001 (Ambiental y RAEE) e ISO 45001 (SST: alturas Res. 4272/2021 y confinados Res. 0491/2020).\n"
             f"4. 🇨🇴 **Normativa MinTIC, CRC y ANE:** Leyes 1341/1978/2108, Res. CRC 5050/5111, RITEL, RETIE y Ley 1581 de Datos Personales.\n"
             f"5. 🌐 **Estándares Internacionales:** UIT-T G.652/G.657/GPON/XGS-PON, ANSI/TIA-942 Tier III, IEEE 802.3, GDPR y NIST CSF 2.0.\n\n"
@@ -1583,7 +1583,7 @@ class AgentManager:
             "active_subnode": (
                 "n_sfc_bank" if any(w in msg_lower for w in ["sfc", "superfinanciera", "029", "007", "033", "financier", "banco", "banca"]) else
                 "n_iso_27001" if any(w in msg_lower for w in ["27001", "27011", "sgsi", "anexo a", "27701", "22301"]) else
-                "n_iso_47001" if any(w in msg_lower for w in ["47001", "42001", "37001", "37301", "antisoborno"]) else
+                "n_iso_42001" if any(w in msg_lower for w in ["42001", "iso 42001", "47001", "iso 47001", "37001", "37301", "antisoborno", "gobernanza ia", "compliance"]) else
                 "n_sig_hls" if any(w in msg_lower for w in ["sig", "9001", "14001", "45001", "alturas", "confinados", "raee"]) else
                 "n_reg_tic" if any(w in msg_lower for w in ["mintic", "crc", "5050", "5111", "ane", "1581", "1341", "1978", "2108", "pqr", "permanencia"]) else
                 "n_intl_std" if any(w in msg_lower for w in ["uit", "itu", "g.652", "g.657", "g.984", "g.9807", "tia-942", "gdpr", "nist"]) else None
@@ -1696,7 +1696,7 @@ class AgentManager:
 
             # 4. Gobernanza Legal & Normativa (Sub-nodos Aislados / Dinámicos)
             {"id": "n_iso_27001", "name": "ISO 27001/27011 & Ciberseguridad", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-4.5, 3.5, 2.5]},
-            {"id": "n_iso_47001", "name": "Norma 47001 / IA (42001) & Compliance (37001)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [4.5, 3.5, 2.5]},
+            {"id": "n_iso_42001", "name": "ISO 42001 / Gobernanza IA", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [4.5, 3.5, 2.5]},
             {"id": "n_sig_hls", "name": "SIG (ISO 9001, 14001, 45001)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#2dd4bf", "offset": [-5.5, -3.5, -2.5]},
             {"id": "n_reg_tic", "name": "Regulación TIC (MinTIC, CRC 5050, ANE, Ley 1581)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Quick Win", "color": "#f472b6", "offset": [5.0, -3.5, -2.5]},
             {"id": "n_sfc_bank", "name": "Cumplimiento Financiero SFC (029, 007, 033)", "parent": "c_gob", "cluster": "Gobernanza Legal & Normativa", "cat": "Consolidado", "color": "#f59e0b", "offset": [0.0, 6.0, 3.0]},
