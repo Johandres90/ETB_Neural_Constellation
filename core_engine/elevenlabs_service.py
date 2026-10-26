@@ -2,6 +2,7 @@
 Módulo de conexión y servicio para ElevenLabs Text-to-Speech (TTS)
 AHOM FIBER IA CORP — Neural Constellation
 Lee estrictamente las credenciales desde variables de entorno (os.getenv).
+Optimizado con modelo eleven_flash_v2_5 en español fluido (language_code="es").
 """
 
 import os
@@ -51,13 +52,14 @@ _load_dotenv_files()
 class ElevenLabsService:
     """
     Servicio oficial de integración con la API de ElevenLabs para síntesis de voz neuronal.
-    Utiliza exclusivamente os.getenv('ELEVENLABS_API_KEY') y os.getenv('ELEVENLABS_VOICE_ID').
+    Configurado con modelo de baja latencia y alta naturalidad en español (eleven_flash_v2_5, es).
     """
 
     BASE_URL = "https://api.elevenlabs.io/v1"
-    DEFAULT_MODEL = "eleven_multilingual_v2"
-    # Voz predeterminada incluida en todas las cuentas (incluyendo Free Tier)
-    FALLBACK_PREMADE_VOICE = "EXAVITQu4vr4xnSDxMaL"  # Sarah - Natural, Reassuring
+    # Modelo ultrarrápido y con fonética nativa en español
+    DEFAULT_MODEL = "eleven_flash_v2_5"
+    # Voz premade masculina neutra/profesional incluida en Free Tier
+    FALLBACK_PREMADE_VOICE = "cjVigY5qzO86Huf0OWal"  # Eric - Smooth, Trustworthy (fluido en español)
 
     def __init__(self) -> None:
         _load_dotenv_files()
@@ -88,13 +90,24 @@ class ElevenLabsService:
             "configured": configured,
             "voice_id_configured": bool(self.voice_id),
             "model_id": self.DEFAULT_MODEL,
+            "language": "es"
         }
 
-    def _call_tts_api(self, text: str, voice_id: str, model_id: str, stability: float, similarity_boost: float, style: float, use_speaker_boost: bool) -> bytes:
+    def _call_tts_api(
+        self,
+        text: str,
+        voice_id: str,
+        model_id: str,
+        stability: float,
+        similarity_boost: float,
+        style: float,
+        use_speaker_boost: bool
+    ) -> bytes:
         url = f"{self.BASE_URL}/text-to-speech/{voice_id}?output_format=mp3_44100_128"
         payload = {
             "text": text,
             "model_id": model_id,
+            "language_code": "es",  # Forzar pronunciación y fonética en español
             "voice_settings": {
                 "stability": stability,
                 "similarity_boost": similarity_boost,
@@ -116,7 +129,7 @@ class ElevenLabsService:
             },
         )
 
-        with urllib.request.urlopen(req, timeout=20) as response:
+        with urllib.request.urlopen(req, timeout=18) as response:
             return response.read()
 
     def synthesize_speech(
@@ -124,15 +137,14 @@ class ElevenLabsService:
         text: str,
         voice_id: Optional[str] = None,
         model_id: str = DEFAULT_MODEL,
-        stability: float = 0.55,
-        similarity_boost: float = 0.80,
-        style: float = 0.15,
+        stability: float = 0.75,
+        similarity_boost: float = 0.85,
+        style: float = 0.0,
         use_speaker_boost: bool = True,
     ) -> bytes:
         """
-        Convierte texto en audio MP3 utilizando la API REST v1 de ElevenLabs.
-        Si la voz configurada es de tipo 'library' y la cuenta es gratuita,
-        aplica un fallback transparente a una voz premade autorizada.
+        Convierte texto en audio MP3 en español claro utilizando ElevenLabs.
+        Si la voz configurada es de tipo 'library' (402) se conmuta automáticamente a la voz premade autorizada.
         """
         self.refresh_credentials()
         if not self.api_key or not (voice_id or self.voice_id):
@@ -163,7 +175,7 @@ class ElevenLabsService:
             except Exception:
                 pass
 
-            # Si la cuenta no tiene permiso para voces de librería de la comunidad (HTTP 402), usar voz premade autorizada
+            # Si la cuenta gratuita no tiene permiso para voces de librería de la comunidad (402), usar voz premade en español
             if http_err.code == 402 and "library_voice" in err_body and primary_voice != self.FALLBACK_PREMADE_VOICE:
                 try:
                     return self._call_tts_api(
@@ -176,7 +188,7 @@ class ElevenLabsService:
                         use_speaker_boost=use_speaker_boost,
                     )
                 except Exception as fb_err:
-                    raise RuntimeError(f"Error en ElevenLabs: {str(fb_err)}") from fb_err
+                    raise RuntimeError(f"Error en ElevenLabs con voz de respaldo: {str(fb_err)}") from fb_err
 
             raise RuntimeError(
                 f"Error HTTP {http_err.code} desde ElevenLabs API: {err_body or http_err.reason}"

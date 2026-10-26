@@ -3272,12 +3272,16 @@
     }
 
     let activeAudioPlayer = null;
+    let currentSpeechToken = 0;
 
     function stopActiveVoiceAudio() {
+      currentSpeechToken++; // Invalida cualquier petición de audio asíncrona anterior
       if (activeAudioPlayer) {
         try {
           activeAudioPlayer.pause();
           activeAudioPlayer.currentTime = 0;
+          activeAudioPlayer.removeAttribute("src");
+          activeAudioPlayer.load();
         } catch (e) {}
         activeAudioPlayer = null;
       }
@@ -3376,8 +3380,10 @@
     function cleanTextForSpeech(raw) {
       if (!raw) return "";
       let t = raw;
-      // Eliminar bloques de código y markdown
+      // 1. Eliminar bloques de código, tablas markdown y notas técnicas complejas
       t = t.replace(/```[\s\S]*?```/g, " ");
+      t = t.replace(/\|[\s\S]*?\|/g, " "); // Remover tablas completas para no leer columnas
+      t = t.replace(/>\s*.*?\n/g, " ");    // Remover citas de bloque tipo blockquote
       t = t.replace(/`([^`]+)`/g, "$1");
       t = t.replace(/\*\*([^*]+)\*\*/g, "$1");
       t = t.replace(/\*([^*]+)\*/g, "$1");
@@ -3388,10 +3394,10 @@
       t = t.replace(/https?:\/\/\S+/g, "");
       t = t.replace(/\[.*?\]/g, "");
       t = t.replace(/%/g, " por ciento ");
-      t = t.replace(/&/g, " y ");
+      t = t.replace(/&amp;/g, " y ").replace(/&/g, " y ");
       t = t.replace(/\+/g, " más ");
-      t = t.replace(/[•\-\*]\s+/g, " ");
-      // Remover emojis para que no lea nombres de caracteres
+      t = t.replace(/[•\-\*\|~^<>]/g, " ");
+      // Remover emojis para que el sintetizador no intente pronunciar nombres de símbolos
       t = t.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, "");
       t = t.replace(/\s+/g, " ").trim();
       return t;
@@ -3430,77 +3436,77 @@
 
         if (!res.ok) throw new Error("Status " + res.status);
         const data = await res.json();
-        handleAgentResponsePayload(data);
-
         const spoken = data.voice_summary || data.response || "Solución procesada por AHOM FIBER IA CORP.";
         const readable = cleanTextForSpeech(spoken);
         document.getElementById("elevenSubtitles").textContent = readable;
-        speakText(readable);
+        // handleAgentResponsePayload se encarga de reproducir el audio de forma centralizada sin duplicar
+        handleAgentResponsePayload(data);
       } catch (err) {
         // En GitHub Pages o modo estático, usar clasificador inteligente y mover los nodos 3D
         const fallbackData = await generateClientFallbackData(selectedAgentId || "master", text);
-        handleAgentResponsePayload(fallbackData);
-
         const spoken = fallbackData.voice_summary || fallbackData.response;
         const readable = cleanTextForSpeech(spoken);
         document.getElementById("elevenSubtitles").textContent = readable;
-        speakText(readable);
+        handleAgentResponsePayload(fallbackData);
       }
     }
 
     function speakText(text) {
       stopActiveVoiceAudio();
+      const thisToken = currentSpeechToken;
 
       const cleaned = cleanTextForSpeech(text);
       if (!cleaned) return;
 
-      // Frase concisa para locución natural, cálida y ejecutiva (hasta 195 caracteres)
+      // Frase ejecutiva y concisa para locución fluida en español (hasta 170 caracteres)
       let speechSnippet = cleaned;
-      if (speechSnippet.length > 195) {
+      if (speechSnippet.length > 170) {
         const sentences = speechSnippet.match(/[^.!?]+[.!?]+/g);
         if (sentences && sentences.length > 0) {
           let acc = "";
           for (const s of sentences) {
-            if ((acc + s).length <= 195) acc += s + " ";
+            if ((acc + s).length <= 170) acc += s + " ";
             else break;
           }
-          speechSnippet = acc.trim() || speechSnippet.substring(0, 180).replace(/\s+\S*$/, "") + ".";
+          speechSnippet = acc.trim() || speechSnippet.substring(0, 160).replace(/\s+\S*$/, "") + ".";
         } else {
-          speechSnippet = speechSnippet.substring(0, 180).replace(/\s+\S*$/, "") + ".";
+          speechSnippet = speechSnippet.substring(0, 160).replace(/\s+\S*$/, "") + ".";
         }
       }
 
       let hasFallenBack = false;
       const fallbackToSecondaryTts = () => {
-        if (hasFallenBack) return;
+        if (hasFallenBack || thisToken !== currentSpeechToken) return;
         hasFallenBack = true;
         try {
-          const neuralUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=es&client=tw-ob&q=${encodeURIComponent(speechSnippet)}`;
+          // Google Neural TTS Streaming en Español Latino (es-CO)
+          const neuralUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=es-CO&client=tw-ob&q=${encodeURIComponent(speechSnippet)}`;
           const audio = new Audio();
           audio.crossOrigin = "anonymous";
           activeAudioPlayer = audio;
 
           audio.onplay = () => {
+            if (thisToken !== currentSpeechToken) { audio.pause(); return; }
             isSpeaking = true;
             setOrbState("talking");
           };
           audio.onended = () => {
-            isSpeaking = false;
-            setOrbState("idle");
-            activeAudioPlayer = null;
-            if (isCallActive) {
-              setTimeout(startListening, 600);
+            if (thisToken === currentSpeechToken) {
+              isSpeaking = false;
+              setOrbState("idle");
+              activeAudioPlayer = null;
+              if (isCallActive) setTimeout(startListening, 600);
             }
           };
           audio.onerror = () => {
-            speakWithBrowserSynthesis(speechSnippet);
+            if (thisToken === currentSpeechToken) speakWithBrowserSynthesis(speechSnippet);
           };
           audio.src = neuralUrl;
           audio.play().catch(() => {
-            speakWithBrowserSynthesis(speechSnippet);
+            if (thisToken === currentSpeechToken) speakWithBrowserSynthesis(speechSnippet);
           });
         } catch (err) {
-          speakWithBrowserSynthesis(speechSnippet);
+          if (thisToken === currentSpeechToken) speakWithBrowserSynthesis(speechSnippet);
         }
       };
 
@@ -3511,38 +3517,45 @@
         body: JSON.stringify({ text: speechSnippet })
       })
         .then(res => {
+          if (thisToken !== currentSpeechToken) return null;
           if (!res.ok) throw new Error("ElevenLabs TTS status " + res.status);
           return res.blob();
         })
         .then(blob => {
+          if (!blob || thisToken !== currentSpeechToken) return;
           const blobUrl = URL.createObjectURL(blob);
           const audio = new Audio(blobUrl);
           activeAudioPlayer = audio;
 
           audio.onplay = () => {
+            if (thisToken !== currentSpeechToken) {
+              audio.pause();
+              URL.revokeObjectURL(blobUrl);
+              return;
+            }
             isSpeaking = true;
             setOrbState("talking");
           };
           audio.onended = () => {
             URL.revokeObjectURL(blobUrl);
-            isSpeaking = false;
-            setOrbState("idle");
-            activeAudioPlayer = null;
-            if (isCallActive) {
-              setTimeout(startListening, 600);
+            if (thisToken === currentSpeechToken) {
+              isSpeaking = false;
+              setOrbState("idle");
+              activeAudioPlayer = null;
+              if (isCallActive) setTimeout(startListening, 600);
             }
           };
           audio.onerror = () => {
             URL.revokeObjectURL(blobUrl);
-            fallbackToSecondaryTts();
+            if (thisToken === currentSpeechToken) fallbackToSecondaryTts();
           };
           audio.play().catch(() => {
             URL.revokeObjectURL(blobUrl);
-            fallbackToSecondaryTts();
+            if (thisToken === currentSpeechToken) fallbackToSecondaryTts();
           });
         })
         .catch(() => {
-          fallbackToSecondaryTts();
+          if (thisToken === currentSpeechToken) fallbackToSecondaryTts();
         });
     }
 
