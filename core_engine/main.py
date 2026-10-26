@@ -5,6 +5,7 @@ Endpoints para chat interactivo, entrenamiento en caliente, síntesis de voz Ele
 
 import os
 import re
+import socket
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File
@@ -231,8 +232,14 @@ async def generate_kmz_endpoint(
     )
 
 
-# Servir interfaz web desde el directorio frontend
-frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
+# Servir recursos estáticos y frontend
+root_project_dir = Path(__file__).resolve().parent.parent
+frontend_dir = root_project_dir / "frontend"
+assets_dir = root_project_dir / "assets"
+
+if assets_dir.exists():
+    app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
 if frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="static")
 
@@ -244,8 +251,29 @@ if frontend_dir.exists():
         return {"message": "Frontend index.html no encontrado en frontend/."}
 
 
+def get_free_port(preferred_port: int = 8000) -> int:
+    """Verifica si el puerto preferido está libre; si está ocupado busca el siguiente disponible."""
+    for p in range(preferred_port, preferred_port + 20):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                s.bind(("0.0.0.0", p))
+                return p
+            except OSError:
+                continue
+    return preferred_port
+
+
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))
+    requested_port = int(os.environ.get("PORT", 8000))
+    chosen_port = get_free_port(requested_port)
     host = os.environ.get("HOST", "0.0.0.0")
-    uvicorn.run("core_engine.main:app", host=host, port=port, reload=False)
+
+    if chosen_port != requested_port:
+        print(f"⚠️ El puerto {requested_port} está en uso por otra aplicación.")
+        print(f"🚀 Iniciando servidor automáticamente en: http://localhost:{chosen_port}")
+    else:
+        print(f"🚀 Iniciando servidor en: http://localhost:{chosen_port}")
+
+    uvicorn.run("core_engine.main:app", host=host, port=chosen_port, reload=False)
