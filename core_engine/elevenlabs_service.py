@@ -56,6 +56,8 @@ class ElevenLabsService:
 
     BASE_URL = "https://api.elevenlabs.io/v1"
     DEFAULT_MODEL = "eleven_multilingual_v2"
+    # Voz predeterminada incluida en todas las cuentas (incluyendo Free Tier)
+    FALLBACK_PREMADE_VOICE = "EXAVITQu4vr4xnSDxMaL"  # Sarah - Natural, Reassuring
 
     def __init__(self) -> None:
         _load_dotenv_files()
@@ -88,36 +90,10 @@ class ElevenLabsService:
             "model_id": self.DEFAULT_MODEL,
         }
 
-    def synthesize_speech(
-        self,
-        text: str,
-        voice_id: Optional[str] = None,
-        model_id: str = DEFAULT_MODEL,
-        stability: float = 0.55,
-        similarity_boost: float = 0.80,
-        style: float = 0.15,
-        use_speaker_boost: bool = True,
-    ) -> bytes:
-        """
-        Convierte texto en audio MP3 utilizando la API REST v1 de ElevenLabs.
-        Lanza ValueError si faltan credenciales o RuntimeError si la API devuelve un error.
-        """
-        self.refresh_credentials()
-        api_key = self.api_key
-        target_voice_id = voice_id or self.voice_id
-
-        if not api_key or not target_voice_id:
-            raise ValueError(
-                "Credenciales de ElevenLabs no configuradas. Defina ELEVENLABS_API_KEY y ELEVENLABS_VOICE_ID en su archivo .env."
-            )
-
-        clean_text = (text or "").strip()
-        if not clean_text:
-            raise ValueError("El texto para sintetizar no puede estar vacío.")
-
-        url = f"{self.BASE_URL}/text-to-speech/{target_voice_id}?output_format=mp3_44100_128"
+    def _call_tts_api(self, text: str, voice_id: str, model_id: str, stability: float, similarity_boost: float, style: float, use_speaker_boost: bool) -> bytes:
+        url = f"{self.BASE_URL}/text-to-speech/{voice_id}?output_format=mp3_44100_128"
         payload = {
-            "text": clean_text,
+            "text": text,
             "model_id": model_id,
             "voice_settings": {
                 "stability": stability,
@@ -133,22 +109,75 @@ class ElevenLabsService:
             data=data_bytes,
             method="POST",
             headers={
-                "xi-api-key": api_key,
+                "xi-api-key": self.api_key,
                 "Content-Type": "application/json",
                 "Accept": "audio/mpeg",
                 "User-Agent": "AHOM-FIBER-IA-CORP/3.2",
             },
         )
 
+        with urllib.request.urlopen(req, timeout=20) as response:
+            return response.read()
+
+    def synthesize_speech(
+        self,
+        text: str,
+        voice_id: Optional[str] = None,
+        model_id: str = DEFAULT_MODEL,
+        stability: float = 0.55,
+        similarity_boost: float = 0.80,
+        style: float = 0.15,
+        use_speaker_boost: bool = True,
+    ) -> bytes:
+        """
+        Convierte texto en audio MP3 utilizando la API REST v1 de ElevenLabs.
+        Si la voz configurada es de tipo 'library' y la cuenta es gratuita,
+        aplica un fallback transparente a una voz premade autorizada.
+        """
+        self.refresh_credentials()
+        if not self.api_key or not (voice_id or self.voice_id):
+            raise ValueError(
+                "Credenciales de ElevenLabs no configuradas. Defina ELEVENLABS_API_KEY y ELEVENLABS_VOICE_ID en su archivo .env."
+            )
+
+        clean_text = (text or "").strip()
+        if not clean_text:
+            raise ValueError("El texto para sintetizar no puede estar vacío.")
+
+        primary_voice = voice_id or self.voice_id
+
         try:
-            with urllib.request.urlopen(req, timeout=20) as response:
-                return response.read()
+            return self._call_tts_api(
+                text=clean_text,
+                voice_id=primary_voice,
+                model_id=model_id,
+                stability=stability,
+                similarity_boost=similarity_boost,
+                style=style,
+                use_speaker_boost=use_speaker_boost,
+            )
         except urllib.error.HTTPError as http_err:
             err_body = ""
             try:
                 err_body = http_err.read().decode("utf-8", errors="ignore")
             except Exception:
                 pass
+
+            # Si la cuenta no tiene permiso para voces de librería de la comunidad (HTTP 402), usar voz premade autorizada
+            if http_err.code == 402 and "library_voice" in err_body and primary_voice != self.FALLBACK_PREMADE_VOICE:
+                try:
+                    return self._call_tts_api(
+                        text=clean_text,
+                        voice_id=self.FALLBACK_PREMADE_VOICE,
+                        model_id=model_id,
+                        stability=stability,
+                        similarity_boost=similarity_boost,
+                        style=style,
+                        use_speaker_boost=use_speaker_boost,
+                    )
+                except Exception as fb_err:
+                    raise RuntimeError(f"Error en ElevenLabs: {str(fb_err)}") from fb_err
+
             raise RuntimeError(
                 f"Error HTTP {http_err.code} desde ElevenLabs API: {err_body or http_err.reason}"
             ) from http_err
